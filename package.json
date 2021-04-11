@@ -29,5 +29,14 @@
     "tsc": "tsc src/index.ts --noEmit --watch --lib es2017,dom",
     "test": "jest --watch",
     "dist": "npm run build && npm run build-min && npm publish"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/protomaps/protomaps.js.git"
+  },
+  "keywords": [
+    "gis",
+    "map"
+  ],
+  "license": "BSD-3-Clause"
 }
