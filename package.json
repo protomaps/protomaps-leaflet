@@ -1,4 +1,10 @@
 {
+  "name":"protomaps",
+  "version":"0.0.3",
+  "files": [
+    "dist/protomaps.js",
+    "dist/protomaps.min.js"
+  ],
   "devDependencies": {
     "esbuild": "^0.9.3",
     "esbuild-jest": "^0.5.0",
@@ -17,8 +23,11 @@
     "rbush": "^3.0.1"
   },
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --watch --outdir=dist/ --global-name=protomaps",
+    "dev": "esbuild src/index.ts --bundle --watch --outfile=dist/protomaps.js --global-name=protomaps",
+    "build": "esbuild src/index.ts --bundle --outfile=dist/protomaps.js --global-name=protomaps",
+    "build-min": "esbuild src/index.ts --bundle --minify --outfile=dist/protomaps.min.js --global-name=protomaps",
     "tsc": "tsc src/index.ts --noEmit --watch --lib es2017,dom",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "dist": "npm run build && npm run build-min && npm publish"
   }
 }
