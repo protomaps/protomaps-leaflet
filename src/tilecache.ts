@@ -68,9 +68,9 @@ export class PmtilesSource implements TileSource {
     p: PMTiles
     controllers: any[]
 
-    constructor(url:string) {
+    constructor(url:string,options) {
         this.url = url
-        this.p = new pmtiles.PMTiles(url)
+        this.p = new pmtiles.PMTiles(url,options)
         this.controllers = []
     }
 
