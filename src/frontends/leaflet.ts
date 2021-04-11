@@ -135,6 +135,14 @@ class LeafletLayer extends L.GridLayer {
         }
     }
 
+    public rerenderTiles() {
+        for (var unwrapped_k in this._tiles) {
+            let wrapped_coord = this._wrapCoords(this._keyToTileCoords(unwrapped_k))
+            let key = this._tileCoordsToKey(wrapped_coord)
+            this.renderTile(wrapped_coord,this._tiles[unwrapped_k].el,key)
+        }
+    }
+
     public createTile(coords,showTile) {
         let element = this.pool.get(this.tile_size,event =>  {
             let latlng = this._map.mouseEventToLatLng(event)
