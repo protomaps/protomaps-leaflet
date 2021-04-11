@@ -28,7 +28,7 @@
     "build-min": "esbuild src/index.ts --bundle --minify --outfile=dist/protomaps.min.js --global-name=protomaps",
     "tsc": "tsc src/index.ts --noEmit --watch --lib es2017,dom",
     "test": "jest --watch",
-    "dist": "npm run build && npm run build-min && npm publish"
+    "dist": "npm run build && npm run build-min"
   },
   "repository": {
     "type": "git",
