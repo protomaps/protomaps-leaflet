@@ -18,7 +18,7 @@
     "flatqueue": "^1.2.1",
     "linelabel": "^0.1.1",
     "pbf": "^3.2.1",
-    "pmtiles": "0.0.5",
+    "pmtiles": "0.0.6",
     "polylabel": "^1.1.0",
     "rbush": "^3.0.1"
   },
