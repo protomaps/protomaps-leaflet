@@ -47,7 +47,7 @@ class LeafletLayer extends L.GridLayer {
 
         let source
         if (options.url.endsWith(".pmtiles")) {
-            source = new PmtilesSource(options.url)
+            source = new PmtilesSource(options.url,{allow_200:options.allow_200})
         } else {
             source = new ZxySource(options.url)
         }
