@@ -2,7 +2,7 @@ import { paintStyle, labelStyle, DefaultStyleParams } from './style'
 
 const light:DefaultStyleParams = {
     earth:"#f6f6f6",
-    glacier:"ffffff",
+    glacier:"#ffffff",
     residential:"#e7e7e7",
     hospital:"#ebebeb",
     cemetery:"#e2e2e2",

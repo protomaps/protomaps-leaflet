@@ -57,12 +57,13 @@ class LeafletLayer extends L.GridLayer {
         this.debug = options.debug || false
         this.lang = options.lang
         let scratch = document.createElement('canvas').getContext('2d')
+        this.scratch = scratch
         this.knockoutTiles = (tiles) => {
             tiles.forEach(t => {
                 this.rerenderTile(t)
             })
         }
-        this.labelers = new Labelers(this.view,scratch, this.label_style, this.knockoutTiles)
+        this.labelers = new Labelers(this.view, this.scratch, this.label_style, this.knockoutTiles)
         this.tile_size = 256 *window.devicePixelRatio
         this.pool = new CanvasPool()
         this._onClick = null
@@ -133,6 +134,10 @@ class LeafletLayer extends L.GridLayer {
                 this.renderTile(wrapped_coord,this._tiles[unwrapped_k].el,key)
             }
         }
+    }
+
+    public clearLayout() {
+        this.labelers = new Labelers(this.view, this.scratch, this.label_style, this.knockoutTiles)
     }
 
     public rerenderTiles() {
