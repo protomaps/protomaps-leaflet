@@ -69,6 +69,11 @@ class LeafletLayer extends L.GridLayer {
         this._onClick = null
     }
 
+    public setDefaultStyle(dark:boolean) {
+        this.paint_style = (dark ? darkPaint : lightPaint)
+        this.label_style = (dark ? darkLabel : lightLabel)
+    }
+
     public onClick(callback) {
         this._onClick = callback
     }
