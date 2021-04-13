@@ -53,8 +53,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
         {
             dataLayer: "landuse",
             symbolizer: new FillSymbolizer({
-                fill:params.residential,
-                opacity:0.4
+                fill:params.residential
             }),
             filter:f => { return f.landuse == "residential" || f.place == "neighbourhood" }
         },
@@ -68,8 +67,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
         {
             dataLayer: "landuse",
             symbolizer: new FillSymbolizer({
-                fill:params.cemetery,
-                opacity:0.4
+                fill:params.cemetery
             }),
             filter:f => { return f.landuse == "cemetery" }
         },
@@ -83,16 +81,14 @@ export const paintStyle = (params:DefaultStyleParams) => {
         {
             dataLayer: "landuse",
             symbolizer: new FillSymbolizer({
-                fill:params.industrial,
-                opacity:0.34
+                fill:params.industrial
             }),
             filter:f => { return f.landuse == "industrial" }
         },
         {
             dataLayer: "natural",
             symbolizer: new FillSymbolizer({
-                fill:params.wood,
-                opacity:0.1
+                fill:params.wood
             }),
             filter:f => { return f.natural == "wood" }
         },
@@ -106,8 +102,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
         {
             dataLayer: "landuse",
             symbolizer: new FillSymbolizer({
-                fill:params.park,
-                opacity:0.6
+                fill:params.park
             }),
             filter: f => { return f.leisure == "park" }
         },
@@ -120,8 +115,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
         {
             dataLayer: "natural",
             symbolizer: new FillSymbolizer({
-                fill:params.sand,
-                opacity:0.3
+                fill:params.sand
             }),
             filter: f => { return f.natural == "sand" }
         },
@@ -222,8 +216,8 @@ export const labelStyle = (params:DefaultStyleParams) => {
             symbolizer: new TextSymbolizer({
                 fill:params.countryLabel,
                 font:(p,z) => {
-                    if (z < 4) return "800 16px sans-serif"
-                    return "800 24px sans-serif"
+                    if (z < 6) return "800 14px sans-serif"
+                    return "800 20px sans-serif"
                 },
                 align:"center"
             }),
@@ -234,8 +228,13 @@ export const labelStyle = (params:DefaultStyleParams) => {
             symbolizer: new TextSymbolizer({
                 fill:params.cityLabel,
                 font:(p,z) => {
-                    if (p["pmap:rank"] == 1) return "400 24px sans-serif"
-                    return "400 18px sans-serif"
+                    if (p["pmap:rank"] == 1) {
+                        if (z > 8) return "600 24px sans-serif"
+                        return "400 14px sans-serif"
+                    } else {
+                        if (z > 8) return "400 20px sans-serif"
+                        return "400 12px sans-serif"
+                    }
                 }
             }),
             sort: (a,b) => { return a["pmap:rank"] - b["pmap:rank"] },
