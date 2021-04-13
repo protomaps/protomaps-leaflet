@@ -25,8 +25,11 @@ export function painter(state,key,paint_data:PaintData,label_data:LabelData,rule
         return
     }
     ctx.setTransform(state.tile_size/256,0,0,state.tile_size/256,0,0)
-    ctx.fillStyle = "#cccccc"
+    ctx.save()
+    ctx.fillStyle = "rgba(0,0,0,1)"
+    ctx.globalCompositeOperation = "destination-out"
     ctx.fillRect(0,0,256,256)
+    ctx.restore()
     ctx.miterLimit = 1
 
     for (var rule of rules) {
