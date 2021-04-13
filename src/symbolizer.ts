@@ -156,10 +156,10 @@ export class TextSymbolizer implements LabelSymbolizer {
                 ctx.globalAlpha = 1
                 ctx.font = font
 
-                if (isCjk(property)) {
-                    ctx.fillStyle = "white"
-                    ctx.fillRect(a.x+b[0],a.y+b[1],b[2],b[3])
-                }
+                // if (isCjk(property)) {
+                //     ctx.fillStyle = "white"
+                //     ctx.fillRect(a.x+b[0],a.y+b[1],b[2],b[3])
+                // }
 
                 if (this.width) {
                     ctx.lineWidth = this.width
