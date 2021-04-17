@@ -3,7 +3,8 @@
   "version": "0.0.11",
   "files": [
     "dist/protomaps.js",
-    "dist/protomaps.min.js"
+    "dist/protomaps.min.js",
+    "src"
   ],
   "main": "src/index.js",
   "devDependencies": {
