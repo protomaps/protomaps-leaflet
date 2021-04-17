@@ -20,6 +20,15 @@ export interface LabelSymbolizer {
     stash(ctx:any,feature:any):LabelStash | undefined
 }
 
+export const createPattern = (width,height, fn) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    canvas.width = width
+    canvas.height = height
+    fn(canvas,ctx)
+    return canvas
+}
+
 export class FillSymbolizer implements PaintSymbolizer {
     fill: string
     opacity: number
@@ -27,11 +36,18 @@ export class FillSymbolizer implements PaintSymbolizer {
     constructor(options) {
         this.fill = options.fill || "#000000"
         this.opacity = options.opacity || 1
+        this.pattern = options.pattern
+
     }
 
     public before(ctx) {
-        ctx.fillStyle = this.fill
+        if (this.pattern) {
+            ctx.fillStyle = ctx.createPattern(this.pattern, 'repeat')
+        } else {
+            ctx.fillStyle = this.fill
+        }
         ctx.globalAlpha = this.opacity
+        // ctx.imageSmoothingEnabled = false // broken on safari
     }
 
     public draw(ctx,geom,transform:Transform) {
