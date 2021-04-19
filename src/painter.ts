@@ -11,7 +11,7 @@ export interface Rule {
 }
 
 // make this not depend on element?
-export function painter(state,key,paint_data:PaintData,label_data:LabelData,rules:Rule[],debug) {
+export async function painter(state,key,paint_data:PaintData,label_data:LabelData,rules:Rule[],debug) {
     let start = performance.now()
     let ctx
     if (!state.ctx) {
@@ -45,7 +45,7 @@ export function painter(state,key,paint_data:PaintData,label_data:LabelData,rule
             if (rule.filter) {
                 if (!rule.filter(feature.properties)) continue
             }
-            rule.symbolizer.draw(ctx,feature.geom,paint_data.transform)
+            await rule.symbolizer.draw(ctx,feature.geom,paint_data.transform)
         }
     }
 

@@ -38,6 +38,14 @@ class CanvasPool {
     }
 }
 
+const timer = duration => {
+    return new Promise((resolve,reject) => {
+        setTimeout(() => {
+            resolve()
+        },duration)
+    })
+}
+
 class LeafletLayer extends L.GridLayer {
     constructor(options) {
         if (options.noWrap && !options.bounds) options.bounds = [[-90,-180],[90,180]]
@@ -96,40 +104,40 @@ class LeafletLayer extends L.GridLayer {
         var pixelBounds = this._getTiledPixelBounds(center),
              tileRange = this._pxBoundsToTileRange(pixelBounds),
              tileCenter = tileRange.getCenter()
-        let priority = coords.distanceTo(tileCenter) * 10
+        let priority = coords.distanceTo(tileCenter) * 5
 
-        setTimeout(() => {
-            let painting_time = painter(state,key,paint_data,label_data,this.paint_style,this.debug)
+        await timer(priority)
 
-            if (this.debug) {
-                let ctx = state.ctx
-                if (!ctx) return
-                let data_tile = this.view.dataTile(coords)
-                ctx.save()
+        let painting_time = await painter(state,key,paint_data,label_data,this.paint_style,this.debug)
+
+        if (this.debug) {
+            let ctx = state.ctx
+            if (!ctx) return
+            let data_tile = this.view.dataTile(coords)
+            ctx.save()
+            ctx.fillStyle = "black"
+            ctx.globalAlpha = 0.5
+            ctx.fillStyle = "#000"
+            ctx.font = '800 12px sans-serif';
+            ctx.fillText(coords.z + " " + coords.x + " " + coords.y,4,14)
+
+            if ((data_tile.x % 2 + data_tile.y % 2) % 2 == 0) {
                 ctx.fillStyle = "black"
-                ctx.globalAlpha = 0.5
-                ctx.fillStyle = "#000"
-                ctx.font = '800 12px sans-serif';
-                ctx.fillText(coords.z + " " + coords.x + " " + coords.y,4,14)
-
-                if ((data_tile.x % 2 + data_tile.y % 2) % 2 == 0) {
-                    ctx.fillStyle = "black"
-                } else {
-                    ctx.fillStyle = "blue"
-                }
-
-                ctx.fillText(data_tile.z + " " + data_tile.x + " " + data_tile.y,4,28)
-
-                ctx.fillStyle = "red"
-                if (painting_time > 8) {
-                    ctx.fillText(painting_time.toFixed() + " ms",4,42)
-                }
-                ctx.strokeStyle = "#000"
-                ctx.strokeRect(0,0,256,256)
-                ctx.restore()
+            } else {
+                ctx.fillStyle = "blue"
             }
-            done()
-        },priority)
+
+            ctx.fillText(data_tile.z + " " + data_tile.x + " " + data_tile.y,4,28)
+
+            ctx.fillStyle = "red"
+            if (painting_time > 8) {
+                ctx.fillText(painting_time.toFixed() + " ms",4,42)
+            }
+            ctx.strokeStyle = "#000"
+            ctx.strokeRect(0,0,256,256)
+            ctx.restore()
+        }
+        done()
     }
 
     public rerenderTile(key) {

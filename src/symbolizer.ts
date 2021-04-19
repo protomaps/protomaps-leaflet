@@ -50,7 +50,7 @@ export class FillSymbolizer implements PaintSymbolizer {
         // ctx.imageSmoothingEnabled = false // broken on safari
     }
 
-    public draw(ctx,geom,transform:Transform) {
+    public async draw(ctx,geom,transform:Transform) {
         ctx.beginPath()
         for (var poly of geom) {
             for (var p = 0; p < poly.length-1; p++) {
@@ -99,7 +99,7 @@ export class LineSymbolizer implements PaintSymbolizer {
         }
     }
 
-    public draw(ctx,geom,transform:Transform) {
+    public async draw(ctx,geom,transform:Transform) {
         ctx.beginPath()
         for (var ls of geom) {
             for (var p = 0; p < ls.length; p++) {
@@ -109,6 +109,27 @@ export class LineSymbolizer implements PaintSymbolizer {
             }
         }
         ctx.stroke()
+    }
+}
+
+export class IconSymbolizer implements PaintSymbolizer {
+
+    constructor(options) {
+        this.sprites = options.sprites
+        this.name = options.name
+    } 
+
+    public before(ctx,z:number) {
+    }
+
+    public async draw(ctx,geom,transform:Transform) {
+        for (var mp of geom) {
+            for (var p = 0; p < mp.length; p++) {
+                let pt = mp[p].mult(transform.scale).add(transform.translate)
+                let r = await this.sprites.get(this.name)
+                ctx.drawImage(r.canvas,r.x,r.y,r.w,r.h,pt.x,pt.y,r.w,r.h)
+            }
+        }
     }
 }
 
