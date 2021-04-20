@@ -60,6 +60,7 @@ class LeafletLayer extends L.GridLayer {
             source = new ZxySource(options.url)
         }
 
+        this.tasks = options.tasks
         let cache = new TileCache(source)
         this.view = new Subview(cache,14,4096,2,256)
         this.debug = options.debug || false
@@ -107,6 +108,7 @@ class LeafletLayer extends L.GridLayer {
         let priority = coords.distanceTo(tileCenter) * 5
 
         await timer(priority)
+        await Promise.all(this.tasks)
 
         let painting_time = await painter(state,key,paint_data,label_data,this.paint_style,this.debug)
 

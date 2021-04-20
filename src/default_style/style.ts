@@ -209,7 +209,6 @@ export const paintStyle = (params:DefaultStyleParams) => {
     ]
 }
 
-
 export const labelStyle = (params:DefaultStyleParams) => {
     return [
         {
