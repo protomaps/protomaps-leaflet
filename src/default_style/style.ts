@@ -1,5 +1,4 @@
 import { createPattern, FillSymbolizer, IconSymbolizer, LineSymbolizer, TextSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
-import Protosprites from 'protosprites'
 
 export interface DefaultStyleParams {
     earth:string
