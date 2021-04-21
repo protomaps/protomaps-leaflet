@@ -94,6 +94,7 @@ class LeafletLayer extends L.GridLayer {
             paint_data = await this.view.get(coords)
             label_data = await this.labelers.get(coords)
         } catch(e) {
+            //console.log(e) // TODO only catch cancellations
             return
         }
 

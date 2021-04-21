@@ -112,24 +112,30 @@ export class LineSymbolizer implements PaintSymbolizer {
     }
 }
 
-export class IconSymbolizer implements PaintSymbolizer {
+export class IconSymbolizer implements LabelSymbolizer {
 
     constructor(options) {
         this.sprites = options.sprites
         this.name = options.name
     } 
 
-    public before(ctx,z:number) {
-    }
+    public stash(scratch,feature,zoom) {
 
-    public draw(ctx,geom,transform:Transform) {
-        for (var mp of geom) {
-            for (var p = 0; p < mp.length; p++) {
-                let pt = mp[p].mult(transform.scale).add(transform.translate)
-                let r = this.sprites.get(this.name)
-                ctx.drawImage(r.canvas,r.x,r.y,r.w,r.h,pt.x,pt.y,r.w/2,r.h/2)
-            }
+        let pt = feature.geom[0]
+        let anchor = new Point(feature.geom[0][0].x,feature.geom[0][0].y)
+        let bbox = {
+            minX:-32, 
+            minY:-32,
+            maxX:32,
+            maxY:32
         }
+
+        let draw = (ctx,a) => {
+            ctx.globalAlpha = 1
+            let r = this.sprites.get(this.name)
+            ctx.drawImage(r.canvas,r.x,r.y,r.w,r.h,a.x-8,a.y-8,r.w/4,r.h/4)
+        }
+        return {anchor:anchor,bbox:bbox,draw:draw}
     }
 }
 
