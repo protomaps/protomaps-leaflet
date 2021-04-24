@@ -54,7 +54,7 @@ export function getFont(obj,mapping = {}) {
     if (typeof text_size == 'number') {
         return `${text_size}px ${fontfaces.join(', ')}`
     } else if (text_size.stops) {
-        text_size.base ||= 1.4
+        text_size.base = 1.4
         return z => {
             let t = numberFn(text_size)
             return `${t(z)}px ${fontfaces.join(', ')}`
