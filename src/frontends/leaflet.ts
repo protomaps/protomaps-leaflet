@@ -60,7 +60,7 @@ class LeafletLayer extends L.GridLayer {
             source = new ZxySource(options.url)
         }
 
-        this.tasks = options.tasks
+        this.tasks = options.tasks || []
         let cache = new TileCache(source)
         this.view = new Subview(cache,14,4096,2,256)
         this.debug = options.debug || false
