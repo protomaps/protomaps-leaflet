@@ -26,9 +26,9 @@
     "rbush": "^3.0.1"
   },
   "scripts": {
-    "dev": "esbuild src/index.ts --bundle --watch --outfile=dist/protomaps.js --global-name=protomaps",
-    "build": "esbuild src/index.ts --bundle --outfile=dist/protomaps.js --global-name=protomaps",
-    "build-min": "esbuild src/index.ts --bundle --minify --outfile=dist/protomaps.min.js --global-name=protomaps",
+    "dev": "esbuild src/index.ts --bundle --target=es2015 --watch --outfile=dist/protomaps.js --global-name=protomaps",
+    "build": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps.js --global-name=protomaps",
+    "build-min": "esbuild src/index.ts --bundle --target=es2015 --minify --outfile=dist/protomaps.min.js --global-name=protomaps",
     "tsc": "tsc src/index.ts --noEmit --watch --lib es2017,dom",
     "test": "jest --watch",
     "dist": "npm run build && npm run build-min"
