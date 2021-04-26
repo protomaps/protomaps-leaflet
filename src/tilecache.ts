@@ -1,6 +1,6 @@
 import { VectorTile } from '@mapbox/vector-tile'
 import Protobuf from 'pbf'
-import pmtiles from 'pmtiles'
+import { PMTiles } from 'pmtiles'
 
 export enum GeomType {
    Point = 1,
@@ -70,7 +70,7 @@ export class PmtilesSource implements TileSource {
 
     constructor(url:string,options) {
         this.url = url
-        this.p = new pmtiles.PMTiles(url,options)
+        this.p = new PMTiles(url,options)
         this.controllers = []
     }
 
