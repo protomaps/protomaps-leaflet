@@ -54,8 +54,10 @@ class LeafletLayer extends L.GridLayer {
         this.label_style = options.label_style || (options.dark ? darkLabel : lightLabel)
 
         let source
-        if (options.url.endsWith(".pmtiles")) {
-            source = new PmtilesSource(options.url,{allow_200:options.allow_200})
+        if (options.url.url) {
+            source = new PmtilesSource(options.url)
+        } else if (options.url.endsWith(".pmtiles")) {
+            source = new PmtilesSource(options.url)
         } else {
             source = new ZxySource(options.url)
         }

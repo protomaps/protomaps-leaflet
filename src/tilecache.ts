@@ -64,13 +64,15 @@ function parseTile(buffer) {
 }
 
 export class PmtilesSource implements TileSource {
-    url: string
     p: PMTiles
     controllers: any[]
 
-    constructor(url:string,options) {
-        this.url = url
-        this.p = new PMTiles(url,options)
+    constructor(url) {
+        if (url.url) {
+            this.p = url
+        } else {
+            this.p = new PMTiles(url)
+        }
         this.controllers = []
     }
 
@@ -87,7 +89,7 @@ export class PmtilesSource implements TileSource {
         this.controllers.push([c.z,controller])
         const signal = controller.signal
         return new Promise((resolve,reject) => {
-            fetch(this.url,{headers:{Range:"bytes=" + result[0] + "-" + (result[0]+result[1]-1)},signal:signal}).then(resp => {
+            fetch(this.p.url,{headers:{Range:"bytes=" + result[0] + "-" + (result[0]+result[1]-1)},signal:signal}).then(resp => {
                return resp.arrayBuffer()
             }).then(buffer => {
                 let result = parseTile(buffer)

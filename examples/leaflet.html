@@ -22,7 +22,7 @@
             const map = L.map('map')
             hash = new L.Hash(map)
             if (!window.location.hash) map.setView(new L.LatLng(25.0412,121.5177),16)
-            var layer = new protomaps.LeafletLayer({url:'tpe_sample.pmtiles',allow_200:true,dark:false})
+            var layer = new protomaps.LeafletLayer({url:'tpe_sample.pmtiles',dark:false})
             layer.addTo(map)
         </script>
     </body>
