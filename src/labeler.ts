@@ -32,6 +32,7 @@ export class Labeler {
     z: number
     scratch: any
     labelStyle: LabelRule[]
+    active: boolean
 
     constructor(view:View,z:number,scratch,label_style:LabelRule[]) {
         this.tree = new RBush()

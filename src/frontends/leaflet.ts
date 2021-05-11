@@ -39,7 +39,7 @@ class CanvasPool {
 }
 
 const timer = duration => {
-    return new Promise((resolve,reject) => {
+    return new Promise<void>((resolve,reject) => {
         setTimeout(() => {
             resolve()
         },duration)

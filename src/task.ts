@@ -1,3 +1,6 @@
+declare var document: any
+declare var FontFace: any
+
 import Protosprites from 'protosprites'
 
 // https://github.com/tangrams/tangram/blob/master/src/styles/text/font_manager.js
