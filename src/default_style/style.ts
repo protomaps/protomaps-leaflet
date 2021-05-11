@@ -132,7 +132,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
                 width: z => { 
                     return exp(z,1.4,[[5,1.5],[11,4],[16,9],[20,40]])
                 }
-            }) ,
+            }),
             filter: f => { return f["pmap:kind"] == "highway" }
         },
         {
