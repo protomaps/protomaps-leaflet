@@ -29,4 +29,26 @@ test('fontspec', () => {
     f = new FontSpec({font:z => { return z == 1 ? "12px serif" : "14px serif"}})
     expect(f.str(1)).toStrictEqual("12px serif")
     expect(f.str(2)).toStrictEqual("14px serif")
+
+    f = new FontSpec({fontFamily:"serif",fontWeight:500,fontStyle:"italic",fontSize:14})
+    expect(f.str(1)).toStrictEqual("italic 500 14px serif")
+
+    f = new FontSpec({})
+    expect(f.str(1)).toStrictEqual("12px sans-serif")
+
+    f = new FontSpec({fontWeight: z => { return z == 1 ? 400 : 600 }})
+    expect(f.str(1)).toStrictEqual("400 12px sans-serif")
+    expect(f.str(2)).toStrictEqual("600 12px sans-serif")
+
+    f = new FontSpec({fontSize: z => { return z == 1 ? 12 : 14 }})
+    expect(f.str(1)).toStrictEqual("12px sans-serif")
+    expect(f.str(2)).toStrictEqual("14px sans-serif")
+
+    f = new FontSpec({fontStyle: z => { return z == 1 ? "normal" : "italic" }})
+    expect(f.str(1)).toStrictEqual("normal 12px sans-serif")
+    expect(f.str(2)).toStrictEqual("italic 12px sans-serif")
+
+    f = new FontSpec({fontFamily: z => { return z == 1 ? "sans-serif" : "serif" }})
+    expect(f.str(1)).toStrictEqual("12px sans-serif")
+    expect(f.str(2)).toStrictEqual("12px serif")
 })

@@ -30,11 +30,44 @@ function isFunction(obj) {
 
 export class FontSpec {
     constructor(options) {
-        if (options.font) this.font = options.font
+        if (options.font) {
+            this.font = options.font
+        } else {
+            this.family = options.fontFamily || 'sans-serif'
+            this.size = options.fontSize || 12
+            this.weight = options.fontWeight
+            this.style = options.fontStyle
+        }
     }
 
     public str(z,f) {
-        if (isFunction(this.font)) return this.font(z,f)
-        return this.font
+        if (this.font) {
+            if (isFunction(this.font)) return this.font(z,f)
+            return this.font
+        } else {
+            var style = ""
+            if (this.style) {
+                if (isFunction(this.style)) style = this.style(z,f) + " "
+                else style = this.style + " "
+            }
+
+            var weight = ""
+            if (this.weight) {
+                if (isFunction(this.weight)) weight = this.weight(z,f) + " "
+                else weight = this.weight + " "
+            }
+
+            var size = this.size
+            if (isFunction(this.size)) {
+                size = this.size(z,f)
+            }
+
+            var family = this.family
+            if (isFunction(this.family)) {
+                family = this.family(z,f)
+            }
+
+            return `${style}${weight}${size}px ${family}`
+        }
     }
 }
