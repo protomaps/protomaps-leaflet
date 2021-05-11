@@ -23,3 +23,18 @@ const cjk_test = new RegExp('^['+CJK_CHARS+']+$');
 export function isCjk(s) {
     return cjk_test.test(s)
 }
+
+function isFunction(obj) {
+  return !!(obj && obj.constructor && obj.call && obj.apply);
+}
+
+export class FontSpec {
+    constructor(options) {
+        if (options.font) this.font = options.font
+    }
+
+    public str(z,f) {
+        if (isFunction(this.font)) return this.font(z,f)
+        return this.font
+    }
+}

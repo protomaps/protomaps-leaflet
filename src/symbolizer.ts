@@ -2,7 +2,7 @@ import Point from '@mapbox/point-geometry'
 import { GeomType } from './tilecache'
 import { Transform } from './view'
 import polylabel from 'polylabel'
-import { linebreak, isCjk } from './text'
+import { FontSpec, linebreak, isCjk } from './text'
 import { simpleLabel } from './line'
 
 export interface PaintSymbolizer {
@@ -153,7 +153,7 @@ export class IconSymbolizer implements LabelSymbolizer {
 
 export class TextSymbolizer implements LabelSymbolizer {
     fill: string
-    font: string|(()=>string)
+    font: FontSpec
     property: string
     stroke: number
     width: number
@@ -161,7 +161,7 @@ export class TextSymbolizer implements LabelSymbolizer {
 
     constructor(options) {
         this.fill = options.fill 
-        this.font = options.font
+        this.font = new FontSpec(options)
         this.property = options.property || "name"
         this.stroke = options.stroke || "black"
         this.width = options.width || 0
@@ -174,12 +174,7 @@ export class TextSymbolizer implements LabelSymbolizer {
 
         if (feature.geomType == GeomType.Point) {
             let anchor = new Point(feature.geom[0][0].x,feature.geom[0][0].y)
-
-            let font = this.font
-            if (isFunction(this.font)) {
-                font = this.font(zoom,feature.properties)
-            }
-
+            let font = this.font.str(zoom,feature.properties)
             scratch.font = font
             let metrics = scratch.measureText(property)
             let p = 2
