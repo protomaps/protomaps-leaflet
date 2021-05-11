@@ -73,14 +73,16 @@ export function arr(base,a):number {
     }
 }
 
-export function exp(z:number,base:number,stops):number {
-    if (z <= stops[0][0]) return stops[0][1]
-    if (z >= stops[stops.length-1][0]) return stops[stops.length-1][1]
-    let idx = 0
-    while (stops[idx+1][0] < z) idx++
-    let normalized_x = (z-stops[idx][0]) / (stops[idx+1][0] - stops[idx][0])
-    let normalized_y = Math.pow(normalized_x,base)
-    return stops[idx][1] + normalized_y * (stops[idx+1][1] - stops[idx][1])
+export function exp(base:number,stops):number {
+    return z => {
+        if (z <= stops[0][0]) return stops[0][1]
+        if (z >= stops[stops.length-1][0]) return stops[stops.length-1][1]
+        let idx = 0
+        while (stops[idx+1][0] < z) idx++
+        let normalized_x = (z-stops[idx][0]) / (stops[idx+1][0] - stops[idx][0])
+        let normalized_y = Math.pow(normalized_x,base)
+        return stops[idx][1] + normalized_y * (stops[idx+1][1] - stops[idx][1])
+    }
 }
 
 function isFunction(obj) {

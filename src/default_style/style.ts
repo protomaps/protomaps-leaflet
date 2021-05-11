@@ -129,9 +129,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
             dataLayer: "roads",
             symbolizer: new LineSymbolizer({
                 color:params.highwayCasing,
-                width: z => { 
-                    return exp(z,1.4,[[5,1.5],[11,4],[16,9],[20,40]])
-                }
+                width: exp(1.4,[[5,1.5],[11,4],[16,9],[20,40]])
             }),
             filter: f => { return f["pmap:kind"] == "highway" }
         },
@@ -139,7 +137,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
             dataLayer: "roads",
             symbolizer: new LineSymbolizer({
                 color:params.majorRoadCasing,
-                width: z => { return exp(z,1.4,[[9,3],[12,4],[17,8],[20,22]]) }
+                width: exp(1.4,[[9,3],[12,4],[17,8],[20,22]])
             }) ,
             filter: f => { return f["pmap:kind"] == "major_road" }
         },
@@ -147,7 +145,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
             dataLayer: "roads",
             symbolizer: new LineSymbolizer({
                 color:params.mediumRoadCasing,
-                width: z => { return exp(z,1.4,[[13,3],[17,6],[20,18]]) }
+                width: exp(1.4,[[13,3],[17,6],[20,18]])
             }),
             filter: f => { return f["pmap:kind"] == "medium_road" }
         },
@@ -155,7 +153,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
             dataLayer: "roads",
             symbolizer: new LineSymbolizer({
                 color:params.minorRoadCasing,
-                width: z => { return exp(z,1.4,[[14,2],[17,5],[20,15]]) }
+                width: exp(1.4,[[14,2],[17,5],[20,15]])
             }),
             filter: f => { return f["pmap:kind"] == "minor_road" }
         },
@@ -163,7 +161,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
             dataLayer: "roads",
             symbolizer: new LineSymbolizer({
                 color:params.highway,
-                width: z => { return exp(z,1.4,[[5,0.5],[11,2.5],[16,7],[20,30]]) }
+                width: exp(1.4,[[5,0.5],[11,2.5],[16,7],[20,30]])
             }),
             filter: f => { return f["pmap:kind"] == "highway" }
         },
@@ -171,7 +169,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
             dataLayer: "roads",
             symbolizer: new LineSymbolizer({
                 color:params.majorRoad,
-                width: z => { return exp(z,1.4,[[9,2],[12,3],[17,6],[20,20]]) }
+                width: exp(1.4,[[9,2],[12,3],[17,6],[20,20]])
             }),
             filter: f => { return f["pmap:kind"] == "major_road" }
         },
@@ -179,7 +177,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
             dataLayer: "roads",
             symbolizer: new LineSymbolizer({
                 color:params.mediumRoad,
-                width: z => { return exp(z,1.4,[[13,2],[17,4],[20,15]]) }
+                width: exp(1.4,[[13,2],[17,4],[20,15]])
             }),
             filter: f => { return f["pmap:kind"] == "medium_road" }
         },
@@ -187,7 +185,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
             dataLayer: "roads",
             symbolizer: new LineSymbolizer({
                 color:params.minorRoad,
-                width: z => { return exp(z,1.4,[[14,1],[17,3],[20,13]]) }
+                width: exp(1.4,[[14,1],[17,3],[20,13]])
             }),
             filter: f => { return f["pmap:kind"] == "minor_road" }
         },
