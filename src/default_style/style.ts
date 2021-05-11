@@ -212,7 +212,7 @@ export const labelStyle = (params:DefaultStyleParams) => {
             dataLayer: "places",
             symbolizer: new TextSymbolizer({
                 fill:params.countryLabel,
-                font:(p,z) => {
+                font:(z,p) => {
                     if (z < 6) return "800 14px sans-serif"
                     return "800 20px sans-serif"
                 },
@@ -224,7 +224,7 @@ export const labelStyle = (params:DefaultStyleParams) => {
             dataLayer: "places",
             symbolizer: new TextSymbolizer({
                 fill:params.cityLabel,
-                font:(p,z) => {
+                font:(z,p) => {
                     if (p["pmap:rank"] == 1) {
                         if (z > 8) return "600 24px sans-serif"
                         return "400 14px sans-serif"

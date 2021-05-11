@@ -177,7 +177,7 @@ export class TextSymbolizer implements LabelSymbolizer {
 
             let font = this.font
             if (isFunction(this.font)) {
-                font = this.font(feature.properties,zoom)
+                font = this.font(zoom,feature.properties)
             }
 
             scratch.font = font
