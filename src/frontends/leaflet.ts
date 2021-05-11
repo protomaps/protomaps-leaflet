@@ -91,14 +91,8 @@ class LeafletLayer extends L.GridLayer {
 
     public async renderTile(coords,element,key,done = ()=>{}) {
         let state = {element:element,tile_size:this.tile_size,ctx:null}
-        var paint_data, label_data
-        try {
-            paint_data = await this.view.get(coords)
-            label_data = await this.labelers.get(coords)
-        } catch(e) {
-            //console.log(e) // TODO only catch cancellations
-            return
-        }
+        let paint_data = await this.view.get(coords)
+        let label_data = await this.labelers.get(coords)
 
         if (!this._map) {
             return // the layer has been removed from the map

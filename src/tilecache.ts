@@ -176,10 +176,12 @@ export class TileCache {
                         })
                         this.cache.delete(min_key)
                     }
-                }).catch(() => {
-                    this.inflight.get(idx).forEach(f => f[1]("Cancel data " + idx))
+                }).catch(e => {
+                    this.inflight.get(idx).forEach(f => f[1](e))
                     this.inflight.delete(idx)
-                    reject("Cancel data " + idx)
+                    if (e.name !== "AbortError") {
+                        reject(e)
+                    }
                 })
             }
         })
