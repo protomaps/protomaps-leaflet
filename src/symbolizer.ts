@@ -264,10 +264,10 @@ export class TextSymbolizer implements LabelSymbolizer {
             let offset = this.offset
 
             let bbox = {
-                minX:offset, 
-                minY:-offset-ascent*4,
-                maxX:offset+width*4,
-                maxY:-offset+descent*4
+                minX:offset*4, 
+                minY:(-offset-ascent)*4,
+                maxX:(offset+width)*4,
+                maxY:(-offset+descent)*4
             }
 
             // centering
