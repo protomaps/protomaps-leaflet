@@ -92,6 +92,7 @@ class LeafletLayer extends L.GridLayer {
     public async renderTile(coords,element,key,done = ()=>{}) {
         let state = {element:element,tile_size:this.tile_size,ctx:null}
         let paint_data = await this.view.get(coords)
+        await Promise.allSettled(this.tasks)
         let label_data = await this.labelers.get(coords)
 
         if (!this._map) {
@@ -105,7 +106,6 @@ class LeafletLayer extends L.GridLayer {
         let priority = coords.distanceTo(tileCenter) * 5
 
         await timer(priority)
-        await Promise.allSettled(this.tasks)
 
         let painting_time = painter(state,key,paint_data,label_data,this.paint_style,this.debug)
 
