@@ -156,6 +156,50 @@ export class IconSymbolizer implements LabelSymbolizer {
     }
 }
 
+export class CircleSymbolizer implements LabelSymbolizer {
+    constructor(options) {
+        this.radius = options.radius || 3
+        this.fill = options.fill || "black"
+        this.stroke = options.stroke || "white"
+        this.width = options.width || 0
+    } 
+
+    public stash(scratch,feature,zoom) {
+        let pt = feature.geom[0]
+        let anchor = new Point(feature.geom[0][0].x,feature.geom[0][0].y)
+        let bbox = {
+            minX:-20, 
+            minY:-20,
+            maxX:20,
+            maxY:20
+        }
+
+        let draw = (ctx,a) => {
+            ctx.globalAlpha = 1
+
+            if (this.width > 0) {
+                ctx.fillStyle = this.stroke
+                ctx.beginPath()
+                ctx.arc(a.x,a.y, this.radius + this.width, 0, 2* Math.PI)
+                ctx.fill()
+            }
+
+            ctx.fillStyle = this.fill
+            ctx.beginPath()
+            ctx.arc(a.x,a.y, this.radius, 0, 2* Math.PI)
+            ctx.fill()
+        }
+        return {anchor:anchor,bbox:bbox,draw:draw}
+    }
+}
+
+export class GroupSymbolizer implements LabelSymbolizer {
+    constructor(options) {
+
+    }
+
+}
+
 export class TextSymbolizer implements LabelSymbolizer {
     fill: string
     font: FontSpec
@@ -233,7 +277,7 @@ export class TextSymbolizer implements LabelSymbolizer {
 
 export class LineLabelSymbolizer implements LabelSymbolizer {
     fill: string
-    stroke: number
+    stroke: string
     width: number
     font: string
 
@@ -304,10 +348,14 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
 
 export class PolygonLabelSymbolizer implements LabelSymbolizer {
     fill:string
+    stroke: string
+    width: number
     font:string
 
     constructor(options) {
         this.fill = options.fill || "black"
+        this.stroke = options.stroke || "black"
+        this.width = options.width || 0
         this.font = options.font || "16px sans-serif"
     }
 
@@ -335,8 +383,14 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
 
         let draw = (ctx,a) => {
             ctx.globalAlpha = 1
-            ctx.fillStyle = fill
+
             ctx.font = this.font
+            if (this.width) {
+                ctx.lineWidth = this.width
+                ctx.strokeStyle = this.stroke
+                ctx.strokeText(property,a.x-width/2,a.y)
+            }
+            ctx.fillStyle = fill
             ctx.fillText(property,a.x-width/2,a.y)
 
         }
