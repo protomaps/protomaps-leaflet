@@ -105,7 +105,7 @@ class LeafletLayer extends L.GridLayer {
         let priority = coords.distanceTo(tileCenter) * 5
 
         await timer(priority)
-        await Promise.all(this.tasks)
+        await Promise.allSettled(this.tasks)
 
         let painting_time = painter(state,key,paint_data,label_data,this.paint_style,this.debug)
 
