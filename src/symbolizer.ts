@@ -399,19 +399,21 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
     stroke: string
     width: number
     font:string
+    property:string
 
     constructor(options) {
         this.fill = options.fill || "black"
         this.stroke = options.stroke || "black"
         this.width = options.width || 0
         this.font = options.font || "16px sans-serif"
+        this.property = options.property || "name"
     }
 
     public stash(scratch, feature):LabelStash | undefined {
         let fbbox = feature.bbox
         let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // needs to be based on zoom level
         if (area < 200000) return undefined
-        let property = feature.properties["name"]
+        let property = feature.properties[this.property]
         if (!property) return null
 
         let first_poly = feature.geom[0]
