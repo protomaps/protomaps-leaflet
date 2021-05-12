@@ -420,13 +420,27 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
         let found = polylabel([first_poly.map(c => [c.x,c.y])])
         let anchor = new Point(found[0],found[1])
         scratch.font = this.font
-        let metrics = scratch.measureText(property)
+
+        let lines = linebreak(property)
+
+        let lineHeight = 14
+
+        var longestLine
+        var longestLineLen = 0 
+        for (let line of lines) {
+            if (line.length > longestLineLen) {
+                longestLineLen = line.length
+                longestLine = line
+            }
+        }
+
+        let metrics = scratch.measureText(longestLine)
         let width = metrics.width
         let bbox = {
             minX:-width*4/2, 
             minY:-metrics.actualBoundingBoxAscent*4,
             maxX:width*4/2,
-            maxY:metrics.actualBoundingBoxDescent*4
+            maxY:(lineHeight*lines.length-metrics.actualBoundingBoxAscent)*4
         }
 
         let fill = this.fill
@@ -435,14 +449,18 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
             ctx.globalAlpha = 1
 
             ctx.font = this.font
-            if (this.width) {
-                ctx.lineWidth = this.width
-                ctx.strokeStyle = this.stroke
-                ctx.strokeText(property,a.x-width/2,a.y)
-            }
-            ctx.fillStyle = fill
-            ctx.fillText(property,a.x-width/2,a.y)
 
+            var y = 0
+            for (let line of lines) {
+                if (this.width) {
+                    ctx.lineWidth = this.width
+                    ctx.strokeStyle = this.stroke
+                    ctx.strokeText(line,a.x-width/2,a.y+y)
+                }
+                ctx.fillStyle = fill
+                ctx.fillText(line,a.x-width/2,a.y+y)
+                y += lineHeight
+            }
         }
         return {anchor:anchor,bbox:bbox,draw:draw}
     }
