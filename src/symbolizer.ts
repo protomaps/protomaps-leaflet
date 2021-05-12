@@ -130,14 +130,12 @@ export class LineSymbolizer implements PaintSymbolizer {
 }
 
 export class IconSymbolizer implements LabelSymbolizer {
-
     constructor(options) {
         this.sprites = options.sprites
         this.name = options.name
     } 
 
     public stash(scratch,feature,zoom) {
-
         let pt = feature.geom[0]
         let anchor = new Point(feature.geom[0][0].x,feature.geom[0][0].y)
         let bbox = {
@@ -193,11 +191,41 @@ export class CircleSymbolizer implements LabelSymbolizer {
     }
 }
 
-export class GroupSymbolizer implements LabelSymbolizer {
-    constructor(options) {
+export class FlowSymbolizer implements LabelSymbolizer {
 
+}
+
+const mergeBbox = (b1,b2) => {
+    return { 
+        minX:Math.min(b1.minX,b2.minX),
+        minY:Math.min(b1.minY,b2.minY),
+        maxX:Math.max(b1.maxX,b2.maxX),
+        maxY:Math.max(b1.maxY,b2.maxY),
+    }
+}
+
+export class GroupSymbolizer implements LabelSymbolizer {
+    constructor(list) {
+        this.list = list
     }
 
+    public stash(scratch, feature, zoom):LabelStash | undefined {
+        var result = this.list[0].stash(scratch,feature,zoom)
+        let anchor = result.anchor
+        let bbox = result.bbox
+        let draws = [result.draw]
+
+        for (let i = 1; i < this.list.length; i++) {
+            result = this.list[i].stash(scratch,feature,zoom)
+            bbox = mergeBbox(bbox,result.bbox)
+            draws.push(result.draw)
+        }
+        let draw = (ctx,a) => {
+            draws.forEach(d => d(ctx,a))
+        }
+
+        return {anchor:anchor,bbox:bbox,draw:draw}
+    }
 }
 
 export class TextSymbolizer implements LabelSymbolizer {
@@ -207,6 +235,7 @@ export class TextSymbolizer implements LabelSymbolizer {
     stroke: number
     width: number
     align: string
+    offset: number
 
     constructor(options) {
         this.fill = options.fill 
@@ -215,6 +244,7 @@ export class TextSymbolizer implements LabelSymbolizer {
         this.stroke = options.stroke || "black"
         this.width = options.width || 0
         this.align = options.align || "left"
+        this.offset = options.offset || 0
     }
 
     public stash(scratch, feature, zoom):LabelStash | undefined {
@@ -231,13 +261,16 @@ export class TextSymbolizer implements LabelSymbolizer {
             let width = metrics.width
             let ascent = metrics.actualBoundingBoxAscent
             let descent = metrics.actualBoundingBoxDescent
+            let offset = this.offset
 
             let bbox = {
-                minX:0, 
-                minY:-ascent*4,
-                maxX:width*4,
-                maxY:descent*4
+                minX:offset, 
+                minY:-offset-ascent*4,
+                maxX:offset+width*4,
+                maxY:-offset+descent*4
             }
+
+            // centering
             let b = [-p,-ascent-p,width+p*2,ascent+descent+p*2]
             let textX = 0
             if (this.align == "center") {
@@ -263,11 +296,11 @@ export class TextSymbolizer implements LabelSymbolizer {
                 if (this.width) {
                     ctx.lineWidth = this.width
                     ctx.strokeStyle = this.stroke
-                    ctx.strokeText(property,a.x+textX,a.y)
+                    ctx.strokeText(property,a.x+textX+offset,a.y-offset)
                 }
 
                 ctx.fillStyle = this.fill
-                ctx.fillText(property,a.x+textX,a.y)
+                ctx.fillText(property,a.x+textX+offset,a.y-offset)
 
             }
             return {anchor:anchor,bbox:bbox,draw:draw}
