@@ -33,6 +33,8 @@ export function painter(state,key,paint_data:PaintData,label_data:LabelData,rule
     ctx.miterLimit = 1
 
     for (var rule of rules) {
+        if (rule.minzoom && paint_data.z < rule.minzoom) continue
+        if (rule.maxzoom && paint_data.z > rule.maxzoom) continue
         var layer = paint_data.data[rule.dataLayer]
         if (layer === undefined) continue
         rule.symbolizer.before(ctx,paint_data.z)
