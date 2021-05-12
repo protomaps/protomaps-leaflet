@@ -93,11 +93,13 @@ export class LineSymbolizer implements PaintSymbolizer {
     color:string
     width:any
     opacity:number
+    skip:boolean
 
     constructor(options) {
         this.color = options.color || "#000000"
         this.width = options.width || 1
         this.opacity = options.opacity || 1
+        this.skip = false
     } 
 
     public before(ctx,z:number) {
@@ -105,13 +107,16 @@ export class LineSymbolizer implements PaintSymbolizer {
         ctx.globalAlpha = this.opacity
 
         if (isFunction(this.width) && this.width.length == 1) {
-            ctx.lineWidth = this.width(z)
+            let width = this.width(z)
+            this.skip = (width === 0)
+            ctx.lineWidth = width
         } else {
             ctx.lineWidth = this.width
         }
     }
 
     public draw(ctx,geom,transform:Transform) {
+        if (this.skip) return
         ctx.beginPath()
         for (var ls of geom) {
             for (var p = 0; p < ls.length; p++) {
