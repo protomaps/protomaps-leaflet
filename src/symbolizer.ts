@@ -231,6 +231,7 @@ export class GroupSymbolizer implements LabelSymbolizer {
 
         for (let i = 1; i < this.list.length; i++) {
             result = this.list[i].stash(scratch,feature,zoom)
+            if (!result) return null
             bbox = mergeBbox(bbox,result.bbox)
             draws.push(result.draw)
         }
