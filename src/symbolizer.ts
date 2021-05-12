@@ -94,12 +94,17 @@ export class LineSymbolizer implements PaintSymbolizer {
     width:any
     opacity:number
     skip:boolean
+    dash:any
+    dashColor:string
 
     constructor(options) {
         this.color = options.color || "#000000"
         this.width = options.width || 1
         this.opacity = options.opacity || 1
         this.skip = false
+        this.dash = options.dash
+        this.dashColor = options.dashColor || "black"
+        this.dashWidth = options.dashWidth || 1
     } 
 
     public before(ctx,z:number) {
@@ -126,6 +131,15 @@ export class LineSymbolizer implements PaintSymbolizer {
             }
         }
         ctx.stroke()
+
+        if (this.dash) {
+            ctx.save()
+            ctx.lineWidth = this.dashWidth
+            ctx.strokeStyle = this.dashColor
+            ctx.setLineDash(this.dash)
+            ctx.stroke()
+            ctx.restore()
+        }
     }
 }
 
