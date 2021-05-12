@@ -54,6 +54,8 @@ export class Labeler {
         let extent = this.view.dataResolution
         for (var [order, rule] of this.labelStyle.entries()) {
             if (rule.visible == false) continue
+            if (rule.minzoom && this.z < rule.minzoom) continue
+            if (rule.maxzoom && this.z > rule.maxzoom) continue
             let layer = data[rule.dataLayer]
             if (layer === undefined) continue
 
