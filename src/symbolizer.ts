@@ -66,7 +66,7 @@ export class FillSymbolizer implements PaintSymbolizer {
 export function arr(base,a):number {
     return z => {
         let b = z - base
-        if (b > 0 && b < a.length) {
+        if (b >= 0 && b < a.length) {
             return a[b]
         }
         return 0
