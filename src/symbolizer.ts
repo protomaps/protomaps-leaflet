@@ -251,6 +251,7 @@ export class TextSymbolizer implements LabelSymbolizer {
     width: number
     align: string
     offset: number
+    textTransform: string
 
     constructor(options) {
         this.fill = options.fill 
@@ -260,11 +261,13 @@ export class TextSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
         this.align = options.align || "left"
         this.offset = options.offset || 0
+        this.textTransform = options.textTransform
     }
 
     public stash(scratch, feature, zoom):LabelStash | undefined {
-        let property = feature.properties[this.property]
+        var property = feature.properties[this.property]
         if (!property) return null
+        if (this.textTransform === "uppercase") property = property.toUpperCase()
 
         if (feature.geomType == GeomType.Point) {
             let anchor = new Point(feature.geom[0][0].x,feature.geom[0][0].y)
