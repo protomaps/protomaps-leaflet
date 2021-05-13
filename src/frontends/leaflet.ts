@@ -10,7 +10,8 @@ import { paint_style as darkPaint, label_style as darkLabel } from '../default_s
 class CanvasPool {
     unused: any[]
 
-    constructor() {
+    constructor(lang:string) {
+        this.lang = lang
         this.unused = []
     }
 
@@ -27,7 +28,7 @@ class CanvasPool {
         // L.DomEvent.on(element,"click",event => {
         //     clickHandler(event)
         // })
-        // element.lang = this.lang
+        element.lang = this.lang
         return element
     }
 
@@ -66,7 +67,6 @@ class LeafletLayer extends L.GridLayer {
         let cache = new TileCache(source)
         this.view = new Subview(cache,14,4096,2,256)
         this.debug = options.debug || false
-        this.lang = options.lang
         let scratch = document.createElement('canvas').getContext('2d')
         this.scratch = scratch
         this.knockoutTiles = (tiles) => {
@@ -76,7 +76,7 @@ class LeafletLayer extends L.GridLayer {
         }
         this.labelers = new Labelers(this.view, this.scratch, this.label_style, this.knockoutTiles)
         this.tile_size = 256 *window.devicePixelRatio
-        this.pool = new CanvasPool()
+        this.pool = new CanvasPool(options.lang)
         this._onClick = null
     }
 
