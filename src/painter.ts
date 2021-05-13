@@ -30,7 +30,7 @@ export function painter(state,key,paint_data:PaintData,label_data:LabelData,rule
     ctx.globalCompositeOperation = "destination-out"
     ctx.fillRect(0,0,256,256)
     ctx.restore()
-    ctx.miterLimit = 1
+    ctx.miterLimit = 2
 
     for (var rule of rules) {
         if (rule.minzoom && paint_data.z < rule.minzoom) continue
