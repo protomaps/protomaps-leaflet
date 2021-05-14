@@ -128,6 +128,7 @@ class LeafletLayer extends L.GridLayer {
                 ctx.fillText(painting_time.toFixed() + " ms",4,42)
             }
             ctx.strokeStyle = this.debug
+            ctx.lineWidth = 0.5
             ctx.strokeRect(0,0,256,256)
             ctx.restore()
         }
