@@ -1,4 +1,4 @@
-import { linebreak, FontSpec } from '../src/text'
+import { linebreak, FontSpec, TextSpec } from '../src/text'
 
 test('trivial',() => {
     let lines = linebreak("foo",15)
@@ -51,4 +51,13 @@ test('fontspec', () => {
     f = new FontSpec({fontFamily: z => { return z == 1 ? "sans-serif" : "serif" }})
     expect(f.str(1)).toStrictEqual("12px sans-serif")
     expect(f.str(2)).toStrictEqual("12px serif")
+})
+
+test ('textspec', () => {
+    let t = new TextSpec()
+    expect(t.str(0,{name:"臺北"})).toStrictEqual("臺北")
+    t = new TextSpec({properties:["name:en"]})
+    expect(t.str(0,{'name:en':"Taipei",'name':"臺北"})).toStrictEqual("Taipei")
+    t = new TextSpec({properties:["name:en"],textTransform:"uppercase"})
+    expect(t.str(0,{'name:en':"Taipei"})).toStrictEqual("TAIPEI")
 })

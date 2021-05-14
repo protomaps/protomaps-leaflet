@@ -28,6 +28,25 @@ function isFunction(obj) {
   return !!(obj && obj.constructor && obj.call && obj.apply);
 }
 
+export class TextSpec {
+    constructor(options = {}) {
+        this.properties = options.properties || ["name"]
+        this.textTransform = options.textTransform
+    }
+
+    public str(z,f) {
+        var retval
+        for (let property of this.properties) {
+            if (f.hasOwnProperty(property)) {
+                retval = f[property]
+                break
+            }
+        } 
+        if (this.textTransform === "uppercase") retval = retval.toUpperCase()
+        return retval
+    }
+}
+
 export class FontSpec {
     constructor(options) {
         if (options.font) {
