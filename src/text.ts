@@ -42,7 +42,7 @@ export class TextSpec {
                 break
             }
         } 
-        if (this.textTransform === "uppercase") retval = retval.toUpperCase()
+        if (retval && this.textTransform === "uppercase") retval = retval.toUpperCase()
         return retval
     }
 }

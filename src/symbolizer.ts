@@ -2,7 +2,7 @@ import Point from '@mapbox/point-geometry'
 import { GeomType } from './tilecache'
 import { Transform } from './view'
 import polylabel from 'polylabel'
-import { FontSpec, linebreak, isCjk } from './text'
+import { TextSpec, FontSpec, linebreak, isCjk } from './text'
 import { simpleLabel } from './line'
 
 export interface PaintSymbolizer {
@@ -244,18 +244,19 @@ export class GroupSymbolizer implements LabelSymbolizer {
 }
 
 export class TextSymbolizer implements LabelSymbolizer {
-    fill: string
     font: FontSpec
-    property: string
+    text: TextSpec
+    fill: string
     stroke: number
     width: number
     align: string
     offset: number
-    textTransform: string
 
     constructor(options) {
-        this.fill = options.fill 
         this.font = new FontSpec(options)
+        this.text = new TextSpec(options)
+
+        this.fill = options.fill 
         this.property = options.property || "name"
         this.stroke = options.stroke || "black"
         this.width = options.width || 0
@@ -265,13 +266,11 @@ export class TextSymbolizer implements LabelSymbolizer {
     }
 
     public stash(scratch, feature, zoom):LabelStash | undefined {
-        var property = feature.properties[this.property]
-        if (!property) return null
-        if (this.textTransform === "uppercase") property = property.toUpperCase()
-
         if (feature.geomType == GeomType.Point) {
             let anchor = new Point(feature.geom[0][0].x,feature.geom[0][0].y)
             let font = this.font.str(zoom,feature.properties)
+            let property = this.text.str(zoom,feature.properties)
+            if (!property) return null
             scratch.font = font
             let metrics = scratch.measureText(property)
             let p = 2
@@ -327,21 +326,27 @@ export class TextSymbolizer implements LabelSymbolizer {
 }
 
 export class LineLabelSymbolizer implements LabelSymbolizer {
+    font: FontSpec
+    text: TextSpec
+
     fill: string
     stroke: string
     width: number
-    font: string
 
     constructor(options) {
+        this.font = new FontSpec(options)
+        this.text = new TextSpec(options)
+
         this.fill = options.fill || "black"
         this.stroke = options.stroke || "black"
         this.width = options.width || 0
-        this.font = options.font || "12px sans-serif"
     } 
 
-    public stash(scratch,feature): LabelStash | undefined {
-        let name = feature.properties["name"]
-        if (!name) return undefined
+    public stash(scratch,feature, zoom): LabelStash | undefined {
+        let font = this.font.str(zoom,feature.properties)
+        let name = this.text.str(zoom,feature.properties)
+        if (!name) return null
+
         let fbbox = feature.bbox
         let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // needs to be based on zoom level
         if (area < 100) return undefined
@@ -398,31 +403,35 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
 }
 
 export class PolygonLabelSymbolizer implements LabelSymbolizer {
+    font:FontSpec
+    text:TextSpec
     fill:string
     stroke: string
     width: number
-    font:string
-    property:string
 
     constructor(options) {
+        this.font = new FontSpec(options)
+        this.text = new TextSpec(options)
+
         this.fill = options.fill || "black"
         this.stroke = options.stroke || "black"
         this.width = options.width || 0
-        this.font = options.font || "16px sans-serif"
-        this.property = options.property || "name"
     }
 
-    public stash(scratch, feature):LabelStash | undefined {
+    public stash(scratch, feature, zoom):LabelStash | undefined {
         let fbbox = feature.bbox
         let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // needs to be based on zoom level
         if (area < 200000) return undefined
-        let property = feature.properties[this.property]
+
+        let property = this.text.str(zoom,feature.properties)
         if (!property) return null
 
         let first_poly = feature.geom[0]
         let found = polylabel([first_poly.map(c => [c.x,c.y])])
         let anchor = new Point(found[0],found[1])
-        scratch.font = this.font
+        let font = this.font.str(zoom,feature.properties)
+
+        scratch.font = font
 
         let lines = linebreak(property)
 
@@ -451,7 +460,7 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
         let draw = (ctx,a) => {
             ctx.globalAlpha = 1
 
-            ctx.font = this.font
+            ctx.font = font
 
             var y = 0
             for (let line of lines) {

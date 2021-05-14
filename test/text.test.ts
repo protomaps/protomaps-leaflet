@@ -60,4 +60,6 @@ test ('textspec', () => {
     expect(t.str(0,{'name:en':"Taipei",'name':"臺北"})).toStrictEqual("Taipei")
     t = new TextSpec({properties:["name:en"],textTransform:"uppercase"})
     expect(t.str(0,{'name:en':"Taipei"})).toStrictEqual("TAIPEI")
+    t = new TextSpec({properties:["name:en"],textTransform:"uppercase"})
+    expect(t.str(0,{})).toBeUndefined()
 })
