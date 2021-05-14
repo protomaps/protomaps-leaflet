@@ -66,7 +66,7 @@ class LeafletLayer extends L.GridLayer {
         this.tasks = options.tasks || []
         let cache = new TileCache(source)
         this.view = new Subview(cache,14,4096,2,256)
-        this.debug = options.debug || false
+        this.debug = options.debug
         let scratch = document.createElement('canvas').getContext('2d')
         this.scratch = scratch
         this.knockoutTiles = (tiles) => {
@@ -114,25 +114,20 @@ class LeafletLayer extends L.GridLayer {
             if (!ctx) return
             let data_tile = this.view.dataTile(coords)
             ctx.save()
-            ctx.fillStyle = "black"
-            ctx.globalAlpha = 0.5
-            ctx.fillStyle = "#000"
+            ctx.fillStyle = this.debug
             ctx.font = '800 12px sans-serif';
             ctx.fillText(coords.z + " " + coords.x + " " + coords.y,4,14)
 
             if ((data_tile.x % 2 + data_tile.y % 2) % 2 == 0) {
-                ctx.fillStyle = "black"
-            } else {
-                ctx.fillStyle = "blue"
+                ctx.font = '800 italic 12px sans-serif'
             }
 
-            ctx.fillText(data_tile.z + " " + data_tile.x + " " + data_tile.y,4,28)
 
-            ctx.fillStyle = "red"
+            ctx.fillText(data_tile.z + " " + data_tile.x + " " + data_tile.y,4,28)
             if (painting_time > 8) {
                 ctx.fillText(painting_time.toFixed() + " ms",4,42)
             }
-            ctx.strokeStyle = "#000"
+            ctx.strokeStyle = this.debug
             ctx.strokeRect(0,0,256,256)
             ctx.restore()
         }

@@ -55,9 +55,9 @@ export function painter(state,key,paint_data:PaintData,label_data:LabelData,rule
     for (var label of matches) {
         label.draw(ctx,label.anchor.clone().mult(label_data.transform.scale).add(label_data.transform.translate))
         if (debug) {
-            ctx.lineWidth = 1
-            ctx.strokeStyle = "black"
-            ctx.fillStyle = "black"
+            ctx.lineWidth = 0.5
+            ctx.strokeStyle = debug
+            ctx.fillStyle = debug
             ctx.globalAlpha = 1
             let tl = new Point(label.minX,label.minY).mult(label_data.transform.scale).add(label_data.transform.translate)
             let br = new Point(label.maxX,label.maxY).mult(label_data.transform.scale).add(label_data.transform.translate)
