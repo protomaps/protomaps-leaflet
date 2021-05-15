@@ -115,11 +115,12 @@ class LeafletLayer extends L.GridLayer {
             let data_tile = this.view.dataTile(coords)
             ctx.save()
             ctx.fillStyle = this.debug
-            ctx.font = '800 12px sans-serif';
+            ctx.font = '600 12px sans-serif';
             ctx.fillText(coords.z + " " + coords.x + " " + coords.y,4,14)
 
+            ctx.font = '200 12px sans-serif'
             if ((data_tile.x % 2 + data_tile.y % 2) % 2 == 0) {
-                ctx.font = '800 italic 12px sans-serif'
+                ctx.font = '200 italic 12px sans-serif'
             }
 
 
