@@ -85,6 +85,7 @@ export class PmtilesSource implements TileSource {
             return true
         })
         let result = await this.p.getZxy(c.z,c.x,c.y)
+        if (!result) throw new Error(`Tile ${c.z} ${c.x} ${c.y} not found in archive`)
         const controller = new AbortController()
         this.controllers.push([c.z,controller])
         const signal = controller.signal
