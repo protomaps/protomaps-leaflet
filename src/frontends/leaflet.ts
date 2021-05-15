@@ -4,8 +4,8 @@ import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
 import { Subview } from '../view'
 import { painter } from '../painter'
 import { Labelers } from '../labeler'
-import { paint_style as lightPaint, label_style as lightLabel } from '../default_style/light'
-import { paint_style as darkPaint, label_style as darkLabel } from '../default_style/dark'
+import { paint_rules as lightPaintRules, label_rules as lightLabelRules } from '../default_style/light'
+import { paint_rules as darkPaintRules, label_rules as darkLabelRules } from '../default_style/dark'
 
 class CanvasPool {
     unused: any[]
@@ -51,8 +51,8 @@ class LeafletLayer extends L.GridLayer {
     constructor(options) {
         if (options.noWrap && !options.bounds) options.bounds = [[-90,-180],[90,180]]
         super(options)
-        this.paint_style = options.paint_style || (options.dark ? darkPaint : lightPaint)
-        this.label_style = options.label_style || (options.dark ? darkLabel : lightLabel)
+        this.paint_rules = options.paint_rules || (options.dark ? darkPaintRules : lightPaintRules)
+        this.label_rules = options.label_rules || (options.dark ? darkLabelRules : lightLabelRules)
 
         let source
         if (options.url.url) {
@@ -74,15 +74,15 @@ class LeafletLayer extends L.GridLayer {
                 this.rerenderTile(t)
             })
         }
-        this.labelers = new Labelers(this.view, this.scratch, this.label_style, this.knockoutTiles)
+        this.labelers = new Labelers(this.view, this.scratch, this.label_rules, this.knockoutTiles)
         this.tile_size = 256 *window.devicePixelRatio
         this.pool = new CanvasPool(options.lang)
         this._onClick = null
     }
 
     public setDefaultStyle(dark:boolean) {
-        this.paint_style = (dark ? darkPaint : lightPaint)
-        this.label_style = (dark ? darkLabel : lightLabel)
+        this.paint_rules = (dark ? darkPaintRules : lightPaintRules)
+        this.label_rules = (dark ? darkLabelRules : lightLabelRules)
     }
 
     public onClick(callback) {
@@ -107,7 +107,7 @@ class LeafletLayer extends L.GridLayer {
 
         await timer(priority)
 
-        let painting_time = painter(state,key,paint_data,label_data,this.paint_style,this.debug)
+        let painting_time = painter(state,key,paint_data,label_data,this.paint_rules,this.debug)
 
         if (this.debug) {
             let ctx = state.ctx
@@ -146,7 +146,7 @@ class LeafletLayer extends L.GridLayer {
     }
 
     public clearLayout() {
-        this.labelers = new Labelers(this.view, this.scratch, this.label_style, this.knockoutTiles)
+        this.labelers = new Labelers(this.view, this.scratch, this.label_rules, this.knockoutTiles)
     }
 
     public rerenderTiles() {

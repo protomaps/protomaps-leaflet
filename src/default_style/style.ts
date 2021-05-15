@@ -35,7 +35,7 @@ export interface DefaultStyleParams {
     poisLabel:string
 }
 
-export const paintStyle = (params:DefaultStyleParams) => {
+export const paintRules = (params:DefaultStyleParams) => {
     return [
         {
             dataLayer: "earth",
@@ -206,7 +206,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
     ]
 }
 
-export const labelStyle = (params:DefaultStyleParams) => {
+export const labelRules = (params:DefaultStyleParams) => {
     return [
         {
             dataLayer: "places",

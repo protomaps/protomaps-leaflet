@@ -1,4 +1,4 @@
-import { paintStyle, labelStyle, DefaultStyleParams } from './style'
+import { paintRules, labelRules, DefaultStyleParams } from './style'
 
 const dark:DefaultStyleParams = {
     earth:"#151515",
@@ -35,5 +35,5 @@ const dark:DefaultStyleParams = {
     poisLabel:"#959393"
 }
 
-export const paint_style = paintStyle(dark)
-export const label_style = labelStyle(dark)
+export const paint_rules = paintRules(dark)
+export const label_rules = labelRules(dark)

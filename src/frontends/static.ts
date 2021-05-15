@@ -2,18 +2,18 @@ import { ZxySource, TileCache } from '../tilecache'
 import { Superview } from '../view'
 import { Rule, painter } from '../painter'
 import { Superlabeler } from '../labeler'
-import { paint_style, label_style } from '../default_style/light'
+import { paint_rules , label_rules } from '../default_style/light'
 
 export class Static {
-    paint_style:Rule[]
-    label_style:Rule[]
+    paint_rules:Rule[]
+    label_rules:Rule[]
     view:Superview
     debug:boolean
     scratch:any
 
     constructor(options) {
-        this.paint_style = options.paint_style || paint_style
-        this.label_style = options.label_style || label_style
+        this.paint_rules = options.paint_rules || paint_rules
+        this.label_rules = options.label_rules || label_rules
         let cache = new TileCache(new ZxySource(options.url))
         this.view = new Superview(cache,14,4096)
         this.debug = options.debug || false
@@ -25,7 +25,7 @@ export class Static {
         let label_data = await labeler.get()
 
         for (let paint_data of paint_datas) {
-            let p = painter({ctx:ctx},"key",paint_data,label_data,this.paint_style,false)
+            let p = painter({ctx:ctx},"key",paint_data,label_data,this.paint_rules,false)
         }
     }
 }
