@@ -39,89 +39,89 @@ export const paintStyle = (params:DefaultStyleParams) => {
     return [
         {
             dataLayer: "earth",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.earth
             })
         },
         {
             dataLayer: "natural",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.glacier
             }),
             filter: f => { return f.natural == "glacier" }
         },
         {
             dataLayer: "landuse",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.residential
             }),
             filter:f => { return f.landuse == "residential" || f.place == "neighbourhood" }
         },
         {
             dataLayer: "landuse",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.hospital,
             }),
             filter:f => { return f.amenity == "hospital" }
         },
         {
             dataLayer: "landuse",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.cemetery
             }),
             filter:f => { return f.landuse == "cemetery" }
         },
         {
             dataLayer: "landuse",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.school
             }),
             filter:f => { return f.amenity == "school" || f.amenity == "kindergarten" || f.amenity == "university" || f.amenity == "college" }
         },
         {
             dataLayer: "landuse",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.industrial
             }),
             filter:f => { return f.landuse == "industrial" }
         },
         {
             dataLayer: "natural",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.wood
             }),
             filter:f => { return f.natural == "wood" }
         },
         {
             dataLayer: "landuse",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.grass
             }),
             filter: f => { return f.landuse == "grass" }
         },
         {
             dataLayer: "landuse",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.park
             }),
             filter: f => { return f.leisure == "park" }
         },
         {
             dataLayer: "water",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.water
             })
         },
         {
             dataLayer: "natural",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.sand
             }),
             filter: f => { return f.natural == "sand" }
         },
         {
             dataLayer: "buildings",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.buildings
             })
         },
@@ -199,7 +199,7 @@ export const paintStyle = (params:DefaultStyleParams) => {
         },
         {
             dataLayer: "mask",
-            symbolizer: new FillSymbolizer({
+            symbolizer: new PolygonSymbolizer({
                 fill:params.mask
             })
         }
