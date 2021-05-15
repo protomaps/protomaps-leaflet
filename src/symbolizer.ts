@@ -89,6 +89,37 @@ function isFunction(obj) {
   return !!(obj && obj.constructor && obj.call && obj.apply);
 }
 
+function polyLongerThan(mls,minimum) {
+    for (let ls of mls) {
+        let totalLen = 0
+        for (var i = 1; i < ls.length; i++) {
+            var c = ls[i]
+            var pc = ls[i-1]
+            var dx = pc.x - c.x
+            var dy = pc.y - c.y
+            totalLen += Math.sqrt(dx*dx+dy*dy)
+            if (totalLen > minimum) return true
+        } 
+    }
+    return false
+}
+
+function maxLsLen(mls) {
+    var maxLen = 0
+    for (let ls of mls) {
+        let totalLen = 0
+        for (var i = 1; i < ls.length; i++) {
+            var c = ls[i]
+            var pc = ls[i-1]
+            var dx = pc.x - c.x
+            var dy = pc.y - c.y
+            totalLen += Math.sqrt(dx*dx+dy*dy)
+        } 
+        if (totalLen > maxLen) maxLen = totalLen
+    }
+    return maxLen
+}
+
 export class LineSymbolizer implements PaintSymbolizer {
     color:string
     width:any
