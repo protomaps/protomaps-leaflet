@@ -1,4 +1,4 @@
-import { FillSymbolizer, LineSymbolizer, LineLabelSymbolizer, TextSymbolizer, exp } from './../symbolizer'
+import { PolygonSymbolizer, LineSymbolizer, LineLabelSymbolizer, TextSymbolizer, exp } from './../symbolizer'
 
 export function filterFn(arr) {
     // hack around "$type"

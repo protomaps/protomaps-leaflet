@@ -1,4 +1,4 @@
-import { createPattern, FillSymbolizer, IconSymbolizer, LineSymbolizer, TextSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
+import { createPattern, PolygonSymbolizer, IconSymbolizer, LineSymbolizer, TextSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
 
 export interface DefaultStyleParams {
     earth:string

@@ -29,7 +29,7 @@ export const createPattern = (width,height, fn) => {
     return canvas
 }
 
-export class FillSymbolizer implements PaintSymbolizer {
+export class PolygonSymbolizer implements PaintSymbolizer {
     fill: string
     opacity: number
 
