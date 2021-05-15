@@ -7,7 +7,7 @@ import { simpleLabel } from './line'
 
 export interface PaintSymbolizer {
     before(ctx:any,z:number):any
-    draw(ctx:any,geom:any,transform:Transform):void
+    draw(ctx:any,feature:any,transform:Transform):void
 }
 
 export interface LabelStash {
@@ -50,9 +50,9 @@ export class FillSymbolizer implements PaintSymbolizer {
         // ctx.imageSmoothingEnabled = false // broken on safari
     }
 
-    public draw(ctx,geom,transform:Transform) {
+    public draw(ctx,feature,transform:Transform) {
         ctx.beginPath()
-        for (var poly of geom) {
+        for (var poly of feature.geom) {
             for (var p = 0; p < poly.length-1; p++) {
                 let pt = poly[p].mult(transform.scale).add(transform.translate)
                 if (p == 0) ctx.moveTo(pt.x,pt.y)
@@ -120,10 +120,10 @@ export class LineSymbolizer implements PaintSymbolizer {
         }
     }
 
-    public draw(ctx,geom,transform:Transform) {
+    public draw(ctx,feature,transform:Transform) {
         if (this.skip) return
         ctx.beginPath()
-        for (var ls of geom) {
+        for (var ls of feature.geom) {
             for (var p = 0; p < ls.length; p++) {
                 let pt = ls[p].mult(transform.scale).add(transform.translate)
                 if (p == 0) ctx.moveTo(pt.x,pt.y);

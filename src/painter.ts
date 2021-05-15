@@ -47,7 +47,7 @@ export function painter(state,key,paint_data:PaintData,label_data:LabelData,rule
             if (rule.filter) {
                 if (!rule.filter(feature.properties)) continue
             }
-            rule.symbolizer.draw(ctx,feature.geom,paint_data.transform)
+            rule.symbolizer.draw(ctx,feature,paint_data.transform)
         }
     }
 
