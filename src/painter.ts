@@ -15,7 +15,7 @@ export function painter(state,key,paint_data:PaintData,label_data:LabelData,rule
     let start = performance.now()
     let ctx
     if (!state.ctx) {
-        ctx = state.element.getContext('2d',{alpha:false})
+        ctx = state.element.getContext('2d')
         state.ctx = ctx
     } else {
         ctx = state.ctx
@@ -25,11 +25,7 @@ export function painter(state,key,paint_data:PaintData,label_data:LabelData,rule
         return
     }
     ctx.setTransform(state.tile_size/256,0,0,state.tile_size/256,0,0)
-    ctx.save()
-    ctx.fillStyle = "rgba(0,0,0,1)"
-    ctx.globalCompositeOperation = "destination-out"
-    ctx.fillRect(0,0,256,256)
-    ctx.restore()
+    ctx.clearRect(0,0,256,256)
     ctx.miterLimit = 2
 
     for (var rule of rules) {
