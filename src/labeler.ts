@@ -26,6 +26,13 @@ export interface LabelRule {
     visible?:boolean
 }
 
+class LabelAbortError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = "AbortError"
+  }
+}
+
 export class Labeler {
     tree: RBush
     view: View
@@ -223,9 +230,10 @@ export class Sublabeler extends Labeler {
                             })
                         }
                     } else {
-                        this.inflight.get(idx).forEach(f => f[1]("Cancel label"))
+                        let error = new LabelAbortError("cancel")
+                        this.inflight.get(idx).forEach(f => f[1](error))
                         this.inflight.delete(idx)
-                        reject("Cancel label")
+                        reject(error)
                     }
                 }).catch(reason => {
                     this.inflight.get(idx).forEach(f => f[1](reason))

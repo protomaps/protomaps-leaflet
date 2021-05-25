@@ -180,9 +180,7 @@ export class TileCache {
                 }).catch(e => {
                     this.inflight.get(idx).forEach(f => f[1](e))
                     this.inflight.delete(idx)
-                    if (e.name !== "AbortError") {
-                        reject(e)
-                    }
+                    reject(e)
                 })
             }
         })
