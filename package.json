@@ -29,7 +29,7 @@
     "dev": "esbuild src/index.ts --bundle --target=es2015 --watch --outfile=dist/protomaps.js --global-name=protomaps",
     "build": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps.js --global-name=protomaps",
     "build-min": "esbuild src/index.ts --bundle --target=es2015 --minify --outfile=dist/protomaps.min.js --global-name=protomaps",
-    "build-tsc": "tsc src/*.ts --lib es2017,dom",
+    "build-tsc": "tsc src/*.ts --target es6 --lib es2017,dom",
     "tsc": "tsc src/index.ts --noEmit --watch --lib es2017,dom",
     "test": "jest --watch",
     "dist": "npm run build && npm run build-min && npm run build-tsc"
