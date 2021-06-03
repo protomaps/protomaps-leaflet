@@ -1,0 +1,54 @@
+<html>
+    <head>
+    </head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+        <!-- <script src="../dist/protomaps.js"></script> -->
+        <style>
+            body, #map {
+                height:100vh;
+                margin:0px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div> 
+        <script>
+            const map = L.map('map')
+            map.setView(new L.LatLng(25.0412,121.5177),12)
+
+            L.tileLayer("https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg", {
+                attribution: '<a href="https://s2maps.eu/">Sentinel-2 cloudless - https://s2maps.eu</a> by <a href="https://eox.at/">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2016 & 2017)"'
+            }).addTo(map);
+
+            let label_rules = [
+                {                        
+                    dataLayer: "places",
+                    symbolizer: new protomaps.TextSymbolizer({
+                        properties:["name:en"],
+                        fill:"white",
+                        font:"600 16px sans-serif"
+                    }),
+                    filter: f => { return f["pmap:kind"] == "city" }
+                },
+                {
+                    dataLayer: "places",
+                    symbolizer: new protomaps.TextSymbolizer({
+                        properties:["name:en"],
+                        fill:"white",
+                        font:"400 16px sans-serif"
+                    }),
+                    filter: f => { return f["pmap:kind"] == "neighbourhood" }
+                }
+            ]
+
+            let labels = new protomaps.LeafletLayer({url:'tpe_sample.pmtiles',paint_rules:[],label_rules:label_rules})
+            labels.addTo(map)
+        </script>
+    </body>
+</html>
