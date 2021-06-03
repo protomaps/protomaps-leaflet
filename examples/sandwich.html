@@ -1,0 +1,80 @@
+<html>
+    <head>
+    </head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+        <!-- <script src="../dist/protomaps.js"></script> -->
+        <style>
+            body, #map {
+                height:100vh;
+                margin:0px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div> 
+        <script>
+            const map = L.map('map')
+            map.setView(new L.LatLng(25.0412,121.5177),14)
+
+            // the geojson data
+            let example_geojson = {
+              "type": "Feature",
+              "properties": {},
+              "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                  [
+                    [121.5122652053833,25.04235131177324],
+                    [121.52106285095213,25.04235131177324],
+                    [121.52106285095213,25.0501661626047],
+                    [121.5122652053833,25.0501661626047],
+                    [121.5122652053833,25.04235131177324]
+                  ]
+                ]
+              }
+            }
+            L.geoJson(example_geojson).addTo(map)
+
+            let paint_rules = [
+                {
+                    dataLayer: "buildings",
+                    symbolizer: new protomaps.PolygonSymbolizer({
+                        fill:"#aaa"
+                    })
+                },
+                {
+                    dataLayer: "roads",
+                    symbolizer: new protomaps.LineSymbolizer({
+                        color:"#aaa"
+                    })
+                }
+
+            ]
+            let paint = new protomaps.LeafletLayer({url:'tpe_sample.pmtiles',paint_rules:paint_rules,label_rules:[]})
+            paint.addTo(map)
+
+            let label_rules = [
+                {
+                    dataLayer: "places",
+                    symbolizer: new protomaps.TextSymbolizer({
+                        properties:["name:en"],
+                        fill:"black",
+                        font:"600 14px sans-serif"
+                    }),
+                    filter: f => { return f["pmap:kind"] == "neighbourhood" }
+                }
+            ]
+
+            // https://leafletjs.com/examples/map-panes/
+            map.createPane('labels');
+            let labels = new protomaps.LeafletLayer({url:'tpe_sample.pmtiles',paint_rules:[],label_rules:label_rules,pane:'labels'})
+            labels.addTo(map)
+        </script>
+    </body>
+</html>
