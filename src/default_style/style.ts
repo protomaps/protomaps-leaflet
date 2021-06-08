@@ -274,12 +274,13 @@ export const labelRules = (params:DefaultStyleParams) => {
                 font:"italic 400 12px sans-serif"
             })
         },
-        {
-            dataLayer: "roads",
-            symbolizer: new LineLabelSymbolizer({
-                fill: params.roadsLabel
-            })
-        },
+        // {
+        //     dataLayer: "roads",
+        //     symbolizer: new LineLabelSymbolizer({
+        //         fill: params.roadsLabel
+        //     }),
+        //     minzoom:12
+        // },
         {
             dataLayer: "pois",
             symbolizer: new TextSymbolizer({
