@@ -418,7 +418,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
             ctx.translate(a.x,a.y)
             ctx.rotate(Math.atan2(dy, dx))
             if (dx < 0) ctx.scale(0,-1)
-            ctx.font = this.font
+            ctx.font = font
             if (this.stroke > 0) {
                 ctx.strokeStyle = this.stroke
                 ctx.lineWidth = this.width
