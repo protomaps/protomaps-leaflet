@@ -1,6 +1,6 @@
 {
   "name": "protomaps",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "files": [
     "dist/protomaps.js",
     "dist/protomaps.min.js",
