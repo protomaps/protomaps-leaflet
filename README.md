@@ -1,6 +1,7 @@
 * [Simple Leaflet demo](https://protomaps.github.io/protomaps.js/examples/leaflet.html)
 * [Satellite + labels demo](https://protomaps.github.io/protomaps.js/examples/labels.html)
 * [GeoJSON between basemap and labels demo](https://protomaps.github.io/protomaps.js/examples/sandwich.html)
+* [JSON style](https://protomaps.github.io/protomaps.js/examples/json_style.html)
 
 Above examples use a local PMTiles file and do not need an API key.
 

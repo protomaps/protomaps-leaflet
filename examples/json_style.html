@@ -1,0 +1,53 @@
+<html>
+    <head>
+    </head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+        <!-- <script src="../dist/protomaps.js"></script> -->
+        <style>
+            body, #map {
+                height:100vh;
+                margin:0px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div> 
+        <script>
+            const map = L.map('map')
+            map.setView(new L.LatLng(25.0412,121.5177),16)
+
+            let json_style = {
+                layers:[
+                    {
+                        "type":"fill",
+                        "source-layer":"buildings",
+                        "paint":{
+                            "fill-color":"black"
+                        }
+                    },
+                    {
+                       "type":"symbol",
+                       "source-layer":"places",
+                       "layout":{
+                            "text-size":20,
+                            "text-font":"sans-serif"
+                       },
+                       "paint":{
+                            "text-color":"red"
+                       }
+                    }
+                ]
+            }
+
+            let result = protomaps.json_style(json_style)
+            let labels = new protomaps.LeafletLayer({url:'tpe_sample.pmtiles',paint_rules:result.paint_rules,label_rules:result.label_rules})
+            labels.addTo(map)
+        </script>
+    </body>
+</html>
