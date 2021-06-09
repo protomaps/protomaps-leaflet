@@ -66,8 +66,8 @@ export function getFont(obj,mapping = {}) {
 }
 
 export function json_style(obj) {
-    let paint_style = []
-    let label_style = []
+    let paint_rules = []
+    let label_rules = []
     let refs = new Map<string,any>()
 
     for (var layer of obj.layers) {
@@ -95,16 +95,16 @@ export function json_style(obj) {
 
         // ignore background-color?
         if (layer.type == "fill") {
-            paint_style.push({
+            paint_rules.push({
                 dataLayer: layer['source-layer'],
                 filter:filter,
-                symbolizer: new FillSymbolizer({
+                symbolizer: new PolygonSymbolizer({
                     fill:layer.paint['fill-color'],
                     opacity:layer.paint['fill-opacity']
                 })
             })
         } else if (layer.type == "line") {
-            paint_style.push({
+            paint_rules.push({
                 dataLayer: layer['source-layer'],
                 filter:filter,
                 symbolizer: new LineSymbolizer({
@@ -114,7 +114,7 @@ export function json_style(obj) {
             })
         } else if (layer.type == "symbol") {
             if (layer.layout["symbol-placement"] == "line") {
-                label_style.push({
+                label_rules.push({
                     dataLayer: layer['source-layer'],
                     filter:filter,
                     symbolizer: new LineLabelSymbolizer({
@@ -124,7 +124,7 @@ export function json_style(obj) {
                     })
                 })
             } else {
-                label_style.push({
+                label_rules.push({
                     dataLayer: layer['source-layer'],
                     filter:filter,
                     symbolizer: new TextSymbolizer({
@@ -138,5 +138,5 @@ export function json_style(obj) {
         }
     }
 
-    return {paint_style:paint_style,label_style:label_style}
+    return {paint_rules:paint_rules,label_rules:label_rules}
 }
