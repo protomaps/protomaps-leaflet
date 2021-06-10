@@ -43,6 +43,17 @@ export function numberFn(obj) {
             stops.push([slice[i],slice[i+1]])
         }
         return exp(obj[1][1],stops)
+    } else if (obj[0] == 'step' && obj[1][0] == 'get') {
+        let slice = obj.slice(2)
+        let prop = obj[1][1]
+        return (z,props) => {
+            let val = props[prop]
+            if (val < slice[1]) return slice[0]
+            for (i = 1; i < slice.length; i+=2) {
+                if (val <= slice[i]) return slice[i+1]
+            }
+            return slice[slice.length-1]
+        }
     } else {
         console.log("Unimplemented numeric fn: ", obj)
     }
@@ -66,6 +77,11 @@ export function getFont(obj,mapping = {}) {
         return z => {
             let t = numberFn(text_size)
             return `${t(z)}px ${fontfaces.join(', ')}`
+        }
+    } else if (text_size[0] == 'step') {
+        return (z,p) => {
+            let t = numberFn(text_size)
+            return `${t(z,p)}px ${fontfaces.join(', ')}`
         }
     } else {
         console.log("Can't parse font: ", obj)
