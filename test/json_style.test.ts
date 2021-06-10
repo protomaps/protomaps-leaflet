@@ -63,6 +63,15 @@ test("numberFn function", () => {
     expect(n(15)).toEqual(1)
     expect(n(16)).toEqual(2)
 })
+
+test("numberFn interpolate", () => {
+   let n = numberFn(["interpolate",["exponential",1],["zoom"],14,0,16,2]) 
+    expect(n.length).toEqual(1)
+    expect(n(14)).toEqual(0)
+    expect(n(15)).toEqual(1)
+    expect(n(16)).toEqual(2)
+})
+
 test("font", () => {
    let n = getFont({'text-font':['Noto'],'text-size':14}) 
    expect(n).toEqual('14px sans-serif')

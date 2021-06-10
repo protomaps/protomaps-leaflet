@@ -25,7 +25,7 @@ export function filterFn(arr) {
         let parts = arr.slice(1,arr.length).map(e => filterFn(e))
         return f => parts.some(p => { return p(f) })
     } else {
-        console.log("Unimplemented: ",arr[0])
+        console.log("Unimplemented filter: ",arr[0])
     }
 }
 
@@ -36,8 +36,15 @@ export function numberFn(obj) {
     } 
     if (obj.base && obj.stops) {
         return exp(obj.base,obj.stops)
+    } else if (obj[0] == 'interpolate' && obj[1][0] == "exponential" && obj[2] == "zoom") {
+        let slice = obj.slice(3)
+        let stops = []
+        for (var i = 0; i < slice.length; i+=2) {
+            stops.push([slice[i],slice[i+1]])
+        }
+        return exp(obj[1][1],stops)
     } else {
-        console.log("Unimplemented: ", obj)
+        console.log("Unimplemented numeric fn: ", obj)
     }
 }
 
@@ -138,5 +145,5 @@ export function json_style(obj) {
         }
     }
 
-    return {paint_rules:paint_rules,label_rules:label_rules}
+    return {paint_rules:paint_rules,label_rules:label_rules,tasks:[]}
 }
