@@ -22,6 +22,8 @@ See the docs on [what protomaps.js is, what protomaps.js is not](https://protoma
 </script>
 ```
 
+Exports of OpenStreetMap data in PMTiles format can be obtained from [https://protomaps.com/bundles](https://protomaps.com/bundles).
+
 ## Project Status
 
 The design is still evolving rapidly, so do not expect any kind of stable internal or external-facing API. But please do report bugs and discuss requirements in the Issues.
