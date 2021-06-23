@@ -23,7 +23,7 @@
             map.setView(new L.LatLng(25.0412,121.5177),12)
 
             L.tileLayer("https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg", {
-                attribution: '<a href="https://s2maps.eu/">Sentinel-2 cloudless - https://s2maps.eu</a> by <a href="https://eox.at/">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2016 & 2017)"'
+                attribution: '<a href="https://s2maps.eu/">Sentinel-2 cloudless - https://s2maps.eu</a> by <a href="https://eox.at/">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2016 & 2017)'
             }).addTo(map);
 
             let label_rules = [
@@ -47,7 +47,7 @@
                 }
             ]
 
-            let labels = new protomaps.LeafletLayer({url:'tpe_sample.pmtiles',paint_rules:[],label_rules:label_rules})
+            let labels = new protomaps.LeafletLayer({attribution:'<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',url:'tpe_sample.pmtiles',paint_rules:[],label_rules:label_rules})
             labels.addTo(map)
         </script>
     </body>
