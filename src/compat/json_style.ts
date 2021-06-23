@@ -126,15 +126,39 @@ export function json_style(obj) {
                     opacity:layer.paint['fill-opacity']
                 })
             })
-        } else if (layer.type == "line") {
+        } else if (layer.type == "fill-extrusion") {
+            // simulate fill-extrusion with plain fill
             paint_rules.push({
                 dataLayer: layer['source-layer'],
                 filter:filter,
-                symbolizer: new LineSymbolizer({
-                    color:layer.paint['line-color'],
-                    width:numberFn(layer.paint["line-width"])
+                symbolizer: new PolygonSymbolizer({
+                    fill:layer.paint['fill-extrusion-color'],
+                    opacity:layer.paint['fill-extrusion-opacity']
                 })
             })
+        } else if (layer.type == "line") {
+            if (layer.paint['line-dasharray']) {
+                console.log(layer.paint)
+                paint_rules.push({
+                    dataLayer: layer['source-layer'],
+                    filter:filter,
+                    symbolizer: new LineSymbolizer({
+                        width:numberFn(layer.paint["line-width"]),
+                        dash:layer.paint['line-dasharray'],
+                        dashColor:layer.paint['line-color']
+                    })
+                })
+            } else {
+                paint_rules.push({
+                    dataLayer: layer['source-layer'],
+                    filter:filter,
+                    symbolizer: new LineSymbolizer({
+                        color:layer.paint['line-color'],
+                        width:numberFn(layer.paint["line-width"])
+                    })
+                })
+
+            }
         } else if (layer.type == "symbol") {
             if (layer.layout["symbol-placement"] == "line") {
                 label_rules.push({

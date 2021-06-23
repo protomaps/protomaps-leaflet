@@ -165,7 +165,6 @@ export class LineSymbolizer implements PaintSymbolizer {
                 else ctx.lineTo(pt.x,pt.y);
             }
         }
-        ctx.stroke()
 
         if (this.dash) {
             ctx.save()
@@ -174,6 +173,8 @@ export class LineSymbolizer implements PaintSymbolizer {
             ctx.setLineDash(this.dash)
             ctx.stroke()
             ctx.restore()
+        } else {
+            ctx.stroke()
         }
     }
 }
