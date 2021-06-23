@@ -79,9 +79,13 @@ export function exp(base:number,stops):number {
         if (z >= stops[stops.length-1][0]) return stops[stops.length-1][1]
         let idx = 0
         while (stops[idx+1][0] < z) idx++
-        let normalized_x = (z-stops[idx][0]) / (stops[idx+1][0] - stops[idx][0])
-        let normalized_y = Math.pow(normalized_x,base)
-        return stops[idx][1] + normalized_y * (stops[idx+1][1] - stops[idx][1])
+        let difference = stops[idx+1][0] - stops[idx][0]
+        let progress = z-stops[idx][0]
+        var factor
+        if (difference === 0) factor = 0
+        else if (base === 1) factor = progress/difference
+        else factor = (Math.pow(base,progress)-1)/(Math.pow(base,difference)-1)
+        return factor * (stops[idx+1][1] - stops[idx][1]) + stops[idx][1]
     }
 }
 
