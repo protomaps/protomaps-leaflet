@@ -35,14 +35,14 @@ export function numberFn(obj) {
         return obj
     } 
     if (obj.base && obj.stops) {
-        return exp(obj.base,obj.stops)
+        return z => { return exp(obj.base,obj.stops)(z-1) }
     } else if (obj[0] == 'interpolate' && obj[1][0] == "exponential" && obj[2] == "zoom") {
         let slice = obj.slice(3)
         let stops = []
         for (var i = 0; i < slice.length; i+=2) {
             stops.push([slice[i],slice[i+1]])
         }
-        return exp(obj[1][1],stops)
+        return z => { return exp(obj[1][1],stops)(z-1) }
     } else if (obj[0] == 'step' && obj[1][0] == 'get') {
         let slice = obj.slice(2)
         let prop = obj[1][1]
@@ -138,7 +138,6 @@ export function json_style(obj) {
             })
         } else if (layer.type == "line") {
             if (layer.paint['line-dasharray']) {
-                console.log(layer.paint)
                 paint_rules.push({
                     dataLayer: layer['source-layer'],
                     filter:filter,
