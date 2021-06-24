@@ -296,7 +296,7 @@ export class TextSymbolizer implements LabelSymbolizer {
         this.property = options.property || "name"
         this.stroke = options.stroke || "black"
         this.width = options.width || 0
-        this.align = options.align || "left"
+        this.align = options.align || "center"
         this.offset = options.offset || 0
         this.textTransform = options.textTransform
     }
