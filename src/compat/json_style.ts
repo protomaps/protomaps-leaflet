@@ -164,9 +164,11 @@ export function json_style(obj) {
                     dataLayer: layer['source-layer'],
                     filter:filter,
                     symbolizer: new LineLabelSymbolizer({
+                        font: getFont(layer.layout),
                         fill:layer.paint['text-color'],
                         width:layer.paint['text-halo-width'],
-                        stroke:layer.paint['text-halo-color']
+                        stroke:layer.paint['text-halo-color'],
+                        textTransform:layer.layout["text-transform"]
                     })
                 })
             } else {
@@ -177,12 +179,14 @@ export function json_style(obj) {
                         font: getFont(layer.layout),
                         fill: layer.paint['text-color'],
                         stroke: layer.paint['text-halo-color'],
-                        width:layer.paint['text-halo-width']
+                        width:layer.paint['text-halo-width'],
+                        textTransform:layer.layout["text-transform"]
                     })
                 })
             }
         }
     }
 
+    label_rules.reverse()
     return {paint_rules:paint_rules,label_rules:label_rules,tasks:[]}
 }

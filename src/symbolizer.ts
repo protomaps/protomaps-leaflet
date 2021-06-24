@@ -347,7 +347,7 @@ export class TextSymbolizer implements LabelSymbolizer {
                 // }
 
                 if (this.width) {
-                    ctx.lineWidth = this.width
+                    ctx.lineWidth = this.width * 2 // centered stroke
                     ctx.strokeStyle = this.stroke
                     ctx.strokeText(property,a.x+textX+offset,a.y-offset)
                 }
