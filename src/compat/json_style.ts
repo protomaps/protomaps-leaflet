@@ -29,8 +29,8 @@ export function filterFn(arr) {
     }
 }
 
-export function numberFn(obj) {
-    if (!obj) return obj
+export function numberFn(obj,defu = 0) {
+    if (!obj) return defu
     if (typeof obj == "number") {
         return obj
     } 
@@ -56,6 +56,18 @@ export function numberFn(obj) {
         }
     } else {
         console.log("Unimplemented numeric fn: ", obj)
+    }
+}
+
+export function widthFn(width_obj,gap_obj) {
+    let w = numberFn(width_obj,1)
+    let g = numberFn(gap_obj)
+    return (z) => {
+        let tmp = (typeof(w) == "number" ? w : w(z))
+        if (g) {
+            return tmp + (typeof(g) == "number" ? g : g(z))
+        }
+        return tmp
     }
 }
 
@@ -137,12 +149,13 @@ export function json_style(obj) {
                 })
             })
         } else if (layer.type == "line") {
+            // simulate gap-width
             if (layer.paint['line-dasharray']) {
                 paint_rules.push({
                     dataLayer: layer['source-layer'],
                     filter:filter,
                     symbolizer: new LineSymbolizer({
-                        width:numberFn(layer.paint["line-width"]),
+                        width:widthFn(layer.paint["line-width"],layer.paint["line-gap-width"]),
                         dash:layer.paint['line-dasharray'],
                         dashColor:layer.paint['line-color']
                     })
@@ -153,7 +166,7 @@ export function json_style(obj) {
                     filter:filter,
                     symbolizer: new LineSymbolizer({
                         color:layer.paint['line-color'],
-                        width:numberFn(layer.paint["line-width"])
+                        width:widthFn(layer.paint["line-width"],layer.paint["line-gap-width"])
                     })
                 })
 
