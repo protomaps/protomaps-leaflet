@@ -18,7 +18,6 @@ jobs:
     - run: npm ci
     - run: npm test
 
-jobs:
   typecheck:
     runs-on: ubuntu-latest
     steps:
