@@ -29,7 +29,7 @@ export class TextSpec {
     properties:string[]
     textTransform:string
 
-    constructor(options = {}) {
+    constructor(options:any = {}) {
         this.properties = options.properties || ["name"]
         this.textTransform = options.textTransform
     }
