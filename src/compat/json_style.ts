@@ -77,7 +77,6 @@ interface FontSub {
     style: string
 }
 
-// for fallbacks, use the weight and style of the first font
 export function getFont(obj,fontsubmap:Map<string,FontSub>) {
     let fontfaces = []
     for (let wanted_face of obj['text-font']) {
@@ -88,19 +87,25 @@ export function getFont(obj,fontsubmap:Map<string,FontSub>) {
     if (fontfaces.length === 0) fontfaces.push({face:'sans-serif'})
 
     let text_size = obj['text-size']
+    // for fallbacks, use the weight and style of the first font
+    var weight = ""
+    if (fontfaces.length && fontfaces[0].weight) weight = fontfaces[0].weight + " "
+    var style = ""
+    if (fontfaces.length && fontfaces[0].style) style = fontfaces[0].style + " "
+
     if (typeof text_size == 'number') {
-        return `${text_size}px ${fontfaces.map(f => f.face).join(', ')}`
+        return `${style}${weight}${text_size}px ${fontfaces.map(f => f.face).join(', ')}`
     } else if (text_size.stops) {
         var base = 1.4
         if(text_size.base) base = text_size.base
         return z => {
             let t = numberFn(text_size)
-            return `${t(z)}px ${fontfaces.map(f => f.face).join(', ')}`
+            return `${style}${weight}${t(z)}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else if (text_size[0] == 'step') {
         return (z,p) => {
             let t = numberFn(text_size)
-            return `${t(z,p)}px ${fontfaces.map(f => f.face).join(', ')}`
+            return `${style}${weight}${t(z,p)}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else {
         console.log("Can't parse font: ", obj)

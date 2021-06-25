@@ -92,11 +92,18 @@ test("font", async () => {
    n = getFont({'text-font':['Noto'],'text-size':15},{})
    assert.equal(n,'15px sans-serif')
 
-   n = getFont({'text-font':['Noto'],'text-size':15},{'Noto':{face:'serif'}},{})
+   n = getFont({'text-font':['Noto'],'text-size':15},{'Noto':{face:'serif'}})
    assert.equal(n,'15px serif')
 
-   n = getFont({'text-font':['Boto','Noto'],'text-size':15},{'Noto':{face:'serif'},'Boto':{face:'Comic Sans'}},{})
+   n = getFont({'text-font':['Boto','Noto'],'text-size':15},{'Noto':{face:'serif'},'Boto':{face:'Comic Sans'}})
    assert.equal(n,'15px Comic Sans, serif')
+})
+
+test("font weight and style", async () => {
+   n = getFont({'text-font':['Noto'],'text-size':15},{'Noto':{face:'serif',weight:100}})
+   assert.equal(n,'100 15px serif')
+   n = getFont({'text-font':['Noto'],'text-size':15},{'Noto':{face:'serif',style:"italic"}})
+   assert.equal(n,'italic 15px serif')
 })
 
 test("font size fn zoom", async () => {
