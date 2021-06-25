@@ -46,7 +46,7 @@ export function numberFn(obj,defu = 0) {
     } else if (obj[0] == 'step' && obj[1][0] == 'get') {
         let slice = obj.slice(2)
         let prop = obj[1][1]
-        return (z,props = {}) => {
+        return (z,props) => {
             let val = props[prop]
             if (val < slice[1]) return slice[0]
             for (i = 1; i < slice.length; i+=2) {
@@ -71,36 +71,43 @@ export function widthFn(width_obj,gap_obj) {
     }
 }
 
-export function getFont(obj,mapping = {}) {
+interface FontSub {
+    face: string
+    weight: number
+    style: string
+}
+
+// for fallbacks, use the weight and style of the first font
+export function getFont(obj,fontsubmap:Map<string,FontSub>) {
     let fontfaces = []
     for (let wanted_face of obj['text-font']) {
-        if (mapping.hasOwnProperty(wanted_face)) {
-            fontfaces.push(mapping[wanted_face])
+        if (fontsubmap.hasOwnProperty(wanted_face)) {
+            fontfaces.push(fontsubmap[wanted_face])
         }
     }
-    if (fontfaces.length === 0) fontfaces.push('sans-serif')
+    if (fontfaces.length === 0) fontfaces.push({face:'sans-serif'})
 
     let text_size = obj['text-size']
     if (typeof text_size == 'number') {
-        return `${text_size}px ${fontfaces.join(', ')}`
+        return `${text_size}px ${fontfaces.map(f => f.face).join(', ')}`
     } else if (text_size.stops) {
         var base = 1.4
         if(text_size.base) base = text_size.base
         return z => {
             let t = numberFn(text_size)
-            return `${t(z)}px ${fontfaces.join(', ')}`
+            return `${t(z)}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else if (text_size[0] == 'step') {
         return (z,p) => {
             let t = numberFn(text_size)
-            return `${t(z,p)}px ${fontfaces.join(', ')}`
+            return `${t(z,p)}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else {
         console.log("Can't parse font: ", obj)
     }
 }
 
-export function json_style(obj) {
+export function json_style(obj,fontsubmap:Map<string,FontSub>) {
     let paint_rules = []
     let label_rules = []
     let refs = new Map<string,any>()
@@ -177,7 +184,7 @@ export function json_style(obj) {
                     dataLayer: layer['source-layer'],
                     filter:filter,
                     symbolizer: new LineLabelSymbolizer({
-                        font: getFont(layer.layout),
+                        font: getFont(layer.layout,fontsubmap),
                         fill:layer.paint['text-color'],
                         width:layer.paint['text-halo-width'],
                         stroke:layer.paint['text-halo-color'],
@@ -189,7 +196,7 @@ export function json_style(obj) {
                     dataLayer: layer['source-layer'],
                     filter:filter,
                     symbolizer: new TextSymbolizer({
-                        font: getFont(layer.layout),
+                        font: getFont(layer.layout,fontsubmap),
                         fill: layer.paint['text-color'],
                         stroke: layer.paint['text-halo-color'],
                         width:layer.paint['text-halo-width'],

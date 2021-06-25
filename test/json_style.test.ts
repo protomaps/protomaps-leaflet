@@ -86,28 +86,28 @@ test("numberFn properties", async () => {
 })
 
 test("font", async () => {
-   let n = getFont({'text-font':['Noto'],'text-size':14}) 
+   let n = getFont({'text-font':['Noto'],'text-size':14},{})
    assert.equal(n,'14px sans-serif')
 
-   n = getFont({'text-font':['Noto'],'text-size':15}) 
+   n = getFont({'text-font':['Noto'],'text-size':15},{})
    assert.equal(n,'15px sans-serif')
 
-   n = getFont({'text-font':['Noto'],'text-size':15},{'Noto':'serif'}) 
+   n = getFont({'text-font':['Noto'],'text-size':15},{'Noto':{face:'serif'}},{})
    assert.equal(n,'15px serif')
 
-   n = getFont({'text-font':['Boto','Noto'],'text-size':15},{'Noto':'serif','Boto':'Comic Sans'}) 
+   n = getFont({'text-font':['Boto','Noto'],'text-size':15},{'Noto':{face:'serif'},'Boto':{face:'Comic Sans'}},{})
    assert.equal(n,'15px Comic Sans, serif')
 })
 
 test("font size fn zoom", async () => {
-   let n = getFont({'text-font':['Noto'],'text-size':{'base':1,'stops':[[14,1],[16,3]]}}) 
+   let n = getFont({'text-font':['Noto'],'text-size':{'base':1,'stops':[[14,1],[16,3]]}},{})
    assert.equal(n(15),'1px sans-serif')
    assert.equal(n(16),'2px sans-serif')
    assert.equal(n(17),'3px sans-serif')
 })
 
 test("font size fn zoom props", async () => {
-   let n = getFont({'text-font':['Noto'],'text-size':["step",["get","scalerank"],0,1,12,2,10]}) 
+   let n = getFont({'text-font':['Noto'],'text-size':["step",["get","scalerank"],0,1,12,2,10]},{})
    assert.equal(n(14,{scalerank:0}),'0px sans-serif')
    assert.equal(n(14,{scalerank:1}),'12px sans-serif')
    assert.equal(n(14,{scalerank:2}),'10px sans-serif')
