@@ -9,6 +9,7 @@ import { paint_rules as darkPaintRules, label_rules as darkLabelRules } from '..
 
 class CanvasPool {
     unused: any[]
+    lang: string
 
     constructor(lang:string) {
         this.lang = lang

@@ -131,6 +131,7 @@ export class LineSymbolizer implements PaintSymbolizer {
     skip:boolean
     dash:any
     dashColor:string
+    dashWidth:number
 
     constructor(options) {
         this.color = options.color || "#000000"
@@ -180,6 +181,9 @@ export class LineSymbolizer implements PaintSymbolizer {
 }
 
 export class IconSymbolizer implements LabelSymbolizer {
+    sprites: any // FIXME
+    name: string
+
     constructor(options) {
         this.sprites = options.sprites
         this.name = options.name
@@ -205,6 +209,11 @@ export class IconSymbolizer implements LabelSymbolizer {
 }
 
 export class CircleSymbolizer implements LabelSymbolizer {
+    radius: number
+    fill: string
+    stroke: string
+    width: number
+
     constructor(options) {
         this.radius = options.radius || 3
         this.fill = options.fill || "black"
@@ -255,6 +264,8 @@ const mergeBbox = (b1,b2) => {
 }
 
 export class GroupSymbolizer implements LabelSymbolizer {
+    list: LabelSymbolizer[]
+
     constructor(list) {
         this.list = list
     }
@@ -287,6 +298,8 @@ export class TextSymbolizer implements LabelSymbolizer {
     width: number
     align: string
     offset: number
+    textTransform: string
+    property: string
 
     constructor(options) {
         this.font = new FontSpec(options)

@@ -48,6 +48,12 @@ export class TextSpec {
 }
 
 export class FontSpec {
+    family: string
+    size: number
+    weight: number
+    style: number
+    font: string
+
     constructor(options) {
         if (options.font) {
             this.font = options.font
