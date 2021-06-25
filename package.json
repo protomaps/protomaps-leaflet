@@ -31,7 +31,7 @@
     "build-min": "esbuild src/index.ts --bundle --target=es2015 --minify --outfile=dist/protomaps.min.js --global-name=protomaps",
     "build-tsc": "tsc src/*.ts --target es6 --lib es2017,dom --moduleResolution node",
     "tsc": "tsc src/index.ts --noEmit --watch --target es6 --lib es2017,dom --moduleResolution node",
-    "test": "node -r esbuild-runner/register test/index.js",
+    "test": "node -r esbuild-runner/register test/index.ts",
     "dist": "npm run build && npm run build-min && npm run build-tsc"
   },
   "repository": {
