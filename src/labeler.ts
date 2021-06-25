@@ -216,7 +216,7 @@ export class Sublabeler extends Labeler {
                             let max_dist = 0
                             for (let key of this.current) {
                                 let split = key.split(':')
-                                let dist = Math.sqrt(Math.pow(split[0]-data_zxy.x,2) + Math.pow(split[1]-data_zxy.y,2))
+                                let dist = Math.sqrt(Math.pow(+split[0]-data_zxy.x,2) + Math.pow(+split[1]-data_zxy.y,2))
                                 if (dist > max_dist) {
                                     max_dist = dist
                                     max_key = key

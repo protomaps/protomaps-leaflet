@@ -1,5 +1,5 @@
 {
     "compilerOptions":{
-        "lib":["es2017","dom"]
+        "lib":["es2020","dom"]
     }
 }

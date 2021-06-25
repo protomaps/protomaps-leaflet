@@ -29,11 +29,7 @@ export function filterFn(arr) {
     }
 }
 
-export function numberFn(obj:any,defaultValue = 0):(number|((z:number,f:any)=>number)) {
-    if (!obj) return defaultValue
-    if (typeof obj == "number") {
-        return obj
-    } 
+export function numberFn(obj:any):((z:number,f:any)=>number) {
     if (obj.base && obj.stops) {
         return (z,f) => { return exp(obj.base,obj.stops)(z-1) }
     } else if (obj[0] == 'interpolate' && obj[1][0] == "exponential" && obj[2] == "zoom") {
@@ -59,9 +55,17 @@ export function numberFn(obj:any,defaultValue = 0):(number|((z:number,f:any)=>nu
     }
 }
 
+export function numberOrFn(obj:any,defaultValue = 0):(number|((z:number,f:any)=>number)) {
+    if (!obj) return defaultValue
+    if (typeof obj == "number") {
+        return obj
+    } 
+    return numberFn(obj)
+}
+
 export function widthFn(width_obj,gap_obj) {
-    let w = numberFn(width_obj,1)
-    let g = numberFn(gap_obj)
+    let w = numberOrFn(width_obj,1)
+    let g = numberOrFn(gap_obj)
     return (z) => {
         let tmp = (typeof(w) == "number" ? w : w(z,{}))
         if (g) {
@@ -98,13 +102,13 @@ export function getFont(obj,fontsubmap:Map<string,FontSub>) {
     } else if (text_size.stops) {
         var base = 1.4
         if(text_size.base) base = text_size.base
+        let t = numberFn(text_size)
         return z => {
-            let t = numberFn(text_size)
             return `${style}${weight}${t(z,{})}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else if (text_size[0] == 'step') {
+        let t = numberFn(text_size)
         return (z,p) => {
-            let t = numberFn(text_size)
             return `${style}${weight}${t(z,p)}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else {
