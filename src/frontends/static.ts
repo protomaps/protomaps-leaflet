@@ -1,4 +1,4 @@
-import { ZxySource, TileCache } from '../tilecache'
+import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
 import { Superview } from '../view'
 import { Rule, painter } from '../painter'
 import { Superlabeler } from '../labeler'
@@ -14,7 +14,16 @@ export class Static {
     constructor(options) {
         this.paint_rules = options.paint_rules || paint_rules
         this.label_rules = options.label_rules || label_rules
-        let cache = new TileCache(new ZxySource(options.url))
+
+        let source
+        if (options.url.url) {
+            source = new PmtilesSource(options.url)
+        } else if (options.url.endsWith(".pmtiles")) {
+            source = new PmtilesSource(options.url)
+        } else {
+            source = new ZxySource(options.url)
+        }
+        let cache = new TileCache(source)
         this.view = new Superview(cache,14,4096)
         this.debug = options.debug || false
     }
