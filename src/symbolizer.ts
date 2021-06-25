@@ -64,7 +64,7 @@ export class PolygonSymbolizer implements PaintSymbolizer {
     }
 }
 
-export function arr(base,a):number {
+export function arr(base,a):((z:number)=>number) {
     return z => {
         let b = z - base
         if (b >= 0 && b < a.length) {
@@ -438,7 +438,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
             ctx.rotate(Math.atan2(dy, dx))
             if (dx < 0) ctx.scale(0,-1)
             ctx.font = font
-            if (this.stroke > 0) {
+            if (this.width > 0) {
                 ctx.strokeStyle = this.stroke
                 ctx.lineWidth = this.width
                 ctx.strokeText(name,0,0)
