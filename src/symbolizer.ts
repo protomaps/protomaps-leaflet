@@ -74,7 +74,7 @@ export function arr(base,a):number {
     }
 }
 
-export function exp(base:number,stops):ZFunction {
+export function exp(base:number,stops) : ((z:number) => number) {
     return z => {
         if (z <= stops[0][0]) return stops[0][1]
         if (z >= stops[stops.length-1][0]) return stops[stops.length-1][1]

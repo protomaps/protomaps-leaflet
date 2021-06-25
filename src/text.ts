@@ -15,7 +15,7 @@ export function linebreak(str:string):string[] {
         first = str.substring(0,space_after)
         after = str.substring(space_after+1,str.length)
     }
-    return [first,...linebreak(after,maxlen)]
+    return [first,...linebreak(after)]
 }
 
 const CJK_CHARS = '\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\u3400-\u4DB5\u4E00-\u9FEA\uF900-\uFA6D\uFA70-\uFAD9\u2000';
@@ -25,12 +25,9 @@ export function isCjk(s) {
     return cjk_test.test(s)
 }
 
-function isFunction(obj) {
-  return !!(obj && obj.constructor && obj.call && obj.apply);
-}
-
 export class TextSpec {
     properties:string[]
+    textTransform:string
 
     constructor(options = {}) {
         this.properties = options.properties || ["name"]
@@ -51,11 +48,11 @@ export class TextSpec {
 }
 
 export class FontSpec {
-    family: string
-    size: number
-    weight: number
-    style: number
-    font: string
+    family: string | ((z:number,f:any) => string)
+    size: number | ((z:number,f:any) => number)
+    weight: number | ((z:number,f:any) => number)
+    style: number | ((z:number,f:any) => number)
+    font: string | ((z:number,f:any) => string)
 
     constructor(options) {
         if (options.font) {
@@ -70,29 +67,42 @@ export class FontSpec {
 
     public str(z,f) {
         if (this.font) {
-            if (isFunction(this.font)) return this.font(z,f)
-            return this.font
+            if (typeof this.font === 'function') {
+                return this.font(z,f)
+            } else {
+                return this.font
+            }
         } else {
             var style = ""
             if (this.style) {
-                if (isFunction(this.style)) style = this.style(z,f) + " "
-                else style = this.style + " "
+                if (typeof this.style === 'function') {
+                   style = this.style(z,f) + " " 
+                } else {
+                    style = this.style + " "
+                }
             }
 
             var weight = ""
             if (this.weight) {
-                if (isFunction(this.weight)) weight = this.weight(z,f) + " "
-                else weight = this.weight + " "
+                if (typeof this.weight === 'function')  {
+                    weight = this.weight(z,f) + " "
+                } else {
+                    weight = this.weight + " "
+                }
             }
 
-            var size = this.size
-            if (isFunction(this.size)) {
+            var size
+            if (typeof this.size === 'function') {
                 size = this.size(z,f)
+            } else {
+                size = this.size
             }
 
-            var family = this.family
-            if (isFunction(this.family)) {
+            var family
+            if (typeof this.family === 'function') {
                 family = this.family(z,f)
+            } else {
+                family = this.family
             }
 
             return `${style}${weight}${size}px ${family}`

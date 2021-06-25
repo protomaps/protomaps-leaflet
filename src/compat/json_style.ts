@@ -46,7 +46,7 @@ export function numberFn(obj,defu = 0) {
     } else if (obj[0] == 'step' && obj[1][0] == 'get') {
         let slice = obj.slice(2)
         let prop = obj[1][1]
-        return (z,props) => {
+        return (z,props = {}) => {
             let val = props[prop]
             if (val < slice[1]) return slice[0]
             for (i = 1; i < slice.length; i+=2) {

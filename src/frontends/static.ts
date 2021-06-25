@@ -20,7 +20,7 @@ export class Static {
     }
 
     async draw(ctx) {
-        let labeler = new Superlabeler(this.view, 1, ctx, this.label_style)
+        let labeler = new Superlabeler(this.view, 1, ctx, this.label_rules)
         let paint_datas = await this.view.get()
         let label_data = await labeler.get()
 
