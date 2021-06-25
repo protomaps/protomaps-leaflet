@@ -19,7 +19,7 @@ test('covering', async () => {
     let covering = subview.covering(4,{z:2,x:1,y:1},{minX:95,minY:100,maxX:150,maxY:110})
     assert.deepEqual(covering,[{z:4,x:3,y:4}])
 })
-test('covering between corners', () => {
+test('covering between corners', async () => {
     let subview = new Subview(cache,2,100,2,100)
     let covering = subview.covering(4,{z:2,x:1,y:1},{minX:95,minY:105,maxX:150,maxY:155})
     assert.equal(covering.length,3)

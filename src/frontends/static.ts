@@ -28,9 +28,11 @@ export class Static {
         this.debug = options.debug || false
     }
 
-    async draw(ctx) {
-        let labeler = new Superlabeler(this.view, 1, ctx, this.label_rules)
-        let paint_datas = await this.view.get()
+    async draw(ctx,center,zoom) {
+        let width = ctx.canvas.clientWidth
+        let height = ctx.canvas.clientHeight
+        let labeler = new Superlabeler(view, 1, ctx, this.label_rules)
+        let paint_datas = await view.get()
         let label_data = await labeler.get()
 
         for (let paint_data of paint_datas) {

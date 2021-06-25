@@ -13,7 +13,10 @@ export interface PaintData {
     z: number
 }
 
-
+/* 
+ * @class View
+ * expresses relationship between canvas coordinates and data tiles.
+ */
 export class View {
     // transform:(c:Zxy)=>Transform
     levelDiff: number
@@ -22,7 +25,11 @@ export class View {
     maxDataLevel: number
 }
 
-// used in simple mode
+/* 
+ * @class Superview
+ * a View where one canvas contains one or more data tiles.
+ * used for "static" frontend
+ */
 export class Superview extends View {
     tileCache: TileCache
 
@@ -48,6 +55,11 @@ export class Superview extends View {
     }
 }
 
+/* 
+ * @class Subview
+ * a View where one data tile is drawn using one or more canvas elements.
+ * used in slippy map frontends like Leaflet
+ */
 export class Subview extends View {
     displayResolution: number
 

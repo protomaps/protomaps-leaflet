@@ -13,7 +13,8 @@
        <script>
         let canvas = document.getElementById("map")
         let context = canvas.getContext('2d')
-        let map = new protomaps.Static({url:""})
+        let map = new protomaps.Static({url:"tpe_sample.pmtiles"})
+        map.setView([25.0412,121.5177],16)
         map.draw(context)
         canvas.addEventListener('click', () => {
             let base64URL = canvas.toDataURL("image/png")
