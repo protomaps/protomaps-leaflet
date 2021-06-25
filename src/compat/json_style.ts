@@ -29,20 +29,20 @@ export function filterFn(arr) {
     }
 }
 
-export function numberFn(obj,defu = 0) {
-    if (!obj) return defu
+export function numberFn(obj:any,defaultValue = 0):(number|((z:number,f:any)=>number)) {
+    if (!obj) return defaultValue
     if (typeof obj == "number") {
         return obj
     } 
     if (obj.base && obj.stops) {
-        return z => { return exp(obj.base,obj.stops)(z-1) }
+        return (z,f) => { return exp(obj.base,obj.stops)(z-1) }
     } else if (obj[0] == 'interpolate' && obj[1][0] == "exponential" && obj[2] == "zoom") {
         let slice = obj.slice(3)
         let stops = []
         for (var i = 0; i < slice.length; i+=2) {
             stops.push([slice[i],slice[i+1]])
         }
-        return z => { return exp(obj[1][1],stops)(z-1) }
+        return (z) => { return exp(obj[1][1],stops)(z-1) }
     } else if (obj[0] == 'step' && obj[1][0] == 'get') {
         let slice = obj.slice(2)
         let prop = obj[1][1]
@@ -63,9 +63,9 @@ export function widthFn(width_obj,gap_obj) {
     let w = numberFn(width_obj,1)
     let g = numberFn(gap_obj)
     return (z) => {
-        let tmp = (typeof(w) == "number" ? w : w(z))
+        let tmp = (typeof(w) == "number" ? w : w(z,{}))
         if (g) {
-            return tmp + (typeof(g) == "number" ? g : g(z))
+            return tmp + (typeof(g) == "number" ? g : g(z,{}))
         }
         return tmp
     }
@@ -73,8 +73,8 @@ export function widthFn(width_obj,gap_obj) {
 
 interface FontSub {
     face: string
-    weight: number
-    style: string
+    weight?: number
+    style?: string
 }
 
 export function getFont(obj,fontsubmap:Map<string,FontSub>) {
@@ -100,7 +100,7 @@ export function getFont(obj,fontsubmap:Map<string,FontSub>) {
         if(text_size.base) base = text_size.base
         return z => {
             let t = numberFn(text_size)
-            return `${style}${weight}${t(z)}px ${fontfaces.map(f => f.face).join(', ')}`
+            return `${style}${weight}${t(z,{})}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else if (text_size[0] == 'step') {
         return (z,p) => {

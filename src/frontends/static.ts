@@ -1,12 +1,13 @@
+import Point from '@mapbox/point-geometry'
 import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
 import { Superview } from '../view'
 import { Rule, painter } from '../painter'
-import { Superlabeler } from '../labeler'
+import { LabelRule, Superlabeler } from '../labeler'
 import { paint_rules , label_rules } from '../default_style/light'
 
 export class Static {
     paint_rules:Rule[]
-    label_rules:Rule[]
+    label_rules:LabelRule[]
     view:Superview
     debug:boolean
     scratch:any
@@ -28,11 +29,11 @@ export class Static {
         this.debug = options.debug || false
     }
 
-    async draw(ctx,center,zoom) {
+    async draw(ctx,center:Point,zoom:number) {
         let width = ctx.canvas.clientWidth
         let height = ctx.canvas.clientHeight
-        let labeler = new Superlabeler(view, 1, ctx, this.label_rules)
-        let paint_datas = await view.get()
+        let labeler = new Superlabeler(this.view, 1, ctx, this.label_rules)
+        let paint_datas = await this.view.get(center,zoom,width,height)
         let label_data = await labeler.get()
 
         for (let paint_data of paint_datas) {

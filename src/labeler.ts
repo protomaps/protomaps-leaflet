@@ -20,10 +20,13 @@ export interface LabelData {
 }
 
 export interface LabelRule {
+    minzoom:number
+    maxzoom:number
     dataLayer:string 
     symbolizer: LabelSymbolizer
-    filter?(properties:any):boolean
+    filter?:(properties:any)=>boolean
     visible?:boolean
+    sort?:(a:any,b:any)=>number
 }
 
 class LabelAbortError extends Error {
@@ -40,6 +43,7 @@ export class Labeler {
     scratch: any
     labelStyle: LabelRule[]
     active: boolean
+    listener: Listener
 
     constructor(view:View,z:number,scratch,label_style:LabelRule[]) {
         this.tree = new RBush()
@@ -49,7 +53,13 @@ export class Labeler {
         this.labelStyle = label_style
     }
 
-    private layout(c:Zxy, data):boolean {
+    // by default, a noop
+    // TODO move me to sublabeler
+    protected findSpills(knockouts,c,bbox) {
+
+    }
+
+    protected layout(c:Zxy, data):boolean {
         let start = performance.now()
         // check the current Z of the map
         if (!this.active) {
@@ -156,17 +166,12 @@ export class Superlabeler extends Labeler {
         }
     }
 
-    private findSpills() {
-
-    }
-
 }
 
 export class Sublabeler extends Labeler {
     current: Set<string>
     inflight: Map<string,any[]>
     active = false
-    listener: Listener
     // support deduplicated Labeling
 
     constructor(view:View,z:number, scratch, label_style:LabelRule[], listener:Listener) {
@@ -178,7 +183,7 @@ export class Sublabeler extends Labeler {
         this.listener = listener
     }
 
-    private findSpills(knockouts,c,bbox) {
+    protected findSpills(knockouts,c,bbox) {
         let spillovers = this.view.covering(this.z,c,bbox)
         for (let s of spillovers) {
             let s_idx = toIndex({z:s.z-2,x:Math.floor(s.x/4),y:Math.floor(s.y/4)})

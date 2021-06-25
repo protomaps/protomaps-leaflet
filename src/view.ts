@@ -23,6 +23,7 @@ export class View {
     dataResolution: number
     tileCache: TileCache
     maxDataLevel: number
+    displayResolution: number // maybe make me subview-only
 }
 
 /* 
@@ -61,7 +62,6 @@ export class Superview extends View {
  * used in slippy map frontends like Leaflet
  */
 export class Subview extends View {
-    displayResolution: number
 
     constructor(tileCache:TileCache, maxDataLevel:number, dataResolution:number, levelDiff:number, displayResolution: number) {
         super()
