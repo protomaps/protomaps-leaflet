@@ -1,4 +1,5 @@
-export function linebreak(str:string,maxlen:number):string[] {
+// TODO should be visual length in pixels, not strlen
+export function linebreak(str:string):string[] {
     if (str.length <= 15) return [str]
     let space_before = str.lastIndexOf(" ",14)
     let space_after = str.indexOf(" ",14)
@@ -29,6 +30,8 @@ function isFunction(obj) {
 }
 
 export class TextSpec {
+    properties:string[]
+
     constructor(options = {}) {
         this.properties = options.properties || ["name"]
         this.textTransform = options.textTransform

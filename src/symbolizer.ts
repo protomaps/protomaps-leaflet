@@ -17,7 +17,7 @@ export interface LabelStash {
 }
 
 export interface LabelSymbolizer {
-    stash(ctx:any,feature:any):LabelStash | undefined
+    stash(ctx:any,feature:any,zoom:number):LabelStash | undefined
 }
 
 export const createPattern = (width,height, fn) => {
@@ -32,6 +32,7 @@ export const createPattern = (width,height, fn) => {
 export class PolygonSymbolizer implements PaintSymbolizer {
     fill: string
     opacity: number
+    pattern: any // FIXME
 
     constructor(options) {
         this.fill = options.fill || "#000000"
@@ -73,7 +74,7 @@ export function arr(base,a):number {
     }
 }
 
-export function exp(base:number,stops):number {
+export function exp(base:number,stops):ZFunction {
     return z => {
         if (z <= stops[0][0]) return stops[0][1]
         if (z >= stops[stops.length-1][0]) return stops[stops.length-1][1]
@@ -250,9 +251,9 @@ export class CircleSymbolizer implements LabelSymbolizer {
     }
 }
 
-export class FlowSymbolizer implements LabelSymbolizer {
+// export class FlowSymbolizer implements LabelSymbolizer {
 
-}
+// }
 
 const mergeBbox = (b1,b2) => {
     return { 

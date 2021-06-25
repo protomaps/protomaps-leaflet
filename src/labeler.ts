@@ -139,7 +139,7 @@ export class Labeler {
 export class Superlabeler extends Labeler {
     active = true 
 
-    constructor(view:View,z:number,scratch,label_style:LabelRule) {
+    constructor(view:View,z:number,scratch,label_style:LabelRule[]) {
         super(view,z,scratch,label_style)
     }
 

@@ -5,9 +5,11 @@ import { LabelData } from './labeler'
 import { PaintSymbolizer } from './symbolizer'
 
 export interface Rule {
-   dataLayer: string
-   symbolizer: PaintSymbolizer
-   filter?(properties:any): boolean
+    minzoom:number
+    maxzoom:number
+    dataLayer: string
+    symbolizer: PaintSymbolizer
+    filter?(properties:any): boolean
 }
 
 // make this not depend on element?
