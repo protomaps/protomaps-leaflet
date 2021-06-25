@@ -1,4 +1,4 @@
-import { filterFn, numberFn, getFont } from '../src/compat/json_style'
+import { filterFn, numberOrFn, numberFn, getFont } from '../src/compat/json_style'
 import assert from 'assert'
 import baretest from 'baretest'
 
@@ -54,15 +54,15 @@ test("any",async () => {
 })
 
 test("numberFn constant", async () => {
-    let n = numberFn(5)
+    let n = numberOrFn(5)
     assert.equal(n,5)
-    n = numberFn(undefined)
+    n = numberOrFn(undefined)
     assert.equal(n,0)
 })
 
 test("numberFn function", async () => {
     let n = numberFn({base:1,stops:[[14,0],[16,2]]})
-    assert.equal(n.length,1)
+    assert.equal(n.length,2)
     assert.equal(n(15),0)
     assert.equal(n(16),1)
     assert.equal(n(17),2)
