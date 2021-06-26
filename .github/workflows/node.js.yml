@@ -27,4 +27,4 @@ jobs:
       with:
         node-version: 16.x
     - run: npm ci
-    - run: npm build-tsc
+    - run: npm run build-tsc
