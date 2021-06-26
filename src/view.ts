@@ -11,6 +11,7 @@ export interface PaintData {
     transform: Transform
     bbox: number[]
     z: number
+    data_tile: Zxy
 }
 
 /* 
@@ -49,7 +50,7 @@ export class Superview extends View {
                 data:data as Map<string,Layer>,
                 bbox:[0,0,4096,4096],
                 transform: {scale:0.25,translate:new Point(1024*needed[i].x,1024*needed[i].y)},
-                tile:needed[i],
+                data_tile:needed[i],
                 z:1
             } 
         })
@@ -185,7 +186,7 @@ export class Subview extends View {
         }
     }
 
-    public async get(display_tile: Zxy) {
+    public async get(display_tile: Zxy):Promise<PaintData> {
         let data_tile = this.dataTile(display_tile)
         const data = await this.tileCache.get(data_tile)
         return {

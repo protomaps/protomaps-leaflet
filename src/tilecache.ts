@@ -152,7 +152,7 @@ export class TileCache {
         this.inflight = new Map()
     }
 
-    public async get(c:Zxy) {
+    public async get(c:Zxy):Promise<Map<string,Layer>> {
         const idx = toIndex(c)
         return new Promise((resolve, reject) => { 
             if (this.cache.has(idx)) {
