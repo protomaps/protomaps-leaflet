@@ -21,6 +21,8 @@
         let canvas = document.getElementById("map")
         let map = new protomaps.Static({url:"tpe_sample.pmtiles"})
         map.draw(canvas,[25.0412,121.5177],16)
+
+        // screenshot helper
         canvas.addEventListener('click', () => {
             let base64URL = canvas.toDataURL("image/png")
             var win = window.open()

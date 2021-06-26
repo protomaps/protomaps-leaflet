@@ -5,6 +5,16 @@ import { Rule, painter } from '../painter'
 import { LabelRule, Superlabeler } from '../labeler'
 import { paint_rules , label_rules } from '../default_style/light'
 
+let R = 6378137
+let MAX_LATITUDE = 85.0511287798
+
+let project = latlng => {
+    let d = Math.PI / 180
+    let constrained_lat = Math.max(Math.min(MAX_LATITUDE, latlng[0]), -MAX_LATITUDE)
+    let sin = Math.sin(constrained_lat * d)
+    return new Point(R*latlng[1]*d,R*Math.log((1+sin)/(1-sin))/2)
+}
+
 export class Static {
     paint_rules:Rule[]
     label_rules:LabelRule[]
@@ -29,15 +39,18 @@ export class Static {
         this.debug = options.debug || false
     }
 
-    async draw(canvas,center:Point,zoom:number) {
+    async draw(canvas,latlng:Point,zoom:number) {
         let dpr = window.devicePixelRatio
-        canvas.width = canvas.clientWidth * dpr
-        canvas.height = canvas.clientHeight * dpr
+        let width = canvas.clientWidth
+        let height = canvas.clientHeight
+        canvas.width = width * dpr
+        canvas.height = height * dpr
         let ctx = canvas.getContext('2d')
         ctx.setTransform(dpr,0,0,dpr,0,0)
-        ctx.fillText("Test label",50,50)
+        let center = project(latlng)
+        ctx.fillText(center.x + " " + center.y,width/2,height/2)
         let labeler = new Superlabeler(this.view, 1, ctx, this.label_rules)
-        let paint_datas = await this.view.get(center,zoom,canvas.clientWidth,canvas.clientHeight)
+        let paint_datas = await this.view.get(center,zoom,width,height)
         let label_data = await labeler.get()
 
         for (let paint_data of paint_datas) {
