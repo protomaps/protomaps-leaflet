@@ -1,3 +1,5 @@
+[![Test suite](https://github.com/protomaps/protomaps.js/actions/workflows/node.js.yml/badge.svg)](https://github.com/protomaps/protomaps.js/actions/workflows/node.js.yml)
+
 * [Simple Leaflet demo](https://protomaps.github.io/protomaps.js/examples/leaflet.html)
 * [Satellite + labels demo](https://protomaps.github.io/protomaps.js/examples/labels.html)
 * [GeoJSON between basemap and labels demo](https://protomaps.github.io/protomaps.js/examples/sandwich.html)
