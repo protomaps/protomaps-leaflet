@@ -7,14 +7,20 @@
         <!-- TODO get rid of leaflet dependency in static mode -->
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="../dist/protomaps.js"></script>
+        <style>
+            #map {
+                width: 1024px;
+                height: 512px;
+                background-color:#eee;
+            }
+        </style>
     </head>
     <body>
-       <canvas id="map" width="1024" height="1024"></div> 
+       <canvas id="map"></div>
        <script>
         let canvas = document.getElementById("map")
-        let context = canvas.getContext('2d')
         let map = new protomaps.Static({url:"tpe_sample.pmtiles"})
-        map.draw(context,[25.0412,121.5177],16)
+        map.draw(canvas,[25.0412,121.5177],16)
         canvas.addEventListener('click', () => {
             let base64URL = canvas.toDataURL("image/png")
             var win = window.open()
