@@ -7,11 +7,12 @@ export interface Transform {
 }
 
 export interface PaintData {
-    data: Map<string,Layer>
-    transform: Transform
-    bbox: number[]
+    data: Map<string,Layer> // return a map to Iterable
+    bbox: number[] // eliminate this, in the overzooming case do something different
+    transform: Transform // this is only an affine, no scale
     z: number
     data_tile: Zxy
+    clip: boolean // only used in Superview
 }
 
 /* 
@@ -42,19 +43,35 @@ export class Superview extends View {
         this.maxDataLevel = maxDataLevel
     }
 
+    // width and height in css pixels
+    // assume a tile is 1024x1024 css pixels
     public async get(normalized_center:Point,zoom:number,width:number,height:number):Promise<Array<PaintData>> {
-        let x = normalized_center.x * (1 << zoom)
-        let y = normalized_center.y * (1 << zoom)
+        let center_tile = normalized_center.mult(1 << zoom)
 
-        let needed = [{z:14,x:Math.floor(x),y:Math.floor(y)}]
+        let width_tiles = width / 1024
+        let height_tiles = height / 1024
+        let mintile_x = Math.floor(center_tile.x - width_tiles / 2)
+        let maxtile_x = Math.floor(center_tile.x + width_tiles / 2)
+        let mintile_y = Math.floor(center_tile.y - height_tiles / 2)
+        let maxtile_y = Math.floor(center_tile.y + height_tiles / 2)
+        let needed = []
+        for (var tx = mintile_x; tx <= maxtile_x; tx++) {
+            for (var ty = mintile_y; ty <= maxtile_y; ty++) {
+                needed.push({z:zoom,x:tx,y:ty})
+            }
+        }
+
         let result = await Promise.all(needed.map(n => this.tileCache.get(n)))
         return result.map((data,i) => { 
+            let data_tile = needed[i]
+            let translate = center_tile.sub(new Point(data_tile.x,data_tile.y)).mult(-1024).add(new Point(width/2,height/2))
             return {
                 data:data as Map<string,Layer>,
                 bbox:[0,0,4096,4096],
-                transform: {scale:0.25,translate:new Point(0,0)},
-                data_tile:needed[i],
-                z:zoom
+                transform: {scale:0.25,translate:translate},
+                data_tile:data_tile,
+                z:zoom,
+                clip:[translate.x,translate.y,1024,1024]
             } 
         })
     }

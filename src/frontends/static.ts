@@ -49,11 +49,18 @@ export class Static {
         let ctx = canvas.getContext('2d')
         ctx.setTransform(dpr,0,0,dpr,0,0)
         let center = project(latlng)
-        // let labeler = new Superlabeler(this.view, 1, ctx, this.label_rules)
         let normalized_center = new Point((center.x+MAXCOORD)/(MAXCOORD*2),1-(center.y+MAXCOORD)/(MAXCOORD*2))
         let paint_datas = await this.view.get(normalized_center,zoom,width,height)
+        // let labeler = new Superlabeler(this.view, 1, ctx, this.label_rules)
         // let label_data = await labeler.get()
 
         let p = painter({ctx:ctx},"key",paint_datas,{},this.paint_rules,false)
+
+        if (this.debug) {
+            for (var paint_data of paint_datas) {
+                ctx.strokeStyle = "black"
+                ctx.strokeRect(paint_data.transform.translate.x,paint_data.transform.translate.y,1024,1024)
+            }
+        }
     }
 }

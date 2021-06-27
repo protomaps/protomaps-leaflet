@@ -30,23 +30,32 @@ export function painter(state,key,paint_datas:PaintData[],label_data:LabelData,r
     ctx.clearRect(0,0,256,256)
     ctx.miterLimit = 2
 
-    for (var rule of rules) {
-        if (rule.minzoom && paint_data.z < rule.minzoom) continue
-        if (rule.maxzoom && paint_data.z > rule.maxzoom) continue
-        var layer = paint_data.data[rule.dataLayer]
-        if (layer === undefined) continue
-        rule.symbolizer.before(ctx,paint_data.z)
-        for (var feature of layer) {
-            var fbox = feature.bbox
-            var vbox = paint_data.bbox
-            if (fbox[2] < vbox[0] || fbox[0] > vbox[2] || fbox[1] > vbox[3] || fbox[3] < vbox[1]) {
-                continue
-            }
-            if (rule.filter) {
-                if (!rule.filter(feature.properties)) continue
-            }
-            rule.symbolizer.draw(ctx,feature,paint_data.transform)
+    for (var paint_data of paint_datas) {
+        if (paint_data.clip) {
+            ctx.save()
+            ctx.beginPath()
+            ctx.rect(...paint_data.clip)
+            ctx.clip()
         }
+        for (var rule of rules) {
+            if (rule.minzoom && paint_data.z < rule.minzoom) continue
+            if (rule.maxzoom && paint_data.z > rule.maxzoom) continue
+            var layer = paint_data.data[rule.dataLayer]
+            if (layer === undefined) continue
+            rule.symbolizer.before(ctx,paint_data.z)
+            for (var feature of layer) {
+                var fbox = feature.bbox
+                var vbox = paint_data.bbox // does this handle widths?
+                if (fbox[2] < vbox[0] || fbox[0] > vbox[2] || fbox[1] > vbox[3] || fbox[3] < vbox[1]) {
+                    continue
+                }
+                if (rule.filter) {
+                    if (!rule.filter(feature.properties)) continue
+                }
+                rule.symbolizer.draw(ctx,feature,paint_data.transform)
+            }
+        }
+        if (paint_data.clip) ctx.restore()
     }
 
     let matches = label_data.data.search(label_data.bbox)
