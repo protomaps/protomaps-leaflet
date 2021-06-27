@@ -45,7 +45,7 @@
                 ]
             }
 
-            let result = protomaps.json_style(json_style)
+            let result = protomaps.json_style(json_style,{})
             let labels = new protomaps.LeafletLayer({attribution:'<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',url:'tpe_sample.pmtiles',paint_rules:result.paint_rules,label_rules:result.label_rules})
             labels.addTo(map)
         </script>
