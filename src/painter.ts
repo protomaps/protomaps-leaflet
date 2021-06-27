@@ -13,7 +13,7 @@ export interface Rule {
 }
 
 // make this not depend on element?
-export function painter(state,key,paint_data:PaintData,label_data:LabelData,rules:Rule[],debug) {
+export function painter(state,key,paint_datas:PaintData[],label_data:LabelData,rules:Rule[],debug) {
     let start = performance.now()
     let ctx
     if (!state.ctx) {

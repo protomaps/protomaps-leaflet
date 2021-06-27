@@ -54,8 +54,6 @@ export class Static {
         let paint_datas = await this.view.get(normalized_center,zoom,width,height)
         // let label_data = await labeler.get()
 
-        for (let paint_data of paint_datas) {
-            let p = painter({ctx:ctx},"key",paint_data,{},this.paint_rules,false)
-        }
+        let p = painter({ctx:ctx},"key",paint_datas,{},this.paint_rules,false)
     }
 }

@@ -119,7 +119,7 @@ class LeafletLayer extends L.GridLayer {
 
         await timer(priority)
 
-        let painting_time = painter(state,key,paint_data,label_data,this.paint_rules,this.debug)
+        let painting_time = painter(state,key,[paint_data],label_data,this.paint_rules,this.debug)
 
         if (this.debug) {
             let ctx = state.ctx
