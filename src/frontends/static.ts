@@ -7,6 +7,7 @@ import { paint_rules , label_rules } from '../default_style/light'
 
 let R = 6378137
 let MAX_LATITUDE = 85.0511287798
+let MAXCOORD = R * Math.PI
 
 let project = latlng => {
     let d = Math.PI / 180
@@ -48,13 +49,13 @@ export class Static {
         let ctx = canvas.getContext('2d')
         ctx.setTransform(dpr,0,0,dpr,0,0)
         let center = project(latlng)
-        ctx.fillText(center.x + " " + center.y,width/2,height/2)
-        let labeler = new Superlabeler(this.view, 1, ctx, this.label_rules)
-        let paint_datas = await this.view.get(center,zoom,width,height)
-        let label_data = await labeler.get()
+        // let labeler = new Superlabeler(this.view, 1, ctx, this.label_rules)
+        let normalized_center = new Point((center.x+MAXCOORD)/(MAXCOORD*2),1-(center.y+MAXCOORD)/(MAXCOORD*2))
+        let paint_datas = await this.view.get(normalized_center,zoom,width,height)
+        // let label_data = await labeler.get()
 
         for (let paint_data of paint_datas) {
-            let p = painter({ctx:ctx},"key",paint_data,label_data,this.paint_rules,false)
+            let p = painter({ctx:ctx},"key",paint_data,{},this.paint_rules,false)
         }
     }
 }

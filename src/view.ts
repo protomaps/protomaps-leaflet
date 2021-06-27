@@ -42,16 +42,19 @@ export class Superview extends View {
         this.maxDataLevel = maxDataLevel
     }
 
-    public async get(center:Point,zoom:number,width:number,height:number):Promise<Array<PaintData>> {
-        let needed = [{z:2,x:0,y:0},{z:2,x:0,y:1},{z:2,x:1,y:0},{z:2,x:1,y:1}]
+    public async get(normalized_center:Point,zoom:number,width:number,height:number):Promise<Array<PaintData>> {
+        let x = normalized_center.x * (1 << zoom)
+        let y = normalized_center.y * (1 << zoom)
+
+        let needed = [{z:14,x:Math.floor(x),y:Math.floor(y)}]
         let result = await Promise.all(needed.map(n => this.tileCache.get(n)))
         return result.map((data,i) => { 
             return {
                 data:data as Map<string,Layer>,
                 bbox:[0,0,4096,4096],
-                transform: {scale:0.25,translate:new Point(1024*needed[i].x,1024*needed[i].y)},
+                transform: {scale:0.25,translate:new Point(0,0)},
                 data_tile:needed[i],
-                z:1
+                z:zoom
             } 
         })
     }
