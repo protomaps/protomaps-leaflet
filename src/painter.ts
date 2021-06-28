@@ -1,7 +1,6 @@
 import Point from '@mapbox/point-geometry'
 import { Zxy } from './tilecache'
 import { PreparedTile } from './view'
-import { LabelData } from './labeler'
 import { PaintSymbolizer } from './symbolizer'
 
 export interface Rule {
@@ -13,7 +12,7 @@ export interface Rule {
 }
 
 // make this not depend on element?
-export function painter(state,key,prepared_tiles:PreparedTile[],label_data:LabelData,rules:Rule[],bbox,translate,debug) {
+export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules:Rule[],bbox,translate,debug) {
     let start = performance.now()
     let ctx
     if (!state.ctx) {

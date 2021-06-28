@@ -1,5 +1,5 @@
 import Point from '@mapbox/point-geometry'
-import { View, Transform } from './view'
+import { PreparedTile, View, Transform } from './view'
 import { Zxy, toIndex, Layer } from './tilecache'
 import RBush from 'rbush'
 import { LabelSymbolizer } from './symbolizer'
@@ -13,12 +13,6 @@ export interface Bbox {
     maxY:number
 }
 
-export interface LabelData {
-    readonly data: RBush
-    readonly transform: Transform
-    readonly bbox: Bbox
-}
-
 export interface LabelRule {
     minzoom?:number
     maxzoom?:number
@@ -29,33 +23,34 @@ export interface LabelRule {
     sort?:(a:any,b:any)=>number
 }
 
+// support deduplicated Labeling
 export class Labeler {
     tree: RBush
     view: View
     z: number
     scratch: any
     labelStyle: LabelRule[]
+    current: Set<string>
     listener: Listener
 
-    constructor(view:View,z:number,scratch,label_style:LabelRule[]) {
+    constructor(view:View,z:number,scratch,label_style:LabelRule[],listener:Listener) {
         this.tree = new RBush()
         this.view = view
         this.z = z
         this.scratch = scratch
         this.labelStyle = label_style
+        this.listener = listener
+        this.current = new Set<string>()
     }
 
-    // by default, a noop
-    // TODO move me to sublabeler
-    protected findSpills(knockouts,c,bbox) {
-
-    }
-
+    // TODO the symbolizer should return a set of bboxes and a draw callback
+    // or it should return null
+    // approximated by a series of bboxes...
     protected layout(c:Zxy, data):boolean {
         let start = performance.now()
 
         let knockouts = new Set<string>()
-        let multiplier = 1 << (this.z - c.z - this.view.levelDiff)
+        let multiplier = 1 << (this.z - c.z - this.view.levelDiff) / 4096 // TODO this breaks leaflet
         let extent = this.view.dataResolution
         for (var [order, rule] of this.labelStyle.entries()) {
             if (rule.visible == false) continue
@@ -132,42 +127,6 @@ export class Labeler {
         // console.log("Layout: ", performance.now() - start)
     }
 
-}
-
-export class Superlabeler extends Labeler {
-    constructor(view:View,z:number,scratch,label_style:LabelRule[]) {
-        super(view,z,scratch,label_style)
-    }
-
-    public async get() {
-        let datas = await this.view.getTile()
-        // enforce labeling order
-        for (let data of datas) {
-            this.layout(data.tile,data.data)
-        }
-        return {
-            data:this.tree,
-            bbox:{minX:0, minY:0,maxX:16384,maxY:16384},
-            transform:{scale:0.25,translate:new Point(-0,-0)}
-        }
-    }
-
-}
-
-export class Sublabeler extends Labeler {
-    current: Set<string>
-    inflight: Map<string,any[]>
-    // support deduplicated Labeling
-
-    constructor(view:View,z:number, scratch, label_style:LabelRule[], listener:Listener) {
-        super(view,z,scratch,label_style)
-        this.current = new Set<string>()
-
-        // when current exceeds some number, prune the farthest away
-        this.inflight = new Map<string,any[]>()
-        this.listener = listener
-    }
-
     protected findSpills(knockouts,c,bbox) {
         let spillovers = this.view.covering(this.z,c,bbox)
         for (let s of spillovers) {
@@ -217,14 +176,14 @@ export class Sublabeler extends Labeler {
 }
 
 export class Labelers {
-    labelers: Map<number,Sublabeler>
+    labelers: Map<number,Labeler>
     view: View
     scratch: any
     labelStyle: any
     listener: Listener
 
     constructor(view:View,scratch: any, label_style:any, listener:Listener) {
-        this.labelers = new Map<number,Sublabeler>()
+        this.labelers = new Map<number,Labeler>()
         this.view = view
         this.scratch = scratch 
         this.labelStyle = label_style
@@ -233,7 +192,7 @@ export class Labelers {
 
     public add(prepared_tile:PreparedTile) {
         if (!this.labelers.get(prepared_tile.z)) {
-            this.labelers.set(prepared_tile.z,new Sublabeler(this.view,prepared_tile.z,this.scratch,this.labelStyle,this.listener))
+            this.labelers.set(prepared_tile.z,new Labeler(this.view,prepared_tile.z,this.scratch,this.labelStyle,this.listener))
         }
         return this.labelers.get(prepared_tile.z).add(prepared_tile)
     }

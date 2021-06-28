@@ -2,7 +2,7 @@ import Point from '@mapbox/point-geometry'
 import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
 import { View } from '../view'
 import { Rule, painter } from '../painter'
-import { LabelRule, Superlabeler } from '../labeler'
+import { LabelRule, Labeler } from '../labeler'
 import { paint_rules , label_rules } from '../default_style/light'
 
 let R = 6378137
@@ -50,17 +50,24 @@ export class Static {
         ctx.setTransform(dpr,0,0,dpr,0,0)
         let center = project(latlng)
         let normalized_center = new Point((center.x+MAXCOORD)/(MAXCOORD*2),1-(center.y+MAXCOORD)/(MAXCOORD*2))
-        let paint_datas = await this.view.getCenter(normalized_center,zoom,width,height)
-        // let labeler = new Superlabeler(this.view, 1, ctx, this.label_rules)
-        // let label_data = await labeler.get()
+        let prepared_tiles = await this.view.getCenter(normalized_center,zoom,width,height)
 
-        let p = painter({ctx:ctx},"key",paint_datas,{},this.paint_rules,false)
+        let start = performance.now()
+        let labeler = new Labeler(this.view,zoom,ctx,this.label_rules,null)
+        for (var prepared_tile of prepared_tiles) {
+            await labeler.add(prepared_tile)
+        }
+
+        let bbox = this.view.getCenterBbox(normalized_center,zoom,width,height)
+        let translate = this.view.getCenterTranslate(normalized_center,zoom,width,height)
+        let p = painter({ctx:ctx},"key",prepared_tiles,labeler.tree,this.paint_rules,bbox,translate,this.debug)
 
         if (this.debug) {
-            for (var paint_data of paint_datas) {
+            for (var prepared_tile of prepared_tiles) {
                 ctx.strokeStyle = "black"
-                ctx.strokeRect(paint_data.transform.translate.x,paint_data.transform.translate.y,1024,1024)
+                ctx.strokeRect(prepared_tile.transform.translate.x,prepared_tile.transform.translate.y,1024,1024)
             }
         }
+        return start = performance.now()
     }
 }

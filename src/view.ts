@@ -9,6 +9,7 @@ export interface Transform {
 export interface PreparedTile {
     data: Map<string,Layer> // return a map to Iterable
     bbox: number[] // eliminate this, in the overzooming case do something different
+    // but overzooming labeling is at the datatile level
     transform: Transform // this is only an affine, no scale
     z: number // the display zoom level that it is for
     data_tile: Zxy // the key of the raw tile
@@ -33,6 +34,28 @@ export class View {
         this.dataResolution = dataResolution
         this.levelDiff = levelDiff
         this.displayResolution = displayResolution
+    }
+
+    public getCenterBbox(normalized_center:Point,zoom:number,width:number,height:number) {
+        let center_tile = normalized_center.mult(1 << zoom)
+        let width_tiles = width / 1024
+        let height_tiles = height / 1024
+        return {
+            minX:(center_tile.x-width_tiles/2)*4096,
+            maxX:(center_tile.x+width_tiles/2)*4096,
+            minY:(center_tile.y-height_tiles/2)*4096,
+            maxY:(center_tile.y+height_tiles/2)*4096
+        }
+    }
+
+    public getCenterTranslate(normalized_center:Point,zoom:number,width:number,height:number) {
+        let center_tile = normalized_center.mult(1 << zoom)
+        let width_tiles = width / 1024
+        let height_tiles = height / 1024
+        return new Point(
+            -(center_tile.x-width_tiles/2)*1024,
+            -(center_tile.y-height_tiles/2)*1024
+        )
     }
 
     // width and height in css pixels
