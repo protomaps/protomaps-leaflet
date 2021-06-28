@@ -29,13 +29,6 @@ export interface LabelRule {
     sort?:(a:any,b:any)=>number
 }
 
-class LabelAbortError extends Error {
-  constructor(message) {
-    super(message)
-    this.name = "AbortError"
-  }
-}
-
 export class Labeler {
     tree: RBush
     view: View
@@ -196,41 +189,34 @@ export class Sublabeler extends Labeler {
             } else {
                 this.inflight.set(idx,[])
                 this.view.tileCache.get(data_zxy).then(tile => {
-                    let success = this.layout(data_zxy,tile)
-                    if (success) {
-                        this.current.add(idx)
-                        this.inflight.get(idx).forEach(f => f[0](this.tree))
-                        this.inflight.delete(idx)
-                        resolve(this.tree)
+                    this.layout(data_zxy,tile)
+                    this.current.add(idx)
+                    this.inflight.get(idx).forEach(f => f[0](this.tree))
+                    this.inflight.delete(idx)
+                    resolve(this.tree)
 
-                        if (this.current.size > 16) {
-                            let max_key = undefined
-                            let max_dist = 0
-                            for (let key of this.current) {
-                                let split = key.split(':')
-                                let dist = Math.sqrt(Math.pow(+split[0]-data_zxy.x,2) + Math.pow(+split[1]-data_zxy.y,2))
-                                if (dist > max_dist) {
-                                    max_dist = dist
-                                    max_key = key
-                                }
+                    if (this.current.size > 16) {
+                        let max_key = undefined
+                        let max_dist = 0
+                        for (let key of this.current) {
+                            let split = key.split(':')
+                            let dist = Math.sqrt(Math.pow(+split[0]-data_zxy.x,2) + Math.pow(+split[1]-data_zxy.y,2))
+                            if (dist > max_dist) {
+                                max_dist = dist
+                                max_key = key
                             }
-
-                            this.current.delete(max_key)
-                            let to_delete = []
-                            for (let entry of this.tree.all()) {
-                                if (entry.key === max_key) {
-                                    to_delete.push(entry)
-                                }
-                            }
-                            to_delete.forEach(t => {
-                                this.tree.remove(t)
-                            })
                         }
-                    } else {
-                        let error = new LabelAbortError("cancel")
-                        this.inflight.get(idx).forEach(f => f[1](error))
-                        this.inflight.delete(idx)
-                        reject(error)
+
+                        this.current.delete(max_key)
+                        let to_delete = []
+                        for (let entry of this.tree.all()) {
+                            if (entry.key === max_key) {
+                                to_delete.push(entry)
+                            }
+                        }
+                        to_delete.forEach(t => {
+                            this.tree.remove(t)
+                        })
                     }
                 }).catch(reason => {
                     this.inflight.get(idx).forEach(f => f[1](reason))
