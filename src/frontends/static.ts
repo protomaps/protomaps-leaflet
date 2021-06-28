@@ -68,6 +68,6 @@ export class Static {
                 ctx.strokeRect(prepared_tile.transform.translate.x,prepared_tile.transform.translate.y,1024,1024)
             }
         }
-        return start = performance.now()
+        return performance.now() - start
     }
 }
