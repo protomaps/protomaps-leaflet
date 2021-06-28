@@ -54,6 +54,7 @@ class LeafletLayer extends L.GridLayer {
         super(options)
         this.paint_rules = options.paint_rules || (options.dark ? darkPaintRules : lightPaintRules)
         this.label_rules = options.label_rules || (options.dark ? darkLabelRules : lightLabelRules)
+        this.lastRequestedZ = undefined
 
         let source
         if (options.url.url) {
@@ -91,6 +92,7 @@ class LeafletLayer extends L.GridLayer {
     }
 
     public async renderTile(coords,element,key,done = ()=>{}) {
+        this.lastRequestedZ = coords.z
         let state = {element:element,tile_size:this.tile_size,ctx:null}
         var prepared_tile, label_data
         try {
@@ -100,12 +102,12 @@ class LeafletLayer extends L.GridLayer {
             else throw e
         }
         await Promise.allSettled(this.tasks)
-        try {
-            label_data = await this.labelers.get(coords)
-        } catch (e) {
-            if (e.name == "AbortError") return
-            else throw e
-        }
+
+        if (this.lastRequestedZ !== coords.z) return
+
+        label_data = await this.labelers.get(coords)
+    
+        if (this.lastRequestedZ !== coords.z) return
 
         if (!this._map) {
             return // the layer has been removed from the map

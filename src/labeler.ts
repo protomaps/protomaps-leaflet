@@ -42,7 +42,6 @@ export class Labeler {
     z: number
     scratch: any
     labelStyle: LabelRule[]
-    active: boolean
     listener: Listener
 
     constructor(view:View,z:number,scratch,label_style:LabelRule[]) {
@@ -61,10 +60,6 @@ export class Labeler {
 
     protected layout(c:Zxy, data):boolean {
         let start = performance.now()
-        // check the current Z of the map
-        if (!this.active) {
-            return false
-        }
 
         let knockouts = new Set<string>()
         let multiplier = 1 << (this.z - c.z - this.view.levelDiff)
@@ -147,8 +142,6 @@ export class Labeler {
 }
 
 export class Superlabeler extends Labeler {
-    active = true 
-
     constructor(view:View,z:number,scratch,label_style:LabelRule[]) {
         super(view,z,scratch,label_style)
     }
@@ -171,7 +164,6 @@ export class Superlabeler extends Labeler {
 export class Sublabeler extends Labeler {
     current: Set<string>
     inflight: Map<string,any[]>
-    active = false
     // support deduplicated Labeling
 
     constructor(view:View,z:number, scratch, label_style:LabelRule[], listener:Listener) {
@@ -291,11 +283,9 @@ export class Labelers {
     }
 
     public async get(display_tile:Zxy) {
-        this.labelers.forEach((v,k) => { v.active = false })
         if (!this.labelers.get(display_tile.z)) {
             this.labelers.set(display_tile.z,new Sublabeler(this.view,display_tile.z,this.scratch,this.labelStyle,this.listener))
         }
-        this.labelers.get(display_tile.z).active = true
         return this.labelers.get(display_tile.z).get(display_tile)
     }
 }
