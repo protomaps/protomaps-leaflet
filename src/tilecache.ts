@@ -33,7 +33,7 @@ export interface TileSource {
 
 // reimplement loadGeometry with a scalefactor
 // so the general tile rendering case does not need rescaling.
-const loadGeometry = (pbf,geometry) => {
+const loadGeomAndBbox = (pbf,geometry) => {
     pbf.pos = geometry
     var end = pbf.readVarint() + pbf.pos,
         cmd = 1,
@@ -41,7 +41,11 @@ const loadGeometry = (pbf,geometry) => {
         x = 0,
         y = 0,
         lines = [],
-        line;
+        line,
+        x1 = Infinity,
+        x2 = -Infinity,
+        y1 = Infinity,
+        y2 = -Infinity;
     while (pbf.pos < end) {
         if (length <= 0) {
             var cmdLen = pbf.readVarint()
@@ -52,6 +56,10 @@ const loadGeometry = (pbf,geometry) => {
         if (cmd === 1 || cmd === 2) {
             x += pbf.readSVarint()
             y += pbf.readSVarint()
+            if (x < x1) x1 = x
+            if (x > x2) x2 = x
+            if (y < y1) y1 = y
+            if (y > y2) y2 = y
             if (cmd === 1) {
                 if (line) lines.push(line);
                 line = []
@@ -62,7 +70,7 @@ const loadGeometry = (pbf,geometry) => {
         } else throw new Error('unknown command ' + cmd)
     }
     if (line) lines.push(line)
-    return lines
+    return {geom:lines, bbox: [x1, y1, x2, y2]}
 }
 
 function parseTile(buffer):Map<string,Feature[]> {
@@ -73,16 +81,14 @@ function parseTile(buffer):Map<string,Feature[]> {
         let layer = value as any
         for (let i = 0; i < layer.length; i++) {
             let feat = layer.feature(i)
-            let geom = loadGeometry(feat._pbf,feat._geometry)
+            let result = loadGeomAndBbox(feat._pbf,feat._geometry)
             let numVertices = 0
-            for (let part of geom) {
-                numVertices+=part.length
-            }
+            for (let part of result.geom) numVertices+=part.length
             features.push({
                 geomType:layer.feature(i).type,
-                geom:geom,
+                geom:result.geom,
                 numVertices:numVertices,
-                bbox:layer.feature(i).bbox(), // TODO replace with optimized single pass
+                bbox:result.bbox,
                 properties:layer.feature(i).properties
             })
         }
@@ -176,8 +182,8 @@ export class TileCache {
 
     constructor(source: TileSource) {
         this.source = source
-        this.cache = new Map()
-        this.inflight = new Map()
+        this.cache = new Map<string,CacheEntry>()
+        this.inflight = new Map<string,any[]>()
     }
 
     public async get(c:Zxy):Promise<Map<string,Feature[]>> {
