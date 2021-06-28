@@ -36,7 +36,7 @@ export class Static {
             source = new ZxySource(options.url)
         }
         let cache = new TileCache(source)
-        this.view = new View(cache,14,4096,2,256)
+        this.view = new View(cache,14,4096,2)
         this.debug = options.debug || false
     }
 

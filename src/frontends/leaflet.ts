@@ -68,7 +68,7 @@ class LeafletLayer extends L.GridLayer {
 
         this.tasks = options.tasks || []
         let cache = new TileCache(source)
-        this.view = new View(cache,14,4096,2,256)
+        this.view = new View(cache,14,4096,2)
         this.debug = options.debug
         let scratch = document.createElement('canvas').getContext('2d')
         this.scratch = scratch

@@ -26,14 +26,12 @@ export class View {
     dataResolution: number
     tileCache: TileCache
     maxDataLevel: number
-    displayResolution: number // maybe make me subview-only
 
-    constructor(tileCache:TileCache, maxDataLevel:number, dataResolution:number, levelDiff:number, displayResolution: number) {
+    constructor(tileCache:TileCache, maxDataLevel:number, dataResolution:number, levelDiff:number) {
         this.tileCache = tileCache
         this.maxDataLevel = maxDataLevel
         this.dataResolution = dataResolution
         this.levelDiff = levelDiff
-        this.displayResolution = displayResolution
     }
 
     public getCenterBbox(normalized_center:Point,zoom:number,width:number,height:number) {
@@ -139,7 +137,7 @@ export class View {
     // the source coordinate system is a 4096x4096 data tile
     // the target coordinates is 256x256 css pixels, which is 1/16 of the above tile
     public transform(display_tile: Zxy):Transform {
-        let res = this.displayResolution
+        let res = 256
         if (display_tile.z < this.levelDiff) {
             if (display_tile.z == 0) {
                 return {scale:0.0625,translate:new Point(0,0)}
@@ -162,7 +160,7 @@ export class View {
     // the source coordinate system is a 4096x4096 data tile
     // the target coordinates is 256x256 css pixels, which is 1/16 of the above tile
     public point(display_tile: Zxy,x:number,y:number) {
-        let res = this.displayResolution
+        let res = 256
         if (display_tile.z < this.levelDiff) {
             if (display_tile.z == 0) {
             }
