@@ -1,3 +1,4 @@
+import Point from '@mapbox/point-geometry'
 import { VectorTile } from '@mapbox/vector-tile'
 import Protobuf from 'pbf'
 import { PMTiles } from 'pmtiles'
@@ -37,6 +38,40 @@ export interface TileSource {
     get(c:Zxy) : any
 }
 
+// reimplement loadGeometry with a scalefactor
+// so the general tile rendering case does not need rescaling.
+const loadGeometry = (pbf,geometry) => {
+    pbf.pos = geometry
+    var end = pbf.readVarint() + pbf.pos,
+        cmd = 1,
+        length = 0,
+        x = 0,
+        y = 0,
+        lines = [],
+        line;
+    while (pbf.pos < end) {
+        if (length <= 0) {
+            var cmdLen = pbf.readVarint()
+            cmd = cmdLen & 0x7
+            length = cmdLen >> 3
+        }
+        length--
+        if (cmd === 1 || cmd === 2) {
+            x += pbf.readSVarint()
+            y += pbf.readSVarint()
+            if (cmd === 1) {
+                if (line) lines.push(line);
+                line = []
+            }
+            line.push(new Point(x, y))
+        } else if (cmd === 7) {
+            if (line) line.push(line[0].clone())
+        } else throw new Error('unknown command ' + cmd)
+    }
+    if (line) lines.push(line)
+    return lines
+}
+
 function parseTile(buffer) {
     let v = new VectorTile(new Protobuf(buffer))
     let result = {}
@@ -45,7 +80,8 @@ function parseTile(buffer) {
         let layer = value as any
         for (let i = 0; i < layer.length; i++) {
             // yield
-            let geom = layer.feature(i).loadGeometry()
+            let feat = layer.feature(i)
+            let geom = loadGeometry(feat._pbf,feat._geometry)
             let vertices = 0
             for (let part of geom) {
                 vertices+=part.length
