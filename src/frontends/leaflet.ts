@@ -92,9 +92,9 @@ class LeafletLayer extends L.GridLayer {
 
     public async renderTile(coords,element,key,done = ()=>{}) {
         let state = {element:element,tile_size:this.tile_size,ctx:null}
-        var paint_data, label_data
+        var prepared_tile, label_data
         try {
-            paint_data = await this.view.getTile(coords)
+            prepared_tile = await this.view.getTile(coords)
         } catch (e) {
             if (e.name == "AbortError") return
             else throw e
@@ -119,7 +119,7 @@ class LeafletLayer extends L.GridLayer {
 
         await timer(priority)
 
-        let painting_time = painter(state,key,[paint_data],label_data,this.paint_rules,this.debug)
+        let painting_time = painter(state,key,[prepared_tile],label_data,this.paint_rules,this.debug)
 
         if (this.debug) {
             let ctx = state.ctx

@@ -20,8 +20,8 @@ export interface LabelData {
 }
 
 export interface LabelRule {
-    minzoom:number
-    maxzoom:number
+    minzoom?:number
+    maxzoom?:number
     dataLayer:string 
     symbolizer: LabelSymbolizer
     filter?:(properties:any)=>boolean

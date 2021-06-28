@@ -10,8 +10,8 @@ export interface PreparedTile {
     data: Map<string,Layer> // return a map to Iterable
     bbox: number[] // eliminate this, in the overzooming case do something different
     transform: Transform // this is only an affine, no scale
-    z: number
-    data_tile: Zxy
+    z: number // the display zoom level that it is for
+    data_tile: Zxy // the key of the raw tile
     clip?: number[]
 }
 
