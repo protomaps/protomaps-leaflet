@@ -26,26 +26,18 @@ export class View {
     tileCache: TileCache
     maxDataLevel: number
     displayResolution: number // maybe make me subview-only
-}
 
-/* 
- * @class Superview
- * a View where one canvas contains one or more data tiles.
- * used for "static" frontend
- */
-export class Superview extends View {
-    tileCache: TileCache
-
-    constructor(tileCache:TileCache,maxDataLevel:number, dataResolution:number) {
-        super()
+    constructor(tileCache:TileCache, maxDataLevel:number, dataResolution:number, levelDiff:number, displayResolution: number) {
         this.tileCache = tileCache
-        this.dataResolution = dataResolution
         this.maxDataLevel = maxDataLevel
+        this.dataResolution = dataResolution
+        this.levelDiff = levelDiff
+        this.displayResolution = displayResolution
     }
 
     // width and height in css pixels
     // assume a tile is 1024x1024 css pixels
-    public async get(normalized_center:Point,zoom:number,width:number,height:number):Promise<Array<PreparedTile>> {
+    public async getCenter(normalized_center:Point,zoom:number,width:number,height:number):Promise<Array<PreparedTile>> {
         let center_tile = normalized_center.mult(1 << zoom)
 
         let width_tiles = width / 1024
@@ -74,23 +66,6 @@ export class Superview extends View {
                 clip:[translate.x,translate.y,1024,1024]
             } 
         })
-    }
-}
-
-/* 
- * @class Subview
- * a View where one data tile is drawn using one or more canvas elements.
- * used in slippy map frontends like Leaflet
- */
-export class Subview extends View {
-
-    constructor(tileCache:TileCache, maxDataLevel:number, dataResolution:number, levelDiff:number, displayResolution: number) {
-        super()
-        this.tileCache = tileCache
-        this.maxDataLevel = maxDataLevel
-        this.dataResolution = dataResolution
-        this.levelDiff = levelDiff
-        this.displayResolution = displayResolution
     }
 
     public dataTile(display_tile: Zxy) {
@@ -206,7 +181,7 @@ export class Subview extends View {
         }
     }
 
-    public async get(display_tile: Zxy):Promise<PreparedTile> {
+    public async getTile(display_tile: Zxy):Promise<PreparedTile> {
         let data_tile = this.dataTile(display_tile)
         const data = await this.tileCache.get(data_tile)
         return {

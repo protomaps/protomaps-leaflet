@@ -1,6 +1,6 @@
 import Point from '@mapbox/point-geometry'
 import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
-import { Superview } from '../view'
+import { View } from '../view'
 import { Rule, painter } from '../painter'
 import { LabelRule, Superlabeler } from '../labeler'
 import { paint_rules , label_rules } from '../default_style/light'
@@ -19,7 +19,7 @@ let project = latlng => {
 export class Static {
     paint_rules:Rule[]
     label_rules:LabelRule[]
-    view:Superview
+    view:View
     debug:boolean
     scratch:any
 
@@ -36,7 +36,7 @@ export class Static {
             source = new ZxySource(options.url)
         }
         let cache = new TileCache(source)
-        this.view = new Superview(cache,14,4096)
+        this.view = new View(cache,14,4096,2,256)
         this.debug = options.debug || false
     }
 
@@ -50,7 +50,7 @@ export class Static {
         ctx.setTransform(dpr,0,0,dpr,0,0)
         let center = project(latlng)
         let normalized_center = new Point((center.x+MAXCOORD)/(MAXCOORD*2),1-(center.y+MAXCOORD)/(MAXCOORD*2))
-        let paint_datas = await this.view.get(normalized_center,zoom,width,height)
+        let paint_datas = await this.view.getCenter(normalized_center,zoom,width,height)
         // let labeler = new Superlabeler(this.view, 1, ctx, this.label_rules)
         // let label_data = await labeler.get()
 

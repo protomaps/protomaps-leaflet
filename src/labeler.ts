@@ -154,7 +154,7 @@ export class Superlabeler extends Labeler {
     }
 
     public async get() {
-        let datas = await this.view.get()
+        let datas = await this.view.getTile()
         // enforce labeling order
         for (let data of datas) {
             this.layout(data.tile,data.data)

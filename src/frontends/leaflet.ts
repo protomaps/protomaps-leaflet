@@ -1,7 +1,7 @@
 declare var L: any
 
 import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
-import { Subview } from '../view'
+import { View } from '../view'
 import { painter } from '../painter'
 import { Labelers } from '../labeler'
 import { paint_rules as lightPaintRules, label_rules as lightLabelRules } from '../default_style/light'
@@ -66,7 +66,7 @@ class LeafletLayer extends L.GridLayer {
 
         this.tasks = options.tasks || []
         let cache = new TileCache(source)
-        this.view = new Subview(cache,14,4096,2,256)
+        this.view = new View(cache,14,4096,2,256)
         this.debug = options.debug
         let scratch = document.createElement('canvas').getContext('2d')
         this.scratch = scratch
@@ -94,7 +94,7 @@ class LeafletLayer extends L.GridLayer {
         let state = {element:element,tile_size:this.tile_size,ctx:null}
         var paint_data, label_data
         try {
-            paint_data = await this.view.get(coords)
+            paint_data = await this.view.getTile(coords)
         } catch (e) {
             if (e.name == "AbortError") return
             else throw e
