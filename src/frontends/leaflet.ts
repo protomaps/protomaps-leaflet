@@ -1,5 +1,6 @@
 declare var L: any
 
+import Point from '@mapbox/point-geometry'
 import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
 import { View } from '../view'
 import { painter } from '../painter'
@@ -105,8 +106,8 @@ class LeafletLayer extends L.GridLayer {
 
         if (this.lastRequestedZ !== coords.z) return
 
-        label_data = await this.labelers.get(coords)
-    
+        label_data = await this.labelers.add(prepared_tile)
+
         if (this.lastRequestedZ !== coords.z) return
 
         if (!this._map) {
@@ -121,7 +122,12 @@ class LeafletLayer extends L.GridLayer {
 
         await timer(priority)
 
-        let painting_time = painter(state,key,[prepared_tile],label_data,this.paint_rules,this.debug)
+        // TODO fix me for zooms 0 and 1
+        let f = this.view.dataResolution / (1 << this.view.levelDiff)
+        let bbox = {minX: coords.x * f, minY: coords.y * f, maxX: (coords.x + 1) * f, maxY: (coords.y + 1) * f}
+        let translate = new Point(-coords.x * f/4, -coords.y * f/4)
+        // the relevant bbox
+        let painting_time = painter(state,key,[prepared_tile],label_data,this.paint_rules,bbox,translate,this.debug)
 
         if (this.debug) {
             let ctx = state.ctx

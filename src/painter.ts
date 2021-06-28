@@ -13,7 +13,7 @@ export interface Rule {
 }
 
 // make this not depend on element?
-export function painter(state,key,prepared_tiles:PreparedTile[],label_data:LabelData,rules:Rule[],debug) {
+export function painter(state,key,prepared_tiles:PreparedTile[],label_data:LabelData,rules:Rule[],bbox,translate,debug) {
     let start = performance.now()
     let ctx
     if (!state.ctx) {
@@ -58,17 +58,17 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data:Label
         if (prepared_tile.clip) ctx.restore()
     }
 
-    let matches = label_data.data.search(label_data.bbox)
+    let matches = label_data.search(bbox)
     for (var label of matches) {
-        label.draw(ctx,label.anchor.clone().mult(label_data.transform.scale).add(label_data.transform.translate))
+        label.draw(ctx,label.anchor.clone().mult(0.25).add(translate))
         if (debug) {
             ctx.lineWidth = 0.5
             ctx.strokeStyle = debug
             ctx.fillStyle = debug
             ctx.globalAlpha = 1
-            let tl = new Point(label.minX,label.minY).mult(label_data.transform.scale).add(label_data.transform.translate)
-            let br = new Point(label.maxX,label.maxY).mult(label_data.transform.scale).add(label_data.transform.translate)
-            let anchor = label.anchor.clone().mult(label_data.transform.scale).add(label_data.transform.translate)
+            let tl = new Point(label.minX,label.minY).mult(0.25).add(translate)
+            let br = new Point(label.maxX,label.maxY).mult(0.25).add(translate)
+            let anchor = label.anchor.clone().mult(0.25).add(translate)
             ctx.strokeRect(tl.x,tl.y,br.x-tl.x,br.y-tl.y)
             ctx.fillRect(anchor.x-2,anchor.y-2,4,4)
         }

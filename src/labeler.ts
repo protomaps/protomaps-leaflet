@@ -178,77 +178,40 @@ export class Sublabeler extends Labeler {
         }
     }
 
-    private getTree(data_zxy:Zxy) {
-        let idx = toIndex(data_zxy)
+    public add(prepared_tile:PreparedTile) {
+        let idx = toIndex(prepared_tile.data_tile)
 
-        return new Promise((resolve, reject) => { 
-            if(this.current.has(idx)) {
-                resolve(this.tree)
-            } else if (this.inflight.get(idx)) {
-                this.inflight.get(idx).push([resolve,reject])
-            } else {
-                this.inflight.set(idx,[])
-                this.view.tileCache.get(data_zxy).then(tile => {
-                    this.layout(data_zxy,tile)
-                    this.current.add(idx)
-                    this.inflight.get(idx).forEach(f => f[0](this.tree))
-                    this.inflight.delete(idx)
-                    resolve(this.tree)
+        if(this.current.has(idx)) {
+            return this.tree
+        } else {
+            this.layout(prepared_tile.data_tile,prepared_tile.data)
+            this.current.add(idx)
 
-                    if (this.current.size > 16) {
-                        let max_key = undefined
-                        let max_dist = 0
-                        for (let key of this.current) {
-                            let split = key.split(':')
-                            let dist = Math.sqrt(Math.pow(+split[0]-data_zxy.x,2) + Math.pow(+split[1]-data_zxy.y,2))
-                            if (dist > max_dist) {
-                                max_dist = dist
-                                max_key = key
-                            }
-                        }
-
-                        this.current.delete(max_key)
-                        let to_delete = []
-                        for (let entry of this.tree.all()) {
-                            if (entry.key === max_key) {
-                                to_delete.push(entry)
-                            }
-                        }
-                        to_delete.forEach(t => {
-                            this.tree.remove(t)
-                        })
+            // prune cache
+            if (this.current.size > 16) {
+                let max_key = undefined
+                let max_dist = 0
+                for (let key of this.current) {
+                    let split = key.split(':')
+                    let dist = Math.sqrt(Math.pow(+split[0]-prepared_tile.data_tile.x,2) + Math.pow(+split[1]-prepared_tile.data_tile.y,2))
+                    if (dist > max_dist) {
+                        max_dist = dist
+                        max_key = key
                     }
-                }).catch(reason => {
-                    this.inflight.get(idx).forEach(f => f[1](reason))
-                    this.inflight.delete(idx)
-                    reject(reason)
+                }
+
+                this.current.delete(max_key)
+                let to_delete = []
+                for (let entry of this.tree.all()) {
+                    if (entry.key === max_key) {
+                        to_delete.push(entry)
+                    }
+                }
+                to_delete.forEach(t => {
+                    this.tree.remove(t)
                 })
             }
-        })
-    }
-
-    private bbox(display_tile:Zxy):Bbox {
-        let f = this.view.dataResolution / (1 << this.view.levelDiff)
-        return {minX: display_tile.x * f, minY: display_tile.y * f, maxX: (display_tile.x + 1) * f, maxY: (display_tile.y + 1) * f}  
-    }
-
-    private transform(display_tile:Zxy) {
-        let f = this.view.dataResolution / (1 << this.view.levelDiff)
-        if (display_tile.z < this.view.levelDiff) {
-            if (display_tile.z == 0) return {scale:0.0625,translate:new Point(0,0)}
-            if (display_tile.z == 1) return {scale:0.125,translate:new Point(display_tile.x * -this.view.displayResolution,display_tile.y * -this.view.displayResolution)}
-        } else {
-            return {scale:0.25,translate:new Point(-display_tile.x * f/4, -display_tile.y * f/4)}
-        }
-    }
-    
-    public async get(display_tile:Zxy) {
-        let data_zxy = this.view.dataTile(display_tile)
-        let tree = await this.getTree(data_zxy)
-        return {
-            data:tree,
-            bbox:this.bbox(display_tile),
-            transform:this.transform(display_tile)
+            return this.tree
         }
     }
 }
@@ -268,10 +231,10 @@ export class Labelers {
         this.listener = listener
     }
 
-    public async get(display_tile:Zxy) {
-        if (!this.labelers.get(display_tile.z)) {
-            this.labelers.set(display_tile.z,new Sublabeler(this.view,display_tile.z,this.scratch,this.labelStyle,this.listener))
+    public add(prepared_tile:PreparedTile) {
+        if (!this.labelers.get(prepared_tile.z)) {
+            this.labelers.set(prepared_tile.z,new Sublabeler(this.view,prepared_tile.z,this.scratch,this.labelStyle,this.listener))
         }
-        return this.labelers.get(display_tile.z).get(display_tile)
+        return this.labelers.get(prepared_tile.z).add(prepared_tile)
     }
 }
