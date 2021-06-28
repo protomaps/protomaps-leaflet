@@ -46,7 +46,7 @@ export class Labeler {
     // TODO the symbolizer should return a set of bboxes and a draw callback
     // or it should return null
     // approximated by a series of bboxes...
-    protected layout(c:Zxy, data):boolean {
+    private layout(c:Zxy, data):boolean {
         let start = performance.now()
 
         let knockouts = new Set<string>()
@@ -127,7 +127,7 @@ export class Labeler {
         // console.log("Layout: ", performance.now() - start)
     }
 
-    protected findSpills(knockouts,c,bbox) {
+    private findSpills(knockouts,c,bbox) {
         let spillovers = this.view.covering(this.z,c,bbox)
         for (let s of spillovers) {
             let s_idx = toIndex({z:s.z-2,x:Math.floor(s.x/4),y:Math.floor(s.y/4)})
@@ -137,39 +137,40 @@ export class Labeler {
         }
     }
 
+    private pruneCache(added:PreparedTile) {
+        if (this.current.size > 16) {
+            let max_key = undefined
+            let max_dist = 0
+            for (let key of this.current) {
+                let split = key.split(':')
+                let dist = Math.sqrt(Math.pow(+split[0]-added.data_tile.x,2) + Math.pow(+split[1]-added.data_tile.y,2))
+                if (dist > max_dist) {
+                    max_dist = dist
+                    max_key = key
+                }
+            }
+
+            this.current.delete(max_key)
+            let to_delete = []
+            for (let entry of this.tree.all()) {
+                if (entry.key === max_key) {
+                    to_delete.push(entry)
+                }
+            }
+            to_delete.forEach(t => {
+                this.tree.remove(t)
+            })
+        }
+    }
+
     public add(prepared_tile:PreparedTile) {
         let idx = toIndex(prepared_tile.data_tile)
-
         if(this.current.has(idx)) {
             return this.tree
         } else {
             this.layout(prepared_tile.data_tile,prepared_tile.data)
             this.current.add(idx)
-
-            // prune cache
-            if (this.current.size > 16) {
-                let max_key = undefined
-                let max_dist = 0
-                for (let key of this.current) {
-                    let split = key.split(':')
-                    let dist = Math.sqrt(Math.pow(+split[0]-prepared_tile.data_tile.x,2) + Math.pow(+split[1]-prepared_tile.data_tile.y,2))
-                    if (dist > max_dist) {
-                        max_dist = dist
-                        max_key = key
-                    }
-                }
-
-                this.current.delete(max_key)
-                let to_delete = []
-                for (let entry of this.tree.all()) {
-                    if (entry.key === max_key) {
-                        to_delete.push(entry)
-                    }
-                }
-                to_delete.forEach(t => {
-                    this.tree.remove(t)
-                })
-            }
+            this.pruneCache(prepared_tile)
             return this.tree
         }
     }
