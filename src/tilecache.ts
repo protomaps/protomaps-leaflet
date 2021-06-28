@@ -10,17 +10,11 @@ export enum GeomType {
 }
 
 export interface Feature {
-    properties: any
-    bbox: number[]
-    geomType: GeomType
-    geom: any
-    vertices:number
-}
-
-export interface Layer {
-    name: string
-    extent: number
-    features: Feature[]
+    readonly properties: any
+    readonly bbox: number[]
+    readonly geomType: GeomType
+    readonly geom: Array<Array<Point>>
+    readonly numVertices:number
 }
 
 export interface Zxy {
@@ -29,13 +23,12 @@ export interface Zxy {
   readonly y: number
 }
 
-export function toIndex(c: Zxy) {
+export function toIndex(c: Zxy):string {
     return c.x + ":" + c.y + ":" + c.z
 }
 
 export interface TileSource {
-    // takes a z,x,y, gets back a Tile
-    get(c:Zxy) : any
+    get(c:Zxy) : Promise<Map<string,Feature[]>>
 }
 
 // reimplement loadGeometry with a scalefactor
@@ -72,29 +65,28 @@ const loadGeometry = (pbf,geometry) => {
     return lines
 }
 
-function parseTile(buffer) {
+function parseTile(buffer):Map<string,Feature[]> {
     let v = new VectorTile(new Protobuf(buffer))
-    let result = {}
+    let result = new Map<string,Feature[]>()
     for (let [key,value] of Object.entries(v.layers)) {
         let features = []
         let layer = value as any
         for (let i = 0; i < layer.length; i++) {
-            // yield
             let feat = layer.feature(i)
             let geom = loadGeometry(feat._pbf,feat._geometry)
-            let vertices = 0
+            let numVertices = 0
             for (let part of geom) {
-                vertices+=part.length
+                numVertices+=part.length
             }
             features.push({
                 geomType:layer.feature(i).type,
                 geom:geom,
-                vertices:vertices,
-                bbox:layer.feature(i).bbox(),
+                numVertices:numVertices,
+                bbox:layer.feature(i).bbox(), // TODO replace with optimized single pass
                 properties:layer.feature(i).properties
             })
         }
-        result[key] = features
+        result.set(key,features)
     }
     return result
 }
@@ -112,7 +104,7 @@ export class PmtilesSource implements TileSource {
         this.controllers = []
     }
 
-    public async get(c:Zxy) {
+    public async get(c:Zxy):Promise<Map<string,Feature[]>> {
         this.controllers = this.controllers.filter(cont => {
             if (cont[0] != c.z) {
                 cont[1].abort()
@@ -147,7 +139,7 @@ export class ZxySource implements TileSource {
         this.controllers = []
     }
 
-    public async get(c: Zxy) {
+    public async get(c: Zxy):Promise<Map<string,Feature[]>> {
         this.controllers = this.controllers.filter(cont => {
             if (cont[0] != c.z) {
                 cont[1].abort()
@@ -174,7 +166,7 @@ export class ZxySource implements TileSource {
 
 export interface CacheEntry {
     used: number
-    data: Map<string,Layer>
+    data: Map<string,Feature[]>
 }
 
 export class TileCache {
@@ -188,7 +180,7 @@ export class TileCache {
         this.inflight = new Map()
     }
 
-    public async get(c:Zxy):Promise<Map<string,Layer>> {
+    public async get(c:Zxy):Promise<Map<string,Feature[]>> {
         const idx = toIndex(c)
         return new Promise((resolve, reject) => { 
             if (this.cache.has(idx)) {

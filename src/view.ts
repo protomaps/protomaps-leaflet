@@ -1,5 +1,5 @@
 import Point from '@mapbox/point-geometry'
-import { Zxy, TileCache, Layer } from './tilecache'
+import { Zxy, TileCache, Feature } from './tilecache'
 
 export interface Transform {
     scale: number
@@ -7,7 +7,7 @@ export interface Transform {
 }
 
 export interface PreparedTile {
-    data: Map<string,Layer> // return a map to Iterable
+    data: Map<string,Feature[]> // return a map to Iterable
     bbox: number[] // eliminate this, in the overzooming case do something different
     // but overzooming labeling is at the datatile level
     transform: Transform // this is only an affine, no scale
@@ -81,7 +81,7 @@ export class View {
             let data_tile = needed[i]
             let translate = center_tile.sub(new Point(data_tile.x,data_tile.y)).mult(-1024).add(new Point(width/2,height/2))
             return {
-                data:data as Map<string,Layer>,
+                data:data as Map<string,Feature[]>,
                 bbox:[0,0,4096,4096],
                 transform: {scale:0.25,translate:translate},
                 data_tile:data_tile,

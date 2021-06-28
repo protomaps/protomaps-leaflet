@@ -1,6 +1,6 @@
 import Point from '@mapbox/point-geometry'
 import { PreparedTile, View, Transform } from './view'
-import { Zxy, toIndex, Layer } from './tilecache'
+import { Zxy, toIndex } from './tilecache'
 import RBush from 'rbush'
 import { LabelSymbolizer } from './symbolizer'
 
@@ -56,7 +56,7 @@ export class Labeler {
             if (rule.visible == false) continue
             if (rule.minzoom && this.z < rule.minzoom) continue
             if (rule.maxzoom && this.z > rule.maxzoom) continue
-            let layer = data[rule.dataLayer]
+            let layer = data.get(rule.dataLayer)
             if (layer === undefined) continue
 
             let feats = layer

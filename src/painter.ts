@@ -39,7 +39,7 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
         for (var rule of rules) {
             if (rule.minzoom && prepared_tile.z < rule.minzoom) continue
             if (rule.maxzoom && prepared_tile.z > rule.maxzoom) continue
-            var layer = prepared_tile.data[rule.dataLayer]
+            var layer = prepared_tile.data.get(rule.dataLayer)
             if (layer === undefined) continue
             rule.symbolizer.before(ctx,prepared_tile.z)
             for (var feature of layer) {
