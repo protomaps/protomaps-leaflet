@@ -6,13 +6,13 @@ export interface Transform {
     translate: Point
 }
 
-export interface PaintData {
+export interface PreparedTile {
     data: Map<string,Layer> // return a map to Iterable
     bbox: number[] // eliminate this, in the overzooming case do something different
     transform: Transform // this is only an affine, no scale
     z: number
     data_tile: Zxy
-    clip: boolean // only used in Superview
+    clip?: number[]
 }
 
 /* 
@@ -45,7 +45,7 @@ export class Superview extends View {
 
     // width and height in css pixels
     // assume a tile is 1024x1024 css pixels
-    public async get(normalized_center:Point,zoom:number,width:number,height:number):Promise<Array<PaintData>> {
+    public async get(normalized_center:Point,zoom:number,width:number,height:number):Promise<Array<PreparedTile>> {
         let center_tile = normalized_center.mult(1 << zoom)
 
         let width_tiles = width / 1024
@@ -206,7 +206,7 @@ export class Subview extends View {
         }
     }
 
-    public async get(display_tile: Zxy):Promise<PaintData> {
+    public async get(display_tile: Zxy):Promise<PreparedTile> {
         let data_tile = this.dataTile(display_tile)
         const data = await this.tileCache.get(data_tile)
         return {
