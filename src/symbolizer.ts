@@ -1,22 +1,22 @@
 import Point from '@mapbox/point-geometry'
-import { GeomType } from './tilecache'
+import { GeomType, Feature } from './tilecache'
 import polylabel from 'polylabel'
 import { TextSpec, FontSpec, linebreak, isCjk } from './text'
 import { simpleLabel } from './line'
 
 export interface PaintSymbolizer {
     before(ctx:any,z:number):any
-    draw(ctx:any,geom:any,properties:any):void
+    draw(ctx:any,geom:Array<Array<Point>>,properties:any):void
 }
 
 export interface LabelStash {
     anchor:Point
     bbox:any
-    draw:any
+    draw:(ctx:any)=>void
 }
 
 export interface LabelSymbolizer {
-    stash(ctx:any,geom:any,feature:any,zoom:number):LabelStash | undefined
+    stash(ctx:any,geom:Array<Array<Point>>,feature:Feature,zoom:number):LabelStash | undefined
 }
 
 export const createPattern = (width,height, fn) => {
@@ -190,21 +190,21 @@ export class IconSymbolizer implements LabelSymbolizer {
     } 
 
     public stash(scratch,geom,feature,zoom) {
-        let pt = feature.geom[0]
-        let anchor = new Point(feature.geom[0][0].x,feature.geom[0][0].y)
+        let pt = geom[0]
+        let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
-            minX:-32, 
-            minY:-32,
-            maxX:32,
-            maxY:32
+            minX:a.x-32, 
+            minY:a.y-32,
+            maxX:a.x+32,
+            maxY:a.y+32
         }
 
-        let draw = (ctx,a) => {
+        let draw = ctx => {
             ctx.globalAlpha = 1
             let r = this.sprites.get(this.name)
-            ctx.drawImage(r.canvas,r.x,r.y,r.w,r.h,a.x-8,a.y-8,r.w/4,r.h/4)
+            ctx.drawImage(r.canvas,r.x,r.y,r.w,r.h,-8,-8,r.w,r.h)
         }
-        return {anchor:anchor,bbox:bbox,draw:draw}
+        return {anchor:a,bbox:bbox,draw:draw}
     }
 }
 
@@ -221,32 +221,32 @@ export class CircleSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
     } 
 
-    public stash(scratch,feature,zoom) {
-        let pt = feature.geom[0]
-        let anchor = new Point(feature.geom[0][0].x,feature.geom[0][0].y)
+    public stash(scratch,geom,feature,zoom) {
+        let pt = geom[0]
+        let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
-            minX:-20, 
-            minY:-20,
-            maxX:20,
-            maxY:20
+            minX:a.x-20, 
+            minY:a.y-20,
+            maxX:a.x+20,
+            maxY:a.y+20
         }
 
-        let draw = (ctx,a) => {
+        let draw = ctx => {
             ctx.globalAlpha = 1
 
             if (this.width > 0) {
                 ctx.fillStyle = this.stroke
                 ctx.beginPath()
-                ctx.arc(a.x,a.y, this.radius + this.width, 0, 2* Math.PI)
+                ctx.arc(0,0, this.radius + this.width, 0, 2* Math.PI)
                 ctx.fill()
             }
 
             ctx.fillStyle = this.fill
             ctx.beginPath()
-            ctx.arc(a.x,a.y, this.radius, 0, 2* Math.PI)
+            ctx.arc(0,0, this.radius, 0, 2* Math.PI)
             ctx.fill()
         }
-        return {anchor:anchor,bbox:bbox,draw:draw}
+        return {anchor:a,bbox:bbox,draw:draw}
     }
 }
 
@@ -282,8 +282,8 @@ export class GroupSymbolizer implements LabelSymbolizer {
             bbox = mergeBbox(bbox,result.bbox)
             draws.push(result.draw)
         }
-        let draw = (ctx,a) => {
-            draws.forEach(d => d(ctx,a))
+        let draw = ctx => {
+            draws.forEach(d => d(ctx))
         }
 
         return {anchor:anchor,bbox:bbox,draw:draw}
@@ -314,7 +314,7 @@ export class TextSymbolizer implements LabelSymbolizer {
         this.textTransform = options.textTransform
     }
 
-    public stash(scratch, geom, feature:any, zoom):LabelStash | undefined {
+    public stash(scratch, geom, feature, zoom) {
         if (feature.geomType == GeomType.Point) {
             let a = new Point(geom[0][0].x,geom[0][0].y)
             let font = this.font.str(zoom,feature.properties)
@@ -385,7 +385,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
     } 
 
-    public stash(scratch,feature, zoom): LabelStash | undefined {
+    public stash(scratch, geom, feature, zoom) {
         let font = this.font.str(zoom,feature.properties)
         let name = this.text.str(zoom,feature.properties)
         if (!name) return null
@@ -398,12 +398,12 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         let metrics = scratch.measureText(name)
         let width = metrics.width
 
-        let result = simpleLabel(feature.geom,width)
+        let result = simpleLabel(geom,width)
         if (!result) return undefined
         let dx = result.end.x - result.start.x
         let dy = result.end.y - result.start.y
 
-        let anchor = new Point(result.start.x,result.start.y)
+        let a = new Point(result.start.x,result.start.y)
 
         var bboxMinX = 0
         var bboxMaxX = dx
@@ -417,17 +417,10 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
             bboxMinY = dy
             bboxMaxY = 0
         }
-        let bbox = {minX:bboxMinX*4,minY:bboxMinY*4,maxX:bboxMaxX*4,maxY:bboxMaxY*4}
+        let bbox = {minX:a.x+bboxMinX,minY:a.y+bboxMinY,maxX:a.x+bboxMaxX,maxY:a.y+bboxMaxY}
 
-        let draw = (ctx,a) => {
-            ctx.beginPath()
+        let draw = ctx => {
             ctx.globalAlpha = 1
-            ctx.moveTo(a.x,a.y)
-            // ctx.strokeStyle = "red"
-            // ctx.lineTo(a.x+dx,a.y+dy)
-            // ctx.stroke()
-            ctx.save()
-            ctx.translate(a.x,a.y)
             ctx.rotate(Math.atan2(dy, dx))
             if (dx < 0) ctx.scale(0,-1)
             ctx.font = font
@@ -438,10 +431,9 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
             }
             ctx.fillStyle = this.fill
             ctx.fillText(name,0,0)
-            ctx.restore()
         }
 
-        return {anchor:anchor,bbox:bbox,draw:draw}
+        return {anchor:a,bbox:bbox,draw:draw}
     }
 }
 
@@ -461,17 +453,17 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
     }
 
-    public stash(scratch, feature, zoom):LabelStash | undefined {
+    public stash(scratch, geom, feature, zoom) {
         let fbbox = feature.bbox
-        let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // needs to be based on zoom level
+        let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // TODO needs to be based on zoom level/overzooming
         if (area < 200000) return undefined
 
         let property = this.text.str(zoom,feature.properties)
         if (!property) return null
 
-        let first_poly = feature.geom[0]
+        let first_poly = geom[0]
         let found = polylabel([first_poly.map(c => [c.x,c.y])])
-        let anchor = new Point(found[0],found[1])
+        let a = new Point(found[0],found[1])
         let font = this.font.str(zoom,feature.properties)
 
         scratch.font = font
@@ -492,15 +484,15 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
         let metrics = scratch.measureText(longestLine)
         let width = metrics.width
         let bbox = {
-            minX:-width*4/2, 
-            minY:-metrics.actualBoundingBoxAscent*4,
-            maxX:width*4/2,
-            maxY:(lineHeight*lines.length-metrics.actualBoundingBoxAscent)*4
+            minX:a.x-width/2, 
+            minY:a.y-metrics.actualBoundingBoxAscent,
+            maxX:a.x+width/2,
+            maxY:a.y+(lineHeight*lines.length-metrics.actualBoundingBoxAscent)
         }
 
         let fill = this.fill
 
-        let draw = (ctx,a) => {
+        let draw = ctx => {
             ctx.globalAlpha = 1
 
             ctx.font = font
@@ -510,13 +502,13 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
                 if (this.width) {
                     ctx.lineWidth = this.width
                     ctx.strokeStyle = this.stroke
-                    ctx.strokeText(line,a.x-width/2,a.y+y)
+                    ctx.strokeText(line,-width/2,y)
                 }
                 ctx.fillStyle = fill
-                ctx.fillText(line,a.x-width/2,a.y+y)
+                ctx.fillText(line,-width/2,y)
                 y += lineHeight
             }
         }
-        return {anchor:anchor,bbox:bbox,draw:draw}
+        return {anchor:a,bbox:bbox,draw:draw}
     }
 }
