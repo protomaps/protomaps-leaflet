@@ -52,8 +52,16 @@ test('level diff = 2', async () => {
     assert.deepEqual(result.origin,new Point(256*8,256*8))
 })
 
-test('get center basic', async () => {
+test('get center no level diff', async () => {
     let view = new View(cache,3,0)
+    let result = view.dataTilesForBounds(3,[100,100,400,400])
+    assert.equal(result.length,4)
+})
+
+test('get center level diff = 2', async () => {
+    let view = new View(cache,3,2)
+    let result = view.dataTilesForBounds(6,[100,100,400,400])
+    assert.equal(result.length,1)
 })
 
 // test('covering', async () => {

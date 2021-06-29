@@ -57,68 +57,55 @@ export class View {
     // TODO handle overzooming
     public dataTilesForBounds(display_zoom:number,bounds:any):Array<TileTransform> {
         let needed = []
+        var scale = 1
+        var dim = this.tileCache.tileSize
         if (display_zoom < this.levelDiff) {
-            throw("Unimplemeneted")
+            scale = 1 / (1 << (this.levelDiff - display_zoom))
+            needed.push({
+                data_tile:{z:0,x:0,y:0},
+                origin:new Point(0,0),
+                scale:scale,
+                dim:dim*scale
+            })
         } else if (display_zoom <= this.levelDiff + this.maxDataLevel) {
-            let mintile_x = Math.floor(bounds[0] / (1 << this.levelDiff) / 256)
-            let maxtile_x = Math.floor(bounds[2] / (1 << this.levelDiff) / 256)
-            let mintile_y = Math.floor(bounds[1] / (1 << this.levelDiff) / 256)
-            let maxtile_y = Math.floor(bounds[3] / (1 << this.levelDiff) / 256)
+            let f = 1 << this.levelDiff
+            let mintile_x = Math.floor(bounds[0] / f / 256)
+            let mintile_y = Math.floor(bounds[1] / f / 256)
+            let maxtile_x = Math.floor(bounds[2] / f / 256)
+            let maxtile_y = Math.floor(bounds[3] / f / 256)
             for (var tx = mintile_x; tx <= maxtile_x; tx++) {
                 for (var ty = mintile_y; ty <= maxtile_y; ty++) {
-                    let origin = new Point(tx * (1 << this.levelDiff) * 256,ty * (1 << this.levelDiff) * 256)
+                    let origin = new Point(tx * f * 256,ty * f * 256)
                     needed.push({
                         data_tile:{z:display_zoom-this.levelDiff,x:tx,y:ty},
                         origin:origin,
                         scale:1,
-                        dim:this.tileCache.tileSize
+                        dim:dim
                     })
                 }
             }
         } else {
-            throw("Unimplemeneted")
+            let f = 1 << this.levelDiff
+            scale = 1 << (display_zoom - this.maxDataLevel - this.levelDiff)
+            let mintile_x = Math.floor(bounds[0] / f / 256 / scale)
+            let mintile_y = Math.floor(bounds[1] / f / 256 / scale)
+            let maxtile_x = Math.floor(bounds[2] / f / 256 / scale)
+            let maxtile_y = Math.floor(bounds[3] / f / 256 / scale)
+            for (var tx = mintile_x; tx <= maxtile_x; tx++) {
+                for (var ty = mintile_y; ty <= maxtile_y; ty++) {
+                    let origin = new Point(tx * f * 256 * scale,ty * f * 256 * scale)
+                    needed.push({
+                        data_tile:{z:this.maxDataLevel,x:tx,y:ty},
+                        origin:origin,
+                        scale:scale,
+                        dim:dim * scale
+                    })
+                }
+            }
         }
         return needed
     }
 
-    public async getBbox(display_zoom:number,bounds:any):Promise<Array<PreparedTile>> {
-        let needed = this.dataTilesForBounds(display_zoom,bounds)
-        let result = await Promise.all(needed.map(tt => this.tileCache.get(tt.data_tile)))
-        return result.map((data,i) => { 
-            let tt = needed[i]
-            return {
-                data:data,
-                z:display_zoom,
-                data_tile:tt.data_tile,
-                scale:tt.scale,
-                dim:tt.dim,
-                origin:tt.origin
-            } 
-        })
-    }
-
-    public covering(display_level:number,data_zxy:Zxy,data_bbox:any) {
-        let res = 256
-        let f = 1 << (display_level - data_zxy.z)
-
-        let top_left = {x:data_bbox.minX/res,y:data_bbox.minY/res}
-        let d_top_left = {x:Math.floor(top_left.x*f),y:Math.floor(top_left.y*f)} 
-
-        let bottom_right = {x:data_bbox.maxX/res,y:data_bbox.maxY/res}
-        let d_bottom_right = {x:Math.floor(bottom_right.x*f),y:Math.floor(bottom_right.y*f)} 
-
-        let retval = []
-        for (let x = d_top_left.x; x <= d_bottom_right.x; x++) {
-            for (let y = d_top_left.y; y <= d_bottom_right.y; y++) {
-                if (Math.floor(x/f) == data_zxy.x && Math.floor(y/f) == data_zxy.y) {
-                    // do nothing
-                } else {
-                    retval.push({z:display_level,x:x,y:y})
-                }
-            }
-        }
-        return retval
-    }
 
     public dataTileForDisplayTile(display_tile: Zxy):TileTransform {
         var data_tile:Zxy
@@ -152,6 +139,22 @@ export class View {
         return {data_tile:data_tile,scale:scale,origin:origin,dim:dim}
     }
 
+    public async getBbox(display_zoom:number,bounds:any):Promise<Array<PreparedTile>> {
+        let needed = this.dataTilesForBounds(display_zoom,bounds)
+        let result = await Promise.all(needed.map(tt => this.tileCache.get(tt.data_tile)))
+        return result.map((data,i) => { 
+            let tt = needed[i]
+            return {
+                data:data,
+                z:display_zoom,
+                data_tile:tt.data_tile,
+                scale:tt.scale,
+                dim:tt.dim,
+                origin:tt.origin
+            } 
+        })
+    }
+
     public async getDisplayTile(display_tile: Zxy):Promise<PreparedTile> {
         let tt = this.dataTileForDisplayTile(display_tile)
         const data = await this.tileCache.get(tt.data_tile)
@@ -164,5 +167,28 @@ export class View {
             dim:tt.dim
         }
     } 
+
+    public covering(display_level:number,data_zxy:Zxy,data_bbox:any) {
+        let res = 256
+        let f = 1 << (display_level - data_zxy.z)
+
+        let top_left = {x:data_bbox.minX/res,y:data_bbox.minY/res}
+        let d_top_left = {x:Math.floor(top_left.x*f),y:Math.floor(top_left.y*f)} 
+
+        let bottom_right = {x:data_bbox.maxX/res,y:data_bbox.maxY/res}
+        let d_bottom_right = {x:Math.floor(bottom_right.x*f),y:Math.floor(bottom_right.y*f)} 
+
+        let retval = []
+        for (let x = d_top_left.x; x <= d_bottom_right.x; x++) {
+            for (let y = d_top_left.y; y <= d_bottom_right.y; y++) {
+                if (Math.floor(x/f) == data_zxy.x && Math.floor(y/f) == data_zxy.y) {
+                    // do nothing
+                } else {
+                    retval.push({z:display_level,x:x,y:y})
+                }
+            }
+        }
+        return retval
+    }
 }
 
