@@ -138,15 +138,16 @@ export class View {
                 x:Math.floor(display_tile.x/f),
                 y:Math.floor(display_tile.y/f)
             }
-            origin = new Point(data_tile.x * (1 << this.levelDiff) * 256,data_tile.y * (1 << this.levelDiff) * 256)
+            origin = new Point(data_tile.x * f * 256,data_tile.y * f * 256)
         } else {
-            scale = 1 << (display_tile.z - this.maxDataLevel)
+            scale = 1 << (display_tile.z - this.maxDataLevel - this.levelDiff)
+            let f = 1 << this.levelDiff
             data_tile = {
                 z:this.maxDataLevel,
-                x:Math.floor(display_tile.x/scale),
-                y:Math.floor(display_tile.y/scale)
+                x:Math.floor(display_tile.x/f/scale),
+                y:Math.floor(display_tile.y/f/scale)
             }
-            origin = new Point(data_tile.x * scale * 256,data_tile.y * scale * 256)
+            origin = new Point(data_tile.x * f * scale * 256,data_tile.y * f * scale * 256)
             dim = dim * scale
         }
         return {data_tile:data_tile,scale:scale,origin:origin,dim:dim}

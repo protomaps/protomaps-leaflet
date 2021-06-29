@@ -46,10 +46,10 @@ test('level diff = 1', async () => {
 
 test('level diff = 2', async () => {
     let view = new View(cache,3,2)
-    let result = view.dataTileForDisplayTile({z:5,x:9,y:13})
-    assert.deepEqual(result.data_tile,{z:3,x:2,y:3})
-    assert.equal(result.scale,1)
-    assert.deepEqual(result.origin,new Point(256*8,256*12))
+    let result = view.dataTileForDisplayTile({z:6,x:9,y:13})
+    assert.deepEqual(result.data_tile,{z:3,x:1,y:1})
+    assert.equal(result.scale,2)
+    assert.deepEqual(result.origin,new Point(256*8,256*8))
 })
 
 test('get center basic', async () => {
