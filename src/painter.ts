@@ -12,7 +12,7 @@ export interface Rule {
 }
 
 // make this not depend on element?
-export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules:Rule[],bbox,translate,debug) {
+export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules:Rule[],bbox,origin,debug) {
     let start = performance.now()
     let ctx
     if (!state.ctx) {
@@ -29,7 +29,13 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
     ctx.clearRect(0,0,256,256)
     ctx.miterLimit = 2
 
+    ctx.save() // start translation
+    ctx.translate(-origin.x,-origin.y)
+
     for (var prepared_tile of prepared_tiles) {
+        let po = prepared_tile.origin
+        ctx.save()
+        ctx.translate(po.x,po.y)
         if (prepared_tile.clip) {
             ctx.save()
             ctx.beginPath()
@@ -42,35 +48,42 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
             var layer = prepared_tile.data.get(rule.dataLayer)
             if (layer === undefined) continue
             rule.symbolizer.before(ctx,prepared_tile.z)
+
             for (var feature of layer) {
-                var fbox = feature.bbox
-                var vbox = prepared_tile.bbox // does this handle widths?
-                if (fbox[2] < vbox[0] || fbox[0] > vbox[2] || fbox[1] > vbox[3] || fbox[3] < vbox[1]) {
+                let geom = feature.geom
+                let fbox = feature.bbox
+                // TODO apply the prepared tile's scale
+
+                if (fbox[2]+po.x < bbox[0] || fbox[0]+po.x > bbox[2] || fbox[1]+po.y > bbox[3] || fbox[3]+po.y < bbox[1]) {
                     continue
                 }
-                if (rule.filter) {
-                    if (!rule.filter(feature.properties)) continue
-                }
-                rule.symbolizer.draw(ctx,feature,prepared_tile.transform)
+                let properties = feature.properties
+                if (rule.filter && !rule.filter(properties)) continue
+                rule.symbolizer.draw(ctx,geom,properties)
             }
         }
         if (prepared_tile.clip) ctx.restore()
+        ctx.restore()
     }
 
-    let matches = label_data.search(bbox)
+    let matches = label_data.search({minX:bbox[0],minY:bbox[1],maxX:bbox[2],maxY:bbox[3]})
     for (var label of matches) {
-        label.draw(ctx,label.anchor.clone().mult(0.25).add(translate))
+        ctx.save()
+        ctx.translate(label.anchor.x,label.anchor.y)
+        label.draw(ctx)
+        ctx.restore()
         if (debug) {
             ctx.lineWidth = 0.5
             ctx.strokeStyle = debug
             ctx.fillStyle = debug
             ctx.globalAlpha = 1
-            let tl = new Point(label.minX,label.minY).mult(0.25).add(translate)
-            let br = new Point(label.maxX,label.maxY).mult(0.25).add(translate)
-            let anchor = label.anchor.clone().mult(0.25).add(translate)
+            let tl = new Point(label.minX,label.minY)
+            let br = new Point(label.maxX,label.maxY)
+            let anchor = label.anchor
             ctx.strokeRect(tl.x,tl.y,br.x-tl.x,br.y-tl.y)
             ctx.fillRect(anchor.x-2,anchor.y-2,4,4)
         }
     }
+    ctx.restore() // end translation
     return performance.now() - start
 }

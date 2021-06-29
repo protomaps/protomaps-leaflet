@@ -67,8 +67,8 @@ class LeafletLayer extends L.GridLayer {
         }
 
         this.tasks = options.tasks || []
-        let cache = new TileCache(source)
-        this.view = new View(cache,14,4096,2)
+        let cache = new TileCache(source,1024)
+        this.view = new View(cache,14,2)
         this.debug = options.debug
         let scratch = document.createElement('canvas').getContext('2d')
         this.scratch = scratch
@@ -97,7 +97,7 @@ class LeafletLayer extends L.GridLayer {
         let state = {element:element,tile_size:this.tile_size,ctx:null}
         var prepared_tile, label_data
         try {
-            prepared_tile = await this.view.getTile(coords)
+            prepared_tile = await this.view.getDisplayTile(coords)
         } catch (e) {
             if (e.name == "AbortError") return
             else throw e
@@ -109,10 +109,7 @@ class LeafletLayer extends L.GridLayer {
         label_data = await this.labelers.add(prepared_tile)
 
         if (this.lastRequestedZ !== coords.z) return
-
-        if (!this._map) {
-            return // the layer has been removed from the map
-        }
+        if (!this._map) return // the layer has been removed from the map
 
         let center = this._map.getCenter().wrap()
         var pixelBounds = this._getTiledPixelBounds(center),
@@ -122,17 +119,14 @@ class LeafletLayer extends L.GridLayer {
 
         await timer(priority)
 
-        // TODO fix me for zooms 0 and 1
-        let f = this.view.dataResolution / (1 << this.view.levelDiff)
-        let bbox = {minX: coords.x * f, minY: coords.y * f, maxX: (coords.x + 1) * f, maxY: (coords.y + 1) * f}
-        let translate = new Point(-coords.x * f/4, -coords.y * f/4)
-        // the relevant bbox
-        let painting_time = painter(state,key,[prepared_tile],label_data,this.paint_rules,bbox,translate,this.debug)
+        let bbox = [256*coords.x,256*coords.y,256*(coords.x+1),256*(coords.y+1)]
+        let origin = new Point(256*coords.x,256*coords.y)
+        let painting_time = painter(state,key,[prepared_tile],label_data,this.paint_rules,bbox,origin,this.debug)
 
         if (this.debug) {
             let ctx = state.ctx
             if (!ctx) return
-            let data_tile = this.view.dataTile(coords)
+            let data_tile = prepared_tile.data_tile
             ctx.save()
             ctx.fillStyle = this.debug
             ctx.font = '600 12px sans-serif';
@@ -142,7 +136,6 @@ class LeafletLayer extends L.GridLayer {
             if ((data_tile.x % 2 + data_tile.y % 2) % 2 == 0) {
                 ctx.font = '200 italic 12px sans-serif'
             }
-
 
             ctx.fillText(data_tile.z + " " + data_tile.x + " " + data_tile.y,4,28)
             if (painting_time > 8) {

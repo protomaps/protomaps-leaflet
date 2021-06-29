@@ -33,7 +33,7 @@ export interface TileSource {
 
 // reimplement loadGeometry with a scalefactor
 // so the general tile rendering case does not need rescaling.
-const loadGeomAndBbox = (pbf,geometry) => {
+const loadGeomAndBbox = (pbf,geometry,scale:number) => {
     pbf.pos = geometry
     var end = pbf.readVarint() + pbf.pos,
         cmd = 1,
@@ -54,8 +54,8 @@ const loadGeomAndBbox = (pbf,geometry) => {
         }
         length--
         if (cmd === 1 || cmd === 2) {
-            x += pbf.readSVarint()
-            y += pbf.readSVarint()
+            x += pbf.readSVarint() * scale
+            y += pbf.readSVarint() * scale
             if (x < x1) x1 = x
             if (x > x2) x2 = x
             if (y < y1) y1 = y
@@ -73,7 +73,7 @@ const loadGeomAndBbox = (pbf,geometry) => {
     return {geom:lines, bbox: [x1, y1, x2, y2]}
 }
 
-function parseTile(buffer):Map<string,Feature[]> {
+function parseTile(buffer:ArrayBuffer,tileSize:number):Map<string,Feature[]> {
     let v = new VectorTile(new Protobuf(buffer))
     let result = new Map<string,Feature[]>()
     for (let [key,value] of Object.entries(v.layers)) {
@@ -81,7 +81,7 @@ function parseTile(buffer):Map<string,Feature[]> {
         let layer = value as any
         for (let i = 0; i < layer.length; i++) {
             let feat = layer.feature(i)
-            let result = loadGeomAndBbox(feat._pbf,feat._geometry)
+            let result = loadGeomAndBbox(feat._pbf,feat._geometry,tileSize/layer.extent)
             let numVertices = 0
             for (let part of result.geom) numVertices+=part.length
             features.push({
@@ -101,7 +101,7 @@ export class PmtilesSource implements TileSource {
     p: PMTiles
     controllers: any[]
 
-    constructor(url) {
+    constructor(url:any,tileSize:number) {
         if (url.url) {
             this.p = url
         } else {
@@ -110,7 +110,7 @@ export class PmtilesSource implements TileSource {
         this.controllers = []
     }
 
-    public async get(c:Zxy):Promise<Map<string,Feature[]>> {
+    public async get(c:Zxy,tileSize:number):Promise<Map<string,Feature[]>> {
         this.controllers = this.controllers.filter(cont => {
             if (cont[0] != c.z) {
                 cont[1].abort()
@@ -127,7 +127,7 @@ export class PmtilesSource implements TileSource {
             fetch(this.p.url,{headers:{Range:"bytes=" + result[0] + "-" + (result[0]+result[1]-1)},signal:signal}).then(resp => {
                return resp.arrayBuffer()
             }).then(buffer => {
-                let result = parseTile(buffer)
+                let result = parseTile(buffer,tileSize)
                 resolve(result)
             }).catch( e => {
                 reject(e)
@@ -145,7 +145,7 @@ export class ZxySource implements TileSource {
         this.controllers = []
     }
 
-    public async get(c: Zxy):Promise<Map<string,Feature[]>> {
+    public async get(c: Zxy,tileSize:number):Promise<Map<string,Feature[]>> {
         this.controllers = this.controllers.filter(cont => {
             if (cont[0] != c.z) {
                 cont[1].abort()
@@ -161,7 +161,7 @@ export class ZxySource implements TileSource {
             fetch(url,{signal:signal}).then(resp => {
                 return resp.arrayBuffer()
             }).then(buffer => {
-                let result = parseTile(buffer)
+                let result = parseTile(buffer,tileSize)
                 resolve(result)
             }).catch(e => {
                 reject(e)
@@ -179,11 +179,13 @@ export class TileCache {
     source: TileSource
     cache: Map<string,CacheEntry>
     inflight: Map<string,any[]>
+    tileSize: number
 
-    constructor(source: TileSource) {
+    constructor(source: TileSource, tileSize: number) {
         this.source = source
         this.cache = new Map<string,CacheEntry>()
         this.inflight = new Map<string,any[]>()
+        this.tileSize = tileSize
     }
 
     public async get(c:Zxy):Promise<Map<string,Feature[]>> {
@@ -197,7 +199,7 @@ export class TileCache {
                 this.inflight.get(idx).push([resolve,reject])
             } else {
                 this.inflight.set(idx,[])
-                this.source.get(c).then(tile => {
+                this.source.get(c,this.tileSize).then(tile => {
                     this.cache.set(idx,{used:performance.now(),data:tile})
                     this.inflight.get(idx).forEach(f => f[0](tile))
                     this.inflight.delete(idx)

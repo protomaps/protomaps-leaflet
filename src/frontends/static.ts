@@ -16,6 +16,7 @@ let project = latlng => {
     return new Point(R*latlng[1]*d,R*Math.log((1+sin)/(1-sin))/2)
 }
 
+// TODO is off by 2
 export class Static {
     paint_rules:Rule[]
     label_rules:LabelRule[]
@@ -35,8 +36,8 @@ export class Static {
         } else {
             source = new ZxySource(options.url)
         }
-        let cache = new TileCache(source)
-        this.view = new View(cache,14,4096,2)
+        let cache = new TileCache(source,1024)
+        this.view = new View(cache,14,2)
         this.debug = options.debug || false
     }
 

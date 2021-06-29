@@ -23,6 +23,20 @@ export interface LabelRule {
     sort?:(a:any,b:any)=>number
 }
 
+// TODO make this lazy
+let transformGeom = (geom,translate) => {
+    retval = []
+    for (let arr of geom) {
+        loop = []
+        for (let coord of arr) {
+            loop.push(coord.clone().add(translate))
+        }
+        retval.push(loop)
+
+    }
+    return retval
+}
+
 // support deduplicated Labeling
 export class Labeler {
     tree: RBush
@@ -46,17 +60,15 @@ export class Labeler {
     // TODO the symbolizer should return a set of bboxes and a draw callback
     // or it should return null
     // approximated by a series of bboxes...
-    private layout(c:Zxy, data):boolean {
+    private layout(pt:PreparedTile):boolean {
         let start = performance.now()
 
         let knockouts = new Set<string>()
-        let multiplier = 1 << (this.z - c.z - this.view.levelDiff) / 4096 // TODO this breaks leaflet
-        let extent = this.view.dataResolution
         for (var [order, rule] of this.labelStyle.entries()) {
             if (rule.visible == false) continue
             if (rule.minzoom && this.z < rule.minzoom) continue
             if (rule.maxzoom && this.z > rule.maxzoom) continue
-            let layer = data.get(rule.dataLayer)
+            let layer = pt.data.get(rule.dataLayer)
             if (layer === undefined) continue
 
             let feats = layer
@@ -68,33 +80,26 @@ export class Labeler {
                     if (!rule.filter(feature.properties)) continue
                 }
                 // TODO ignore those that don't "belong" to us
-                let stash = rule.symbolizer.stash(this.scratch, feature, this.z)
+                let transformed = transformGeom(feature.geom,pt.origin)
+                let stash = rule.symbolizer.stash(this.scratch, transformed,feature, this.z)
                 if (!stash) continue
                 let anchor = stash.anchor
                 let bbox = stash.bbox
-                let bbox_world = {
-                    minX: (c.x* extent + anchor.x) * multiplier + bbox.minX,
-                    minY: (c.y* extent + anchor.y) * multiplier + bbox.minY,
-                    maxX: (c.x* extent + anchor.x) * multiplier + bbox.maxX,
-                    maxY: (c.y* extent + anchor.y) * multiplier + bbox.maxY
-                }
-                let collisions = this.tree.search(bbox_world)
+                let collisions = this.tree.search(bbox)
                 if (collisions.length == 0) {
                     let entry = {
-                        anchor: new Point(c.x*extent+anchor.x,c.y*extent+anchor.y).mult(multiplier),
+                        anchor: anchor,
                         draw:stash.draw,
                         order: order,
-                        key:toIndex(c)
+                        key:toIndex(pt.data_tile)
                     }
-                    this.tree.insert(Object.assign(entry,bbox_world))
+                    this.tree.insert(Object.assign(entry,bbox))
                     // determine the display tiles that this invalidates
                     // these are the display tiles that don't belong to this data tile
                     // also consider "current"
 
-                    // find all the display tiles this label belongs to
-                    let em = extent * multiplier
-                    if ((bbox_world.maxX > (c.x+1)*em || bbox_world.minX < c.x*em || bbox_world.minY < c.y*em || bbox_world.maxY > (c.y+1)*em)) {
-                        this.findSpills(knockouts,c,bbox_world)
+                    if (bbox.maxX > (pt.origin.x+pt.dim)|| bbox.minX < pt.origin.x || bbox.minY < pt.origin.y || bbox.maxY > (pt.origin.y+pt.dim)) {
+                        this.findSpills(knockouts,pt.data_tile,bbox)
                     }
                 } else {
                     let override = true
@@ -106,15 +111,15 @@ export class Labeler {
                     if (override) {
                         for (let collision of collisions) {
                             // remove all collided bboxes, and knock out
-                            this.findSpills(knockouts,c,collision)
+                            this.findSpills(knockouts,pt.data_tile,collision)
                             this.tree.remove(collision)
                         }
                         let entry = {
-                            anchor: new Point(c.x*extent+anchor.x,c.y*extent+anchor.y).mult(multiplier),
+                            anchor: anchor,
                             draw:stash.draw,
                             order: order
                         }
-                        this.tree.insert(Object.assign(entry,bbox_world))
+                        this.tree.insert(Object.assign(entry,bbox))
                     }
                 }
             }
@@ -127,6 +132,7 @@ export class Labeler {
         // console.log("Layout: ", performance.now() - start)
     }
 
+    // TODO fix me
     private findSpills(knockouts,c,bbox) {
         let spillovers = this.view.covering(this.z,c,bbox)
         for (let s of spillovers) {
@@ -168,7 +174,7 @@ export class Labeler {
         if(this.current.has(idx)) {
             return this.tree
         } else {
-            this.layout(prepared_tile.data_tile,prepared_tile.data)
+            this.layout(prepared_tile)
             this.current.add(idx)
             this.pruneCache(prepared_tile)
             return this.tree
