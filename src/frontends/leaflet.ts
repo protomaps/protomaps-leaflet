@@ -17,25 +17,20 @@ class CanvasPool {
         this.unused = []
     }
 
-    public get(tile_size,clickHandler) {
+    public get(tile_size) {
         if (this.unused.length) {
-            let  foo = this.unused.shift()
-            foo.removed = false
-            return foo
+            let tile = this.unused.shift()
+            tile.removed = false
+            return tile
         }
         let element = L.DomUtil.create('canvas', 'leaflet-tile')
         element.width = tile_size
         element.height = tile_size
-        // element.style.pointerEvents = "initial"
-        // L.DomEvent.on(element,"click",event => {
-        //     clickHandler(event)
-        // })
         element.lang = this.lang
         return element
     }
 
     public put(elem) {
-        L.DomEvent.off("click")
         L.DomUtil.removeClass(elem,'leaflet-tile-loaded')
         this.unused.push(elem)
     }
@@ -80,7 +75,6 @@ class LeafletLayer extends L.GridLayer {
         this.labelers = new Labelers(this.scratch, this.label_rules, this.onTilesInvalidated)
         this.tile_size = 256 *window.devicePixelRatio
         this.pool = new CanvasPool(options.lang)
-        this._onClick = null
     }
 
     public setDefaultStyle(dark:boolean) {
@@ -88,14 +82,10 @@ class LeafletLayer extends L.GridLayer {
         this.label_rules = (dark ? darkLabelRules : lightLabelRules)
     }
 
-    public onClick(callback) {
-        this._onClick = callback
-    }
-
     public async renderTile(coords,element,key,done = ()=>{}) {
         this.lastRequestedZ = coords.z
         let state = {element:element,tile_size:this.tile_size,ctx:null}
-        var prepared_tile, label_data
+        var prepared_tile
         try {
             prepared_tile = await this.view.getDisplayTile(coords)
         } catch (e) {
@@ -106,13 +96,13 @@ class LeafletLayer extends L.GridLayer {
 
         if (this.lastRequestedZ !== coords.z) return
 
-        label_data = await this.labelers.add(prepared_tile)
+        let label_data = await this.labelers.add(prepared_tile)
 
         if (this.lastRequestedZ !== coords.z) return
         if (!this._map) return // the layer has been removed from the map
 
         let center = this._map.getCenter().wrap()
-        var pixelBounds = this._getTiledPixelBounds(center),
+        let pixelBounds = this._getTiledPixelBounds(center),
              tileRange = this._pxBoundsToTileRange(pixelBounds),
              tileCenter = tileRange.getCenter()
         let priority = coords.distanceTo(tileCenter) * 5
@@ -129,7 +119,7 @@ class LeafletLayer extends L.GridLayer {
             let data_tile = prepared_tile.data_tile
             ctx.save()
             ctx.fillStyle = this.debug
-            ctx.font = '600 12px sans-serif';
+            ctx.font = '600 12px sans-serif'
             ctx.fillText(coords.z + " " + coords.x + " " + coords.y,4,14)
 
             ctx.font = '200 12px sans-serif'
@@ -150,7 +140,7 @@ class LeafletLayer extends L.GridLayer {
     }
 
     public rerenderTile(key) {
-        for (var unwrapped_k in this._tiles) {
+        for (let unwrapped_k in this._tiles) {
             let wrapped_coord = this._wrapCoords(this._keyToTileCoords(unwrapped_k))
             if (key === this._tileCoordsToKey(wrapped_coord)) {
                 this.renderTile(wrapped_coord,this._tiles[unwrapped_k].el,key)
@@ -163,7 +153,7 @@ class LeafletLayer extends L.GridLayer {
     }
 
     public rerenderTiles() {
-        for (var unwrapped_k in this._tiles) {
+        for (let unwrapped_k in this._tiles) {
             let wrapped_coord = this._wrapCoords(this._keyToTileCoords(unwrapped_k))
             let key = this._tileCoordsToKey(wrapped_coord)
             this.renderTile(wrapped_coord,this._tiles[unwrapped_k].el,key)
@@ -171,13 +161,7 @@ class LeafletLayer extends L.GridLayer {
     }
 
     public createTile(coords,showTile) {
-        let element = this.pool.get(this.tile_size,event =>  {
-            let latlng = this._map.mouseEventToLatLng(event)
-            this.view.within(coords,event.offsetX,event.offsetY).then(nearby => {
-                this._onClick(latlng, nearby)
-            })
-        })
-
+        let element = this.pool.get(this.tile_size)
         let key = this._tileCoordsToKey(coords)
         element.key = key
 
@@ -189,17 +173,17 @@ class LeafletLayer extends L.GridLayer {
     }
 
     public _removeTile(key) {
-        var tile = this._tiles[key];
-        if (!tile) { return; }
+        let tile = this._tiles[key]
+        if (!tile) { return }
         tile.el.removed = true
         tile.el.key = undefined
-        L.DomUtil.remove(tile.el);
+        L.DomUtil.remove(tile.el)
         this.pool.put(tile.el)
-        delete this._tiles[key];
+        delete this._tiles[key]
         this.fire('tileunload', {
             tile: tile.el,
             coords: this._keyToTileCoords(key)
-        });
+        })
     }
 }
 
