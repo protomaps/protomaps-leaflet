@@ -54,7 +54,6 @@ export class View {
         this.levelDiff = levelDiff
     }
 
-    // TODO handle overzooming
     public dataTilesForBounds(display_zoom:number,bounds:any):Array<TileTransform> {
         let needed = []
         var scale = 1
@@ -167,28 +166,5 @@ export class View {
             dim:tt.dim
         }
     } 
-
-    public covering(display_level:number,data_zxy:Zxy,data_bbox:any) {
-        let res = 256
-        let f = 1 << (display_level - data_zxy.z)
-
-        let top_left = {x:data_bbox.minX/res,y:data_bbox.minY/res}
-        let d_top_left = {x:Math.floor(top_left.x*f),y:Math.floor(top_left.y*f)} 
-
-        let bottom_right = {x:data_bbox.maxX/res,y:data_bbox.maxY/res}
-        let d_bottom_right = {x:Math.floor(bottom_right.x*f),y:Math.floor(bottom_right.y*f)} 
-
-        let retval = []
-        for (let x = d_top_left.x; x <= d_bottom_right.x; x++) {
-            for (let y = d_top_left.y; y <= d_bottom_right.y; y++) {
-                if (Math.floor(x/f) == data_zxy.x && Math.floor(y/f) == data_zxy.y) {
-                    // do nothing
-                } else {
-                    retval.push({z:display_level,x:x,y:y})
-                }
-            }
-        }
-        return retval
-    }
 }
 

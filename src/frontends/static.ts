@@ -16,7 +16,6 @@ let project = latlng => {
     return new Point(R*latlng[1]*d,R*Math.log((1+sin)/(1-sin))/2)
 }
 
-// TODO is off by 2
 export class Static {
     paint_rules:Rule[]
     label_rules:LabelRule[]
