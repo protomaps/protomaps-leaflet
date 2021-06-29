@@ -96,7 +96,9 @@ class LeafletLayer extends L.GridLayer {
 
         if (this.lastRequestedZ !== coords.z) return
 
-        let label_data = await this.labelers.add(prepared_tile)
+        let layout_time = await this.labelers.add(prepared_tile)
+
+        let label_data = this.labelers.getTree(prepared_tile.z)
 
         if (this.lastRequestedZ !== coords.z) return
         if (!this._map) return // the layer has been removed from the map
@@ -129,7 +131,10 @@ class LeafletLayer extends L.GridLayer {
 
             ctx.fillText(data_tile.z + " " + data_tile.x + " " + data_tile.y,4,28)
             if (painting_time > 8) {
-                ctx.fillText(painting_time.toFixed() + " ms",4,42)
+                ctx.fillText(painting_time.toFixed() + " ms paint",4,42)
+            }
+            if (layout_time > 8) {
+                ctx.fillText(painting_time.toFixed() + " ms layout",4,56)
             }
             ctx.strokeStyle = this.debug
             ctx.lineWidth = 0.5

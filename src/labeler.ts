@@ -44,7 +44,7 @@ export class Labeler {
     // TODO the symbolizer should return a set of bboxes and a draw callback
     // or it should return null
     // approximated by a series of bboxes...
-    private layout(pt:PreparedTile):boolean {
+    private layout(pt:PreparedTile):number {
         let start = performance.now()
 
         let tiles_invalidated = new Set<string>()
@@ -112,8 +112,7 @@ export class Labeler {
             this.callback(tiles_invalidated)
         }
 
-        return true
-        // console.log("Layout: ", performance.now() - start)
+        return performance.now() - start
     }
 
 
@@ -176,15 +175,15 @@ export class Labeler {
         }
     }
 
-    public add(prepared_tile:PreparedTile) {
+    public add(prepared_tile:PreparedTile):number {
         let idx = toIndex(prepared_tile.data_tile)
         if(this.current.has(idx)) {
-            return this.tree
+            return 0
         } else {
-            this.layout(prepared_tile)
+            let timing = this.layout(prepared_tile)
             this.current.add(idx)
             this.pruneCache(prepared_tile)
-            return this.tree
+            return timing
         }
     }
 }
@@ -202,10 +201,14 @@ export class Labelers {
         this.callback = callback
     }
 
-    public add(prepared_tile:PreparedTile) {
+    public add(prepared_tile:PreparedTile):number {
         if (!this.labelers.get(prepared_tile.z)) {
             this.labelers.set(prepared_tile.z,new Labeler(prepared_tile.z,this.scratch,this.labelRules,this.callback))
         }
         return this.labelers.get(prepared_tile.z).add(prepared_tile)
+    }
+
+    public getTree(z:number):RBush {
+        return this.labelers.get(z).tree
     }
 }
