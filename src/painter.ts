@@ -12,7 +12,7 @@ export interface Rule {
 }
 
 // make this not depend on element?
-export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules:Rule[],bbox,origin,debug) {
+export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules:Rule[],bbox,origin,clip:boolean,debug) {
     let start = performance.now()
     let ctx
     if (!state.ctx) {
@@ -35,13 +35,13 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
     for (var prepared_tile of prepared_tiles) {
         let po = prepared_tile.origin
         ctx.save()
-        ctx.translate(po.x,po.y)
-        if (prepared_tile.clip) {
+        if (clip) {
             ctx.save()
             ctx.beginPath()
-            ctx.rect(...prepared_tile.clip)
+            ctx.rect(po.x,po.y,prepared_tile.dim,prepared_tile.dim)
             ctx.clip()
         }
+        ctx.translate(po.x,po.y)
         for (var rule of rules) {
             if (rule.minzoom && prepared_tile.z < rule.minzoom) continue
             if (rule.maxzoom && prepared_tile.z > rule.maxzoom) continue

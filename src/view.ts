@@ -16,13 +16,13 @@ export interface PreparedTile {
     scale: number // over or underzooming scale
     dim: number // the effective size of this tile on the zoom level
     data_tile: Zxy // the key of the raw tile
-    clip?: number[]
 }
 
 export interface TileTransform {
-    data_tile:data_zxy
+    data_tile:Zxy
     origin:Point
     scale:number
+    dim:number
 }
 
 /* 
@@ -40,58 +40,45 @@ export class View {
         this.levelDiff = levelDiff
     }
 
-    public getCenterBbox(normalized_center:Point,zoom:number,width:number,height:number) {
-        let center_tile = normalized_center.mult(1 << zoom)
-        let width_tiles = width / 1024
-        let height_tiles = height / 1024
-        return {
-            minX:(center_tile.x-width_tiles/2)*4096,
-            maxX:(center_tile.x+width_tiles/2)*4096,
-            minY:(center_tile.y-height_tiles/2)*4096,
-            maxY:(center_tile.y+height_tiles/2)*4096
-        }
-    }
-
-    public getCenterTranslate(normalized_center:Point,zoom:number,width:number,height:number) {
-        let center_tile = normalized_center.mult(1 << zoom)
-        let width_tiles = width / 1024
-        let height_tiles = height / 1024
-        return new Point(
-            -(center_tile.x-width_tiles/2)*1024,
-            -(center_tile.y-height_tiles/2)*1024
-        )
-    }
-
-    // width and height in css pixels
-    // assume a tile is 1024x1024 css pixels
-    public async getCenter(normalized_center:Point,zoom:number,width:number,height:number):Promise<Array<PreparedTile>> {
-        let center_tile = normalized_center.mult(1 << zoom)
-
-        let width_tiles = width / 1024
-        let height_tiles = height / 1024
-        let mintile_x = Math.floor(center_tile.x - width_tiles / 2)
-        let maxtile_x = Math.floor(center_tile.x + width_tiles / 2)
-        let mintile_y = Math.floor(center_tile.y - height_tiles / 2)
-        let maxtile_y = Math.floor(center_tile.y + height_tiles / 2)
+    // TODO handle overzooming
+    public dataTilesForBounds(display_zoom:number,bounds:any):Array<TileTransform> {
         let needed = []
-        for (var tx = mintile_x; tx <= maxtile_x; tx++) {
-            for (var ty = mintile_y; ty <= maxtile_y; ty++) {
-                needed.push({z:zoom,x:tx,y:ty})
+        if (display_zoom < this.levelDiff) {
+            throw("Unimplemeneted")
+        } else if (display_zoom <= this.levelDiff + this.maxDataLevel) {
+            let mintile_x = Math.floor(bounds[0] / (1 << this.levelDiff) / 256)
+            let maxtile_x = Math.floor(bounds[2] / (1 << this.levelDiff) / 256)
+            let mintile_y = Math.floor(bounds[1] / (1 << this.levelDiff) / 256)
+            let maxtile_y = Math.floor(bounds[3] / (1 << this.levelDiff) / 256)
+            for (var tx = mintile_x; tx <= maxtile_x; tx++) {
+                for (var ty = mintile_y; ty <= maxtile_y; ty++) {
+                    let origin = new Point(tx * (1 << this.levelDiff) * 256,ty * (1 << this.levelDiff) * 256)
+                    needed.push({
+                        data_tile:{z:display_zoom-this.levelDiff,x:tx,y:ty},
+                        origin:origin,
+                        scale:1,
+                        dim:this.tileCache.tileSize
+                    })
+                }
             }
+        } else {
+            throw("Unimplemeneted")
         }
+        return needed
+    }
 
-        let result = await Promise.all(needed.map(n => this.tileCache.get(n)))
+    public async getBbox(display_zoom:number,bounds:any):Promise<array<PreparedTile>> {
+        let needed = this.dataTilesForBounds(display_zoom,bounds)
+        let result = await Promise.all(needed.map(tt => this.tileCache.get(tt.data_tile)))
         return result.map((data,i) => { 
-            let data_tile = needed[i]
-            let translate = center_tile.sub(new Point(data_tile.x,data_tile.y)).mult(-1024).add(new Point(width/2,height/2))
+            let tt = needed[i]
             return {
-                data:data as Map<string,Feature[]>,
-                bbox:[0,0,4096,4096],
-                transform: {scale:0.25,translate:translate},
-                data_tile:data_tile,
-                z:zoom,
-                clip:[translate.x,translate.y,1024,1024],
-                scale:1
+                data:data,
+                z:display_zoom,
+                data_tile:tt.data_tile,
+                scale:tt.dim,
+                dim:tt.dim,
+                origin:tt.origin
             } 
         })
     }
@@ -154,11 +141,12 @@ export class View {
         let tt = this.dataTileForDisplayTile(display_tile)
         const data = await this.tileCache.get(tt.data_tile)
         return {
-            data_tile: tt.data_tile,
-            scale:tt.scale,
             data:data,
             z:display_tile.z,
-            origin:tt.origin
+            data_tile: tt.data_tile,
+            scale:tt.scale,
+            origin:tt.origin,
+            dim:tt.dim
         }
     } 
 }

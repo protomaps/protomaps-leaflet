@@ -28,7 +28,7 @@ export function toIndex(c: Zxy):string {
 }
 
 export interface TileSource {
-    get(c:Zxy) : Promise<Map<string,Feature[]>>
+    get(c:Zxy,tileSize:number) : Promise<Map<string,Feature[]>>
 }
 
 // reimplement loadGeometry with a scalefactor
@@ -101,7 +101,7 @@ export class PmtilesSource implements TileSource {
     p: PMTiles
     controllers: any[]
 
-    constructor(url:any,tileSize:number) {
+    constructor(url:any) {
         if (url.url) {
             this.p = url
         } else {

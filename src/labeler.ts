@@ -1,5 +1,5 @@
 import Point from '@mapbox/point-geometry'
-import { PreparedTile, View, Transform } from './view'
+import { PreparedTile, View } from './view'
 import { Zxy, toIndex } from './tilecache'
 import RBush from 'rbush'
 import { LabelSymbolizer } from './symbolizer'
@@ -25,9 +25,9 @@ export interface LabelRule {
 
 // TODO make this lazy
 let transformGeom = (geom,translate) => {
-    retval = []
+    let retval = []
     for (let arr of geom) {
-        loop = []
+        let loop = []
         for (let coord of arr) {
             loop.push(coord.clone().add(translate))
         }

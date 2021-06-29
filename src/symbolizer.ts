@@ -1,6 +1,5 @@
 import Point from '@mapbox/point-geometry'
 import { GeomType } from './tilecache'
-import { Transform } from './view'
 import polylabel from 'polylabel'
 import { TextSpec, FontSpec, linebreak, isCjk } from './text'
 import { simpleLabel } from './line'
@@ -17,7 +16,7 @@ export interface LabelStash {
 }
 
 export interface LabelSymbolizer {
-    stash(ctx:any,feature:any,zoom:number):LabelStash | undefined
+    stash(ctx:any,geom:any,feature:any,zoom:number):LabelStash | undefined
 }
 
 export const createPattern = (width,height, fn) => {
@@ -271,14 +270,14 @@ export class GroupSymbolizer implements LabelSymbolizer {
         this.list = list
     }
 
-    public stash(scratch, feature, zoom):LabelStash | undefined {
-        var result = this.list[0].stash(scratch,feature,zoom)
+    public stash(scratch, geom, feature, zoom):LabelStash | undefined {
+        var result = this.list[0].stash(scratch,geom, feature,zoom)
         let anchor = result.anchor
         let bbox = result.bbox
         let draws = [result.draw]
 
         for (let i = 1; i < this.list.length; i++) {
-            result = this.list[i].stash(scratch,feature,zoom)
+            result = this.list[i].stash(scratch,geom, feature,zoom)
             if (!result) return null
             bbox = mergeBbox(bbox,result.bbox)
             draws.push(result.draw)

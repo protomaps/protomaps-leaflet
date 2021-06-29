@@ -41,32 +41,40 @@ export class Static {
         this.debug = options.debug || false
     }
 
-    async draw(canvas,latlng:Point,zoom:number) {
+    async draw(canvas,latlng:Point,display_zoom:number) {
         let dpr = window.devicePixelRatio
         let width = canvas.clientWidth
         let height = canvas.clientHeight
+
         canvas.width = width * dpr
         canvas.height = height * dpr
         let ctx = canvas.getContext('2d')
         ctx.setTransform(dpr,0,0,dpr,0,0)
+
         let center = project(latlng)
         let normalized_center = new Point((center.x+MAXCOORD)/(MAXCOORD*2),1-(center.y+MAXCOORD)/(MAXCOORD*2))
-        let prepared_tiles = await this.view.getCenter(normalized_center,zoom,width,height)
+
+        // the origin of the painter call in global Z coordinates
+        let origin = normalized_center.clone().mult((1 << display_zoom) * 256).sub(new Point(width/2,height/2))
+
+        // the bounds of the painter call in global Z coordinates
+        let bbox = [origin.x,origin.y,origin.x+width,origin.y+height]
+
+        let prepared_tiles = await this.view.getBbox(display_zoom,bbox)
 
         let start = performance.now()
-        let labeler = new Labeler(this.view,zoom,ctx,this.label_rules,null)
+        let labeler = new Labeler(this.view,display_zoom,ctx,this.label_rules,null)
         for (var prepared_tile of prepared_tiles) {
             await labeler.add(prepared_tile)
         }
 
-        let bbox = this.view.getCenterBbox(normalized_center,zoom,width,height)
-        let translate = this.view.getCenterTranslate(normalized_center,zoom,width,height)
-        let p = painter({ctx:ctx},"key",prepared_tiles,labeler.tree,this.paint_rules,bbox,translate,this.debug)
+        let p = painter({ctx:ctx},"key",prepared_tiles,labeler.tree,this.paint_rules,bbox,origin,true,this.debug)
 
         if (this.debug) {
+            ctx.translate(-origin.x,-origin.y)
             for (var prepared_tile of prepared_tiles) {
                 ctx.strokeStyle = "black"
-                ctx.strokeRect(prepared_tile.transform.translate.x,prepared_tile.transform.translate.y,1024,1024)
+                ctx.strokeRect(prepared_tile.origin.x,prepared_tile.origin.y,prepared_tile.dim,prepared_tile.dim)
             }
         }
         return performance.now() - start
