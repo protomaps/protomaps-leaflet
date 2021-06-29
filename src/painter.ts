@@ -36,7 +36,6 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
         let po = prepared_tile.origin
         ctx.save()
         if (clip) {
-            ctx.save()
             ctx.beginPath()
             ctx.rect(po.x,po.y,prepared_tile.dim,prepared_tile.dim)
             ctx.clip()
@@ -62,7 +61,6 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
                 rule.symbolizer.draw(ctx,geom,properties)
             }
         }
-        if (prepared_tile.clip) ctx.restore()
         ctx.restore()
     }
 

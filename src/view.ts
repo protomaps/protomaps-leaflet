@@ -67,7 +67,7 @@ export class View {
         return needed
     }
 
-    public async getBbox(display_zoom:number,bounds:any):Promise<array<PreparedTile>> {
+    public async getBbox(display_zoom:number,bounds:any):Promise<Array<PreparedTile>> {
         let needed = this.dataTilesForBounds(display_zoom,bounds)
         let result = await Promise.all(needed.map(tt => this.tileCache.get(tt.data_tile)))
         return result.map((data,i) => { 
