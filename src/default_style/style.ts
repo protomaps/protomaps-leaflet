@@ -227,10 +227,10 @@ export const labelRules = (params:DefaultStyleParams) => {
                 font:(z,p) => {
                     if (p["pmap:rank"] == 1) {
                         if (z > 8) return "600 24px sans-serif"
-                        return "400 14px sans-serif"
+                        return "600 14px sans-serif"
                     } else {
-                        if (z > 8) return "400 20px sans-serif"
-                        return "400 12px sans-serif"
+                        if (z > 8) return "600 20px sans-serif"
+                        return "600 12px sans-serif"
                     }
                 }
             }),
