@@ -90,7 +90,7 @@ export class View {
                 data:data,
                 z:display_zoom,
                 data_tile:tt.data_tile,
-                scale:tt.dim,
+                scale:tt.scale,
                 dim:tt.dim,
                 origin:tt.origin
             } 
