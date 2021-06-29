@@ -35,7 +35,6 @@ export const transformGeom = (geom:Array<Array<Point>>,scale:number,translate:Po
             loop.push(coord.clone().mult(scale).add(translate))
         }
         retval.push(loop)
-
     }
     return retval
 }

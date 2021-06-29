@@ -33,8 +33,8 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
     ctx.translate(-origin.x,-origin.y)
 
     for (var prepared_tile of prepared_tiles) {
-        console.log(prepared_tile)
         let po = prepared_tile.origin
+        let ps = prepared_tile.scale
         ctx.save()
         if (clip) {
             ctx.beginPath()
@@ -52,13 +52,13 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
             for (var feature of layer) {
                 let geom = feature.geom
                 let fbox = feature.bbox
-                if (fbox[2]+po.x < bbox[0] || fbox[0]+po.x > bbox[2] || fbox[1]+po.y > bbox[3] || fbox[3]+po.y < bbox[1]) {
+                if (fbox[2]*ps+po.x < bbox[0] || fbox[0]*ps+po.x > bbox[2] || fbox[1]*ps+po.y > bbox[3] || fbox[3]*ps+po.y < bbox[1]) {
                     continue
                 }
                 let properties = feature.properties
                 if (rule.filter && !rule.filter(properties)) continue
-                if (prepared_tile.scale != 1) {
-                    geom = transformGeom(geom,prepared_tile.scale, new Point())
+                if (ps != 1) {
+                    geom = transformGeom(geom,ps, new Point(0,0))
                 }
                 rule.symbolizer.draw(ctx,geom,properties)
             }

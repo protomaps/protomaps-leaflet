@@ -66,7 +66,7 @@ export class Labeler {
                     if (!rule.filter(feature.properties)) continue
                 }
                 // TODO ignore those that don't "belong" to us
-                let transformed = transformGeom(feature.geom,1,pt.origin)
+                let transformed = transformGeom(feature.geom,pt.scale,pt.origin)
                 let stash = rule.symbolizer.stash(this.scratch, transformed,feature, this.z)
                 if (!stash) continue
                 let anchor = stash.anchor
