@@ -187,4 +187,8 @@ class LeafletLayer extends L.GridLayer {
     }
 }
 
-export { LeafletLayer }
+const leafletLayer = options => {
+    return new LeafletLayer(options)
+}
+
+export { leafletLayer, LeafletLayer }
