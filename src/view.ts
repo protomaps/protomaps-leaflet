@@ -25,6 +25,21 @@ export interface TileTransform {
     dim:number
 }
 
+
+// TODO make this lazy
+export const transformGeom = (geom:Array<Array<Point>>,scale:number,translate:Point) => {
+    let retval = []
+    for (let arr of geom) {
+        let loop = []
+        for (let coord of arr) {
+            loop.push(coord.clone().mult(scale).add(translate))
+        }
+        retval.push(loop)
+
+    }
+    return retval
+}
+
 /* 
  * @class View
  * expresses relationship between canvas coordinates and data tiles.

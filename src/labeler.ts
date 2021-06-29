@@ -1,5 +1,5 @@
 import Point from '@mapbox/point-geometry'
-import { PreparedTile, View } from './view'
+import { PreparedTile, View, transformGeom } from './view'
 import { Zxy, toIndex } from './tilecache'
 import RBush from 'rbush'
 import { LabelSymbolizer } from './symbolizer'
@@ -21,20 +21,6 @@ export interface LabelRule {
     filter?:(properties:any)=>boolean
     visible?:boolean
     sort?:(a:any,b:any)=>number
-}
-
-// TODO make this lazy
-let transformGeom = (geom,translate) => {
-    let retval = []
-    for (let arr of geom) {
-        let loop = []
-        for (let coord of arr) {
-            loop.push(coord.clone().add(translate))
-        }
-        retval.push(loop)
-
-    }
-    return retval
 }
 
 // support deduplicated Labeling
@@ -80,7 +66,7 @@ export class Labeler {
                     if (!rule.filter(feature.properties)) continue
                 }
                 // TODO ignore those that don't "belong" to us
-                let transformed = transformGeom(feature.geom,pt.origin)
+                let transformed = transformGeom(feature.geom,1,pt.origin)
                 let stash = rule.symbolizer.stash(this.scratch, transformed,feature, this.z)
                 if (!stash) continue
                 let anchor = stash.anchor
