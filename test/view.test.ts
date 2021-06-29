@@ -64,15 +64,4 @@ test('get center level diff = 2', async () => {
     assert.equal(result.length,1)
 })
 
-// test('covering', async () => {
-//     let view = new View(cache,2,2)
-//     let covering = view.covering(4,{z:2,x:1,y:1},{minX:95,minY:100,maxX:150,maxY:110})
-//     assert.deepEqual(covering,[{z:4,x:3,y:4}])
-// })
-// test('covering between corners', async () => {
-//     let view = new View(cache,2,2)
-//     let covering = view.covering(4,{z:2,x:1,y:1},{minX:95,minY:105,maxX:150,maxY:155})
-//     assert.equal(covering.length,3)
-// })
-
 export default test

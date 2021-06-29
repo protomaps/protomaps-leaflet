@@ -23,6 +23,30 @@ export interface LabelRule {
     sort?:(a:any,b:any)=>number
 }
 
+
+
+export const covering = (display_zoom:number,tile_width:number,bbox:Bbox) => {
+    let res = 256
+    let f = tile_width / res
+
+    let minx = Math.floor(bbox.minX / res)
+    let miny = Math.floor(bbox.minY / res)
+    let maxx = Math.floor(bbox.maxX / res)
+    let maxy = Math.floor(bbox.maxY / res)
+    let leveldiff = Math.log2(f)
+
+    let retval = []
+    for (let x = minx; x <= maxx; x++) {
+        for (let y = miny; y <= maxy; y++) {
+            retval.push({
+                display:toIndex({z:display_zoom,x:x,y:y}),
+                key:toIndex({z:display_zoom-leveldiff,x:Math.floor(x/f),y:Math.floor(y/f)})
+            })
+        }
+    }
+    return retval
+}
+
 // support deduplicated Labeling
 export class Labeler {
     tree: RBush
@@ -46,6 +70,7 @@ export class Labeler {
     // approximated by a series of bboxes...
     private layout(pt:PreparedTile):number {
         let start = performance.now()
+        let key = toIndex(pt.data_tile)
 
         let tiles_invalidated = new Set<string>()
         for (var [order, rule] of this.labelRules.entries()) {
@@ -75,7 +100,7 @@ export class Labeler {
                         anchor: anchor,
                         draw:stash.draw,
                         order: order,
-                        key:toIndex(pt.data_tile)
+                        key:key
                     }
                     this.tree.insert(Object.assign(entry,bbox))
                     // determine the display tiles that this invalidates
@@ -83,7 +108,7 @@ export class Labeler {
                     // also consider "current"
 
                     if (bbox.maxX > (pt.origin.x+pt.dim)|| bbox.minX < pt.origin.x || bbox.minY < pt.origin.y || bbox.maxY > (pt.origin.y+pt.dim)) {
-                        this.findInvalidatedTiles(tiles_invalidated,pt.data_tile,bbox)
+                        this.findInvalidatedTiles(tiles_invalidated,pt.dim,bbox,key)
                     }
                 } else {
                     let override = true
@@ -95,7 +120,7 @@ export class Labeler {
                     if (override) {
                         for (let collision of collisions) {
                             // remove all collided bboxes, and knock out
-                            this.findInvalidatedTiles(tiles_invalidated,pt.data_tile,collision)
+                            this.findInvalidatedTiles(tiles_invalidated,pt.dim,collision,key)
                             this.tree.remove(collision)
                         }
                         let entry = {
@@ -115,36 +140,11 @@ export class Labeler {
         return performance.now() - start
     }
 
-
-    public covering(display_level:number,data_zxy:Zxy,data_bbox:any) {
-        let res = 256
-        let f = 1 << (display_level - data_zxy.z)
-
-        let top_left = {x:data_bbox.minX/res,y:data_bbox.minY/res}
-        let d_top_left = {x:Math.floor(top_left.x*f),y:Math.floor(top_left.y*f)} 
-
-        let bottom_right = {x:data_bbox.maxX/res,y:data_bbox.maxY/res}
-        let d_bottom_right = {x:Math.floor(bottom_right.x*f),y:Math.floor(bottom_right.y*f)} 
-
-        let retval = []
-        for (let x = d_top_left.x; x <= d_bottom_right.x; x++) {
-            for (let y = d_top_left.y; y <= d_bottom_right.y; y++) {
-                if (Math.floor(x/f) == data_zxy.x && Math.floor(y/f) == data_zxy.y) {
-                    // do nothing
-                } else {
-                    retval.push({z:display_level,x:x,y:y})
-                }
-            }
-        }
-        return retval
-    }
-
-    private findInvalidatedTiles(tiles_invalidated,c,bbox) {
-        let spillovers = this.covering(this.z,c,bbox)
-        for (let s of spillovers) {
-            let s_idx = toIndex({z:s.z-2,x:Math.floor(s.x/4),y:Math.floor(s.y/4)})
-            if (this.current.has(s_idx)) {
-                tiles_invalidated.add(toIndex(s))
+    private findInvalidatedTiles(tiles_invalidated:Set<string>,dim:number,bbox:Bbox,key:string) {
+        let touched = covering(this.z,dim,bbox)
+        for (let s of touched) {
+            if (s.key != key && this.current.has(s.key)) {
+                tiles_invalidated.add(s.display)
             }
         }
     }

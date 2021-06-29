@@ -4,6 +4,7 @@ import symbolizer from './symbolizer.test'
 import text from './text.test'
 import tilecache from './tilecache.test'
 import view from './view.test'
+import labeler from './labeler.test'
 
 (async function() {
     let r = []
@@ -13,5 +14,6 @@ import view from './view.test'
     r.push(await text.run())
     r.push(await tilecache.run())
     r.push(await view.run())
+    r.push(await labeler.run())
     if (process.env.CI && !r.every(Boolean)) process.exit(1)
 })()
