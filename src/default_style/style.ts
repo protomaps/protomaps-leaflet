@@ -213,12 +213,21 @@ export const labelRules = (params:DefaultStyleParams) => {
             symbolizer: new TextSymbolizer({
                 fill:params.countryLabel,
                 font:(z,p) => {
-                    if (z < 6) return "800 14px sans-serif"
-                    return "800 20px sans-serif"
+                    if (z < 6) return "200 14px sans-serif"
+                    return "200 20px sans-serif"
                 },
-                align:"center"
+                align:"center",
+                textTransform:"uppercase"
             }),
             filter: f => { return f["pmap:kind"] == "country" }
+        },
+        {
+            dataLayer: "places",
+            symbolizer: new TextSymbolizer({
+                fill:params.stateLabel,
+                font:"300 16px sans-serif"
+            }),
+            filter: f => { return f["pmap:kind"] == "state" }
         },
         {
             dataLayer: "places",
@@ -226,11 +235,11 @@ export const labelRules = (params:DefaultStyleParams) => {
                 fill:params.cityLabel,
                 font:(z,p) => {
                     if (p["pmap:rank"] == 1) {
-                        if (z > 8) return "600 24px sans-serif"
-                        return "600 14px sans-serif"
-                    } else {
                         if (z > 8) return "600 20px sans-serif"
                         return "600 12px sans-serif"
+                    } else {
+                        if (z > 8) return "600 16px sans-serif"
+                        return "600 10px sans-serif"
                     }
                 }
             }),
@@ -240,16 +249,9 @@ export const labelRules = (params:DefaultStyleParams) => {
         {
             dataLayer: "places",
             symbolizer: new TextSymbolizer({
-                fill:params.stateLabel,
-                font:"600 16px sans-serif"
-            }),
-            filter: f => { return f["pmap:kind"] == "state" }
-        },
-        {
-            dataLayer: "places",
-            symbolizer: new TextSymbolizer({
                 fill:params.neighbourhoodLabel,
-                font:"400 12px sans-serif"
+                font:"400 10px sans-serif",
+                textTransform:"uppercase"
             }),
             filter: f => { return f["pmap:kind"] == "neighbourhood" }
         },
