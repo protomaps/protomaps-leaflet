@@ -19,7 +19,7 @@ See the docs on [what protomaps.js is, what protomaps.js is not](https://protoma
 <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
 <script>
     const map = L.map('map')
-    var layer = new protomaps.LeafletLayer({url:'FILE.pmtiles OR ENDPOINT/{z}/{x}/{y}.pbf'})
+    var layer = protomaps.leafletLayer({url:'FILE.pmtiles OR ENDPOINT/{z}/{x}/{y}.pbf'})
     layer.addTo(map)
 </script>
 ```
