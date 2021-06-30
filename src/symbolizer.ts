@@ -456,7 +456,7 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
     public stash(scratch, geom, feature, zoom) {
         let fbbox = feature.bbox
         let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // TODO needs to be based on zoom level/overzooming
-        if (area < 200000) return undefined
+        if (area < 20000) return undefined
 
         let property = this.text.str(zoom,feature.properties)
         if (!property) return null
