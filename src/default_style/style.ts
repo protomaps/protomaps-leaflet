@@ -1,4 +1,4 @@
-import { createPattern, PolygonSymbolizer, IconSymbolizer, LineSymbolizer, CenteredTextSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
+import { createPattern, PolygonSymbolizer, IconSymbolizer, LineSymbolizer, CenteredTextSymbolizer, OffsetTextSymbolizer, GroupSymbolizer, CircleSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
 
 export interface DefaultStyleParams {
     earth:string
@@ -230,6 +230,8 @@ export const labelRules = (params:DefaultStyleParams) => {
         },
         {
             dataLayer: "places",
+            filter: f => { return f["pmap:kind"] == "city" },
+            minzoom:7,
             symbolizer: new CenteredTextSymbolizer({
                 fill:params.cityLabel,
                 font:(z,p) => {
@@ -242,8 +244,32 @@ export const labelRules = (params:DefaultStyleParams) => {
                     }
                 }
             }),
-            sort: (a,b) => { return a["pmap:rank"] - b["pmap:rank"] },
-            filter: f => { return f["pmap:kind"] == "city" }
+            sort: (a,b) => { return a["pmap:rank"] - b["pmap:rank"] }
+        },
+        {
+            dataLayer: "places",
+            filter: f => { return f["pmap:kind"] == "city" },
+            maxzoom:6,
+            symbolizer: new GroupSymbolizer([
+                new CircleSymbolizer({
+                    radius:2,
+                    fill:params.cityLabel
+                }),
+                new OffsetTextSymbolizer({
+                    fill:params.cityLabel,
+                    offset:2,
+                    font:(z,p) => {
+                        if (p["pmap:rank"] == 1) {
+                            if (z > 8) return "600 20px sans-serif"
+                            return "600 12px sans-serif"
+                        } else {
+                            if (z > 8) return "600 16px sans-serif"
+                            return "600 10px sans-serif"
+                        }
+                    }
+                })
+            ]),
+            sort: (a,b) => { return a["pmap:rank"] - b["pmap:rank"] }
         },
         {
             dataLayer: "places",

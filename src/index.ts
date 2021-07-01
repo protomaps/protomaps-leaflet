@@ -5,4 +5,4 @@ import { json_style } from './compat/json_style'
 import { Font, Sprites } from './task'
 import { PMTiles } from 'pmtiles'
 
-export { createPattern, PMTiles, LeafletLayer, leafletLayer, Static, Font, Sprites, GroupSymbolizer, CircleSymbolizer, PolygonSymbolizer, LineSymbolizer, CenteredTextSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, IconSymbolizer, json_style, arr, exp }
+export { createPattern, PMTiles, LeafletLayer, leafletLayer, Static, Font, Sprites, GroupSymbolizer, CircleSymbolizer, PolygonSymbolizer, LineSymbolizer, CenteredTextSymbolizer, OffsetTextSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, IconSymbolizer, json_style, arr, exp }

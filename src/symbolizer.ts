@@ -220,10 +220,10 @@ export class CircleSymbolizer implements LabelSymbolizer {
         let pt = geom[0]
         let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
-            minX:a.x-20, 
-            minY:a.y-20,
-            maxX:a.x+20,
-            maxY:a.y+20
+            minX:a.x-this.radius, 
+            minY:a.y-this.radius,
+            maxX:a.x+this.radius,
+            maxY:a.y+this.radius
         }
 
         let draw = ctx => {
@@ -307,7 +307,6 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
         if (feature.geomType !== GeomType.Point) return undefined
         let property = this.text.str(zoom,feature.properties)
         if (!property) return undefined
-        let a = new Point(geom[0][0].x,geom[0][0].y)
         let font = this.font.str(zoom,feature.properties)
         scratch.font = font
         let metrics = scratch.measureText(property)
@@ -316,6 +315,7 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
         let ascent = metrics.actualBoundingBoxAscent
         let descent = metrics.actualBoundingBoxDescent
 
+        let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
             minX:a.x-width/2, 
             minY:a.y-ascent,
@@ -344,8 +344,60 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
 }
 
 export class OffsetTextSymbolizer implements LabelSymbolizer {
+    font: FontSpec
+    text: TextSpec
+    fill: string
+    stroke: number
+    width: number
+
+    constructor(options) {
+        this.font = new FontSpec(options)
+        this.text = new TextSpec(options)
+
+        this.fill = options.fill 
+        this.stroke = options.stroke || "black"
+        this.width = options.width || 0
+        this.offset = options.offset || 0
+    }
+
     public stash(index, scratch, geom, feature, zoom) {
-        return undefined
+        if (feature.geomType !== GeomType.Point) return undefined
+        let property = this.text.str(zoom,feature.properties)
+        if (!property) return undefined
+        let font = this.font.str(zoom,feature.properties)
+        scratch.font = font
+        let metrics = scratch.measureText(property)
+
+        let width = metrics.width
+        let ascent = metrics.actualBoundingBoxAscent
+        let descent = metrics.actualBoundingBoxDescent
+
+        let a = new Point(geom[0][0].x,geom[0][0].y)
+        let offset = this.offset
+        let bbox = {
+            minX:a.x+offset, 
+            minY:a.y-ascent-offset,
+            maxX:a.x+width+offset,
+            maxY:a.y+descent-offset
+        }
+
+        // inside draw, the origin is the anchor
+        let draw = ctx => {
+            ctx.globalAlpha = 1
+            ctx.font = font
+
+            if (this.width) {
+                ctx.lineWidth = this.width * 2 // centered stroke
+                ctx.strokeStyle = this.stroke
+                ctx.strokeText(property,offset,-offset)
+            }
+
+            ctx.fillStyle = this.fill
+            ctx.fillText(property,offset,-offset)
+
+        }
+        return [{anchor:a,bbox:[bbox],draw:draw}]
+
     }
 }
 
