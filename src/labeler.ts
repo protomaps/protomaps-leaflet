@@ -45,9 +45,29 @@ export const covering = (display_zoom:number,tile_width:number,bbox:Bbox) => {
     return retval
 }
 
+export class Index {
+    tree: RBush 
+
+    public search(bbox) {
+        return this.tree.search(bbox)
+    }
+
+    public insert(obj) {
+        return this.tree.insert(obj)
+    }
+
+    public all() {
+        return this.tree.all()
+    }
+
+    public remove(obj) {
+        return this.tree.remove(obj)
+    }
+}
+
 // support deduplicated Labeling
 export class Labeler {
-    tree: RBush
+    tree: Index
     z: number
     scratch: any
     labelRules: LabelRule[]
@@ -84,46 +104,48 @@ export class Labeler {
                 if (rule.filter && !rule.filter(feature.properties)) continue
                 // TODO ignore those that don't "belong" to us
                 let transformed = transformGeom(feature.geom,pt.scale,pt.origin)
-                let stash = rule.symbolizer.stash(this.scratch, transformed,feature, this.z)
+                let labels = rule.symbolizer.stash(this.tree, this.scratch, transformed,feature, this.z)
+                if (!labels) continue
 
-                if (!stash) continue
-                let anchor = stash.anchor
-                let bbox = stash.bbox
-                let collisions = this.tree.search(bbox)
-                if (collisions.length == 0) {
-                    let entry = {
-                        anchor: anchor,
-                        draw:stash.draw,
-                        order: order,
-                        key:key
-                    }
-                    this.tree.insert(Object.assign(entry,bbox))
-                    // determine the display tiles that this invalidates
-                    // these are the display tiles that don't belong to this data tile
-                    // also consider "current"
-
-                    if (bbox.maxX > (pt.origin.x+pt.dim)|| bbox.minX < pt.origin.x || bbox.minY < pt.origin.y || bbox.maxY > (pt.origin.y+pt.dim)) {
-                        this.findInvalidatedTiles(tiles_invalidated,pt.dim,bbox,key)
-                    }
-                } else {
-                    let override = true
-                    for (let collision of collisions) {
-                        if (order >= collision.order) {
-                            override = false
-                        }
-                    }
-                    if (override) {
-                        for (let collision of collisions) {
-                            // remove all collided bboxes, and knock out
-                            this.findInvalidatedTiles(tiles_invalidated,pt.dim,collision,key)
-                            this.tree.remove(collision)
-                        }
+                for (let label of labels) {
+                    let anchor = label.anchor
+                    let bbox = label.bbox
+                    let collisions = this.tree.search(bbox)
+                    if (collisions.length == 0) {
                         let entry = {
                             anchor: anchor,
-                            draw:stash.draw,
-                            order: order
+                            draw:label.draw,
+                            order: order,
+                            key:key
                         }
                         this.tree.insert(Object.assign(entry,bbox))
+                        // determine the display tiles that this invalidates
+                        // these are the display tiles that don't belong to this data tile
+                        // also consider "current"
+
+                        if (bbox.maxX > (pt.origin.x+pt.dim)|| bbox.minX < pt.origin.x || bbox.minY < pt.origin.y || bbox.maxY > (pt.origin.y+pt.dim)) {
+                            this.findInvalidatedTiles(tiles_invalidated,pt.dim,bbox,key)
+                        }
+                    } else {
+                        let override = true
+                        for (let collision of collisions) {
+                            if (order >= collision.order) {
+                                override = false
+                            }
+                        }
+                        if (override) {
+                            for (let collision of collisions) {
+                                // remove all collided bboxes, and knock out
+                                this.findInvalidatedTiles(tiles_invalidated,pt.dim,collision,key)
+                                this.tree.remove(collision)
+                            }
+                            let entry = {
+                                anchor: anchor,
+                                draw:label.draw,
+                                order: order
+                            }
+                            this.tree.insert(Object.assign(entry,bbox))
+                        }
                     }
                 }
             }

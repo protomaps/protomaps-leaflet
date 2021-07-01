@@ -13,7 +13,7 @@ export interface Feature {
     readonly properties: any
     readonly bbox: number[]
     readonly geomType: GeomType
-    readonly geom: Array<Array<Point>>
+    readonly geom: Point[][]
     readonly numVertices:number
 }
 
