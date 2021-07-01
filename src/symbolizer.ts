@@ -274,8 +274,8 @@ export class GroupSymbolizer implements LabelSymbolizer {
 
         for (let i = 1; i < this.list.length; i++) {
             labels = this.list[i].stash(index, scratch,geom, feature,zoom)
+            if (!labels) return undefined
             label = labels[0]
-            if (!label) return undefined
             bbox = mergeBbox(bbox,label.bbox[0])
             draws.push(label.draw)
         }
@@ -374,30 +374,40 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
 
         let a = new Point(geom[0][0].x,geom[0][0].y)
         let offset = this.offset
-        let bbox = {
-            minX:a.x+offset, 
-            minY:a.y-ascent-offset,
-            maxX:a.x+width+offset,
-            maxY:a.y+descent-offset
-        }
 
-        // inside draw, the origin is the anchor
+        var text_origin = new Point(offset,-offset)
+
         let draw = ctx => {
             ctx.globalAlpha = 1
             ctx.font = font
-
             if (this.width) {
                 ctx.lineWidth = this.width * 2 // centered stroke
                 ctx.strokeStyle = this.stroke
-                ctx.strokeText(property,offset,-offset)
+                ctx.strokeText(property,text_origin.x,text_origin.y)
             }
-
             ctx.fillStyle = this.fill
-            ctx.fillText(property,offset,-offset)
-
+            ctx.fillText(property,text_origin.x,text_origin.y)
         }
-        return [{anchor:a,bbox:[bbox],draw:draw}]
 
+        // test candidates
+        var bbox = {
+            minX:a.x+text_origin.x, 
+            minY:a.y-ascent+text_origin.y,
+            maxX:a.x+width+text_origin.x,
+            maxY:a.y+descent+text_origin.y
+        }
+        if (!index.collides(bbox)) return [{anchor:a,bbox:[bbox],draw:draw}]
+
+        text_origin = new Point(-width-offset,-offset)
+        bbox = {
+            minX:a.x+text_origin.x, 
+            minY:a.y-ascent+text_origin.y,
+            maxX:a.x+width+text_origin.x,
+            maxY:a.y+descent+text_origin.y
+        }
+        if (!index.collides(bbox)) return [{anchor:a,bbox:[bbox],draw:draw}]
+
+        return undefined
     }
 }
 
