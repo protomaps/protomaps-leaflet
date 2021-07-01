@@ -3,17 +3,11 @@ import { GeomType, Feature } from './tilecache'
 import polylabel from 'polylabel'
 import { TextSpec, FontSpec, linebreak, isCjk } from './text'
 import { simpleLabel } from './line'
-import { Index } from './labeler'
+import { Index, Label } from './labeler'
 
 export interface PaintSymbolizer {
-    before(ctx:any,z:number):any
+    before(ctx:any,z:number):void
     draw(ctx:any,geom:Point[][],properties:any):void
-}
-
-export interface Label {
-    anchor:Point
-    bbox:any
-    draw:(ctx:any)=>void
 }
 
 export interface LabelSymbolizer {
@@ -205,7 +199,7 @@ export class IconSymbolizer implements LabelSymbolizer {
             let r = this.sprites.get(this.name)
             ctx.drawImage(r.canvas,r.x,r.y,r.w,r.h,-8,-8,r.w,r.h)
         }
-        return [{anchor:a,bbox:bbox,draw:draw}]
+        return [{anchor:a,bbox:[bbox],draw:draw}]
     }
 }
 
@@ -247,7 +241,7 @@ export class CircleSymbolizer implements LabelSymbolizer {
             ctx.arc(0,0, this.radius, 0, 2* Math.PI)
             ctx.fill()
         }
-        return [{anchor:a,bbox:bbox,draw:draw}]
+        return [{anchor:a,bbox:[bbox],draw:draw}]
     }
 }
 
@@ -275,21 +269,21 @@ export class GroupSymbolizer implements LabelSymbolizer {
         var labels = this.list[0].stash(index, scratch,geom, feature,zoom)
         var label = labels[0]
         let anchor = label.anchor
-        let bbox = label.bbox
+        let bbox = label.bbox[0]
         let draws = [label.draw]
 
         for (let i = 1; i < this.list.length; i++) {
             labels = this.list[i].stash(index, scratch,geom, feature,zoom)
             label = labels[0]
             if (!label) return undefined
-            bbox = mergeBbox(bbox,label.bbox)
+            bbox = mergeBbox(bbox,label.bbox[0])
             draws.push(label.draw)
         }
         let draw = ctx => {
             draws.forEach(d => d(ctx))
         }
 
-        return [{anchor:anchor,bbox:bbox,draw:draw}]
+        return [{anchor:anchor,bbox:[bbox],draw:draw}]
     }
 }
 
@@ -366,7 +360,7 @@ export class TextSymbolizer implements LabelSymbolizer {
                 ctx.fillText(property,textX+offset,-offset)
 
             }
-            return [{anchor:a,bbox:bbox,draw:draw}]
+            return [{anchor:a,bbox:[bbox],draw:draw}]
         }
     }
 }
@@ -436,7 +430,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
             ctx.fillText(name,0,0)
         }
 
-        return [{anchor:a,bbox:bbox,draw:draw}]
+        return [{anchor:a,bbox:[bbox],draw:draw}]
     }
 }
 
@@ -512,6 +506,6 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
                 y += lineHeight
             }
         }
-        return [{anchor:a,bbox:bbox,draw:draw}]
+        return [{anchor:a,bbox:[bbox],draw:draw}]
     }
 }
