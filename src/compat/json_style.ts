@@ -1,4 +1,4 @@
-import { PolygonSymbolizer, LineSymbolizer, LineLabelSymbolizer, TextSymbolizer, exp } from './../symbolizer'
+import { PolygonSymbolizer, LineSymbolizer, LineLabelSymbolizer, CenteredTextSymbolizer, exp } from './../symbolizer'
 
 export function filterFn(arr) {
     // hack around "$type"
@@ -204,7 +204,7 @@ export function json_style(obj,fontsubmap:Map<string,FontSub>) {
                 label_rules.push({
                     dataLayer: layer['source-layer'],
                     filter:filter,
-                    symbolizer: new TextSymbolizer({
+                    symbolizer: new CenteredTextSymbolizer({
                         font: getFont(layer.layout,fontsubmap),
                         fill: layer.paint['text-color'],
                         stroke: layer.paint['text-halo-color'],

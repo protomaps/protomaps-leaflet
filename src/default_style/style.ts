@@ -1,4 +1,4 @@
-import { createPattern, PolygonSymbolizer, IconSymbolizer, LineSymbolizer, TextSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
+import { createPattern, PolygonSymbolizer, IconSymbolizer, LineSymbolizer, CenteredTextSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
 
 export interface DefaultStyleParams {
     earth:string
@@ -210,20 +210,19 @@ export const labelRules = (params:DefaultStyleParams) => {
     return [
         {
             dataLayer: "places",
-            symbolizer: new TextSymbolizer({
+            symbolizer: new CenteredTextSymbolizer({
                 fill:params.countryLabel,
                 font:(z,p) => {
                     if (z < 6) return "200 14px sans-serif"
                     return "200 20px sans-serif"
                 },
-                align:"center",
                 textTransform:"uppercase"
             }),
             filter: f => { return f["pmap:kind"] == "country" }
         },
         {
             dataLayer: "places",
-            symbolizer: new TextSymbolizer({
+            symbolizer: new CenteredTextSymbolizer({
                 fill:params.stateLabel,
                 font:"300 16px sans-serif"
             }),
@@ -231,7 +230,7 @@ export const labelRules = (params:DefaultStyleParams) => {
         },
         {
             dataLayer: "places",
-            symbolizer: new TextSymbolizer({
+            symbolizer: new CenteredTextSymbolizer({
                 fill:params.cityLabel,
                 font:(z,p) => {
                     if (p["pmap:rank"] == 1) {
@@ -248,7 +247,7 @@ export const labelRules = (params:DefaultStyleParams) => {
         },
         {
             dataLayer: "places",
-            symbolizer: new TextSymbolizer({
+            symbolizer: new CenteredTextSymbolizer({
                 fill:params.neighbourhoodLabel,
                 font:"400 10px sans-serif",
                 textTransform:"uppercase"
@@ -285,7 +284,7 @@ export const labelRules = (params:DefaultStyleParams) => {
         // },
         {
             dataLayer: "pois",
-            symbolizer: new TextSymbolizer({
+            symbolizer: new CenteredTextSymbolizer({
                 fill:params.poisLabel,
                 font:"400 10px sans-serif"
             })

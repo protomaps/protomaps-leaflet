@@ -287,13 +287,12 @@ export class GroupSymbolizer implements LabelSymbolizer {
     }
 }
 
-export class TextSymbolizer implements LabelSymbolizer {
+export class CenteredTextSymbolizer implements LabelSymbolizer {
     font: FontSpec
     text: TextSpec
     fill: string
     stroke: number
     width: number
-    align: string
     offset: number
     textTransform: string
     property: string
@@ -306,8 +305,6 @@ export class TextSymbolizer implements LabelSymbolizer {
         this.property = options.property || "name"
         this.stroke = options.stroke || "black"
         this.width = options.width || 0
-        this.align = options.align || "center"
-        this.offset = options.offset || 0
         this.textTransform = options.textTransform
     }
 
@@ -324,26 +321,14 @@ export class TextSymbolizer implements LabelSymbolizer {
             let width = metrics.width
             let ascent = metrics.actualBoundingBoxAscent
             let descent = metrics.actualBoundingBoxDescent
-            let offset = this.offset
 
             let bbox = {
-                minX:a.x+offset, 
-                minY:a.y+(-offset-ascent),
-                maxX:a.x+(offset+width),
-                maxY:a.y+(-offset+descent)
+                minX:a.x-width/2, 
+                minY:a.y-ascent,
+                maxX:a.x+width/2,
+                maxY:a.y+descent
             }
-
-            // centering
-            let textX = 0
-            if (this.align == "center") {
-                bbox = {
-                    minX:a.x-width/2, 
-                    minY:a.y-ascent,
-                    maxX:a.x+width/2,
-                    maxY:a.y+descent
-                }
-                textX = -width/2
-            }
+            let textX = -width/2
 
             // inside draw, the origin is the anchor
             let draw = ctx => {
@@ -353,11 +338,11 @@ export class TextSymbolizer implements LabelSymbolizer {
                 if (this.width) {
                     ctx.lineWidth = this.width * 2 // centered stroke
                     ctx.strokeStyle = this.stroke
-                    ctx.strokeText(property,textX+offset,-offset)
+                    ctx.strokeText(property,textX,0)
                 }
 
                 ctx.fillStyle = this.fill
-                ctx.fillText(property,textX+offset,-offset)
+                ctx.fillText(property,textX,0)
 
             }
             return [{anchor:a,bbox:[bbox],draw:draw}]
