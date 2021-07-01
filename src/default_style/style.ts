@@ -310,10 +310,17 @@ export const labelRules = (params:DefaultStyleParams) => {
         // },
         {
             dataLayer: "pois",
-            symbolizer: new CenteredTextSymbolizer({
-                fill:params.poisLabel,
-                font:"400 10px sans-serif"
-            })
+            symbolizer: new GroupSymbolizer([
+                new CircleSymbolizer({
+                    radius:2,
+                    fill:params.poisLabel
+                }),
+                new OffsetTextSymbolizer({
+                    fill:params.poisLabel,
+                    offset:2,
+                    font:"400 10px sans-serif"
+                })
+            ]),
         },
     ]
 }
