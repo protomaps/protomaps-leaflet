@@ -275,7 +275,7 @@ export const labelRules = (params:DefaultStyleParams) => {
             dataLayer: "places",
             symbolizer: new CenteredTextSymbolizer({
                 fill:params.neighbourhoodLabel,
-                font:"400 10px sans-serif",
+                font:"500 10px sans-serif",
                 textTransform:"uppercase"
             }),
             filter: f => { return f["pmap:kind"] == "neighbourhood" }
@@ -284,7 +284,7 @@ export const labelRules = (params:DefaultStyleParams) => {
             dataLayer: "landuse",
             symbolizer: new PolygonLabelSymbolizer({
                 fill:params.landuseLabel,
-                font:"400 14px sans-serif"
+                font:"300 12px sans-serif"
             })
         },
         {
@@ -298,7 +298,7 @@ export const labelRules = (params:DefaultStyleParams) => {
             dataLayer: "natural",
             symbolizer: new PolygonLabelSymbolizer({
                 fill:params.naturalLabel,
-                font:"italic 400 12px sans-serif"
+                font:"italic 300 12px sans-serif"
             })
         },
         // {
@@ -318,7 +318,7 @@ export const labelRules = (params:DefaultStyleParams) => {
                 new OffsetTextSymbolizer({
                     fill:params.poisLabel,
                     offset:2,
-                    font:"400 10px sans-serif"
+                    font:"300 10px sans-serif"
                 })
             ]),
         },
