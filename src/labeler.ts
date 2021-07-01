@@ -23,8 +23,6 @@ export interface LabelRule {
     sort?:(a:any,b:any)=>number
 }
 
-
-
 export const covering = (display_zoom:number,tile_width:number,bbox:Bbox) => {
     let res = 256
     let f = tile_width / res
@@ -81,16 +79,13 @@ export class Labeler {
             if (layer === undefined) continue
 
             let feats = layer
-            if (rule.sort) {
-                feats.sort((a,b) => rule.sort(a.properties,b.properties))
-            }
+            if (rule.sort) feats.sort((a,b) => rule.sort(a.properties,b.properties))
             for (let feature of feats) {
-                if (rule.filter) {
-                    if (!rule.filter(feature.properties)) continue
-                }
+                if (rule.filter && !rule.filter(feature.properties)) continue
                 // TODO ignore those that don't "belong" to us
                 let transformed = transformGeom(feature.geom,pt.scale,pt.origin)
                 let stash = rule.symbolizer.stash(this.scratch, transformed,feature, this.z)
+
                 if (!stash) continue
                 let anchor = stash.anchor
                 let bbox = stash.bbox
