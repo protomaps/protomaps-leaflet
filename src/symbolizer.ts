@@ -349,6 +349,7 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
     fill: string
     stroke: number
     width: number
+    offset: number
 
     constructor(options) {
         this.font = new FontSpec(options)
