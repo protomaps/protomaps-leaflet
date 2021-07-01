@@ -293,60 +293,59 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
     fill: string
     stroke: number
     width: number
-    offset: number
-    textTransform: string
-    property: string
 
     constructor(options) {
         this.font = new FontSpec(options)
         this.text = new TextSpec(options)
 
         this.fill = options.fill 
-        this.property = options.property || "name"
         this.stroke = options.stroke || "black"
         this.width = options.width || 0
-        this.textTransform = options.textTransform
     }
 
     public stash(index, scratch, geom, feature, zoom) {
-        if (feature.geomType == GeomType.Point) {
-            let a = new Point(geom[0][0].x,geom[0][0].y)
-            let font = this.font.str(zoom,feature.properties)
-            let property = this.text.str(zoom,feature.properties)
-            if (!property) return undefined
-            scratch.font = font
-            let metrics = scratch.measureText(property)
-            let p = 2 // padding
+        if (feature.geomType !== GeomType.Point) return undefined
+        let property = this.text.str(zoom,feature.properties)
+        if (!property) return undefined
+        let a = new Point(geom[0][0].x,geom[0][0].y)
+        let font = this.font.str(zoom,feature.properties)
+        scratch.font = font
+        let metrics = scratch.measureText(property)
 
-            let width = metrics.width
-            let ascent = metrics.actualBoundingBoxAscent
-            let descent = metrics.actualBoundingBoxDescent
+        let width = metrics.width
+        let ascent = metrics.actualBoundingBoxAscent
+        let descent = metrics.actualBoundingBoxDescent
 
-            let bbox = {
-                minX:a.x-width/2, 
-                minY:a.y-ascent,
-                maxX:a.x+width/2,
-                maxY:a.y+descent
-            }
-            let textX = -width/2
-
-            // inside draw, the origin is the anchor
-            let draw = ctx => {
-                ctx.globalAlpha = 1
-                ctx.font = font
-
-                if (this.width) {
-                    ctx.lineWidth = this.width * 2 // centered stroke
-                    ctx.strokeStyle = this.stroke
-                    ctx.strokeText(property,textX,0)
-                }
-
-                ctx.fillStyle = this.fill
-                ctx.fillText(property,textX,0)
-
-            }
-            return [{anchor:a,bbox:[bbox],draw:draw}]
+        let bbox = {
+            minX:a.x-width/2, 
+            minY:a.y-ascent,
+            maxX:a.x+width/2,
+            maxY:a.y+descent
         }
+        let textX = -width/2
+
+        // inside draw, the origin is the anchor
+        let draw = ctx => {
+            ctx.globalAlpha = 1
+            ctx.font = font
+
+            if (this.width) {
+                ctx.lineWidth = this.width * 2 // centered stroke
+                ctx.strokeStyle = this.stroke
+                ctx.strokeText(property,textX,0)
+            }
+
+            ctx.fillStyle = this.fill
+            ctx.fillText(property,textX,0)
+
+        }
+        return [{anchor:a,bbox:[bbox],draw:draw}]
+    }
+}
+
+export class OffsetTextSymbolizer implements LabelSymbolizer {
+    public stash(index, scratch, geom, feature, zoom) {
+        return undefined
     }
 }
 
