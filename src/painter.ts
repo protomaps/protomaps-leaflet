@@ -66,7 +66,7 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
         ctx.restore()
     }
 
-    let matches = label_data.search({minX:bbox[0],minY:bbox[1],maxX:bbox[2],maxY:bbox[3]})
+    let matches = label_data.searchBbox({minX:bbox[0],minY:bbox[1],maxX:bbox[2],maxY:bbox[3]})
     for (var label of matches) {
         ctx.save()
         ctx.translate(label.anchor.x,label.anchor.y)
@@ -79,7 +79,7 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
             ctx.globalAlpha = 1
             let anchor = label.anchor
             ctx.fillRect(anchor.x-2,anchor.y-2,4,4)
-            for (let bbox of label.bbox) {
+            for (let bbox of label.bboxes) {
                 ctx.strokeRect(bbox.minX,bbox.minY,bbox.maxX-bbox.minX,bbox.maxY-bbox.minY)
             }
         }

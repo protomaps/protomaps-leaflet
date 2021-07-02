@@ -15,7 +15,7 @@ export interface Bbox {
 
 export interface Label {
     anchor:Point
-    bbox:Bbox[]
+    bboxes:Bbox[]
     draw:(ctx:any)=>void
 }
 
@@ -67,7 +67,7 @@ export class Index {
         this.labels = []
     }
 
-    public search(bbox:Bbox) {
+    public searchBbox(bbox:Bbox) {
         let labels = new Set<Label>()
         for (let match of this.tree.search(bbox)) {
             labels.add(match.label)
@@ -75,13 +75,30 @@ export class Index {
         return labels
     }
 
-    public collides(bbox:Bbox) {
+    public searchLabel(label:Label) {
+        let labels = new Set<Label>()
+        for (let bbox of label.bboxes) {
+            for (let match of this.tree.search(bbox)) {
+                labels.add(match.label)
+            }
+        }
+        return labels
+    }
+
+    public bboxCollides(bbox:Bbox) {
         return this.tree.collides(bbox)
+    }
+
+    public labelCollides(label:Label) {
+        for (let bbox of label.bboxes) {
+            if (this.tree.collides(bbox)) return true
+        }
+        return false
     }
 
     public insert(label:Label):void {
         this.labels.push(label)
-        for (let bbox of label.bbox) {
+        for (let bbox of label.bboxes) {
             var b:any = bbox
             b.label = label
             this.tree.insert(b)
@@ -139,14 +156,24 @@ export class Labeler {
                 if (!labels) continue
 
                 for (let label of labels) {
-                    this.finalizeLabel(tiles_invalidated,label,order,key,pt)
+                    var label_added = false
+                    if (this.index.labelCollides(label)) {
+                        // check order
 
-                    this.index.insert(label)
-                    let bbox = label.bbox[0] // TODO fix me
-                    if (bbox.maxX > (pt.origin.x+pt.dim)|| bbox.minX < pt.origin.x || bbox.minY < pt.origin.y || bbox.maxY > (pt.origin.y+pt.dim)) {
-                        this.findInvalidatedTiles(tiles_invalidated,pt.dim,bbox,key)
+                    } else {
+                        this.index.insert(label)
+                        label_added = true
                     }
 
+                    // this.finalizeLabel(tiles_invalidated,label,order,key,pt)
+
+                    if (label_added) {
+                        for (let bbox of label.bboxes) {
+                            if (bbox.maxX > (pt.origin.x+pt.dim)|| bbox.minX < pt.origin.x || bbox.minY < pt.origin.y || bbox.maxY > (pt.origin.y+pt.dim)) {
+                                this.findInvalidatedTiles(tiles_invalidated,pt.dim,bbox,key)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -159,9 +186,8 @@ export class Labeler {
 
     private finalizeLabel(tiles_invalidated:Set<string>,label:Label,order:number,key:string,pt:PreparedTile) {
         let anchor = label.anchor
-        let bbox = label.bbox[0] // TODO fix me
-        let collisions = this.index.search(bbox) // TODO optimize me
-        if (collisions.length > 0) {
+        let collisions = this.index.searchLabel(label)
+        if (collisions.size > 0) {
             let override = true
             for (let collision of collisions) {
                 if (order >= collision.order) {
@@ -172,7 +198,7 @@ export class Labeler {
                 for (let collision of collisions) {
                     // remove all collided bboxes, and knock out
                     this.findInvalidatedTiles(tiles_invalidated,pt.dim,collision,key)
-                    this.index.remove(collision)
+                    this.index.remove(collision) // TODO need to remove entire label: all bboxes
                 }
             }
         }

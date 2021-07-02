@@ -11,6 +11,10 @@ export interface PaintSymbolizer {
 }
 
 export interface LabelSymbolizer {
+    /* the symbolizer can, but does not need to, inspect index to determine the right position
+     * if return undefined, no label is added
+     * return a label, but if the label collides it is not added
+     */
     stash(index:Index,ctx:any,geom:Point[][],feature:Feature,zoom:number):Label[] | undefined
 }
 
@@ -199,7 +203,7 @@ export class IconSymbolizer implements LabelSymbolizer {
             let r = this.sprites.get(this.name)
             ctx.drawImage(r.canvas,r.x,r.y,r.w,r.h,-8,-8,r.w,r.h)
         }
-        return [{anchor:a,bbox:[bbox],draw:draw}]
+        return [{anchor:a,bboxes:[bbox],draw:draw}]
     }
 }
 
@@ -241,7 +245,7 @@ export class CircleSymbolizer implements LabelSymbolizer {
             ctx.arc(0,0, this.radius, 0, 2* Math.PI)
             ctx.fill()
         }
-        return [{anchor:a,bbox:[bbox],draw:draw}]
+        return [{anchor:a,bboxes:[bbox],draw:draw}]
     }
 }
 
@@ -269,21 +273,21 @@ export class GroupSymbolizer implements LabelSymbolizer {
         var labels = this.list[0].stash(index, scratch,geom, feature,zoom)
         var label = labels[0]
         let anchor = label.anchor
-        let bbox = label.bbox[0]
+        let bbox = label.bboxes[0]
         let draws = [label.draw]
 
         for (let i = 1; i < this.list.length; i++) {
             labels = this.list[i].stash(index, scratch,geom, feature,zoom)
             if (!labels) return undefined
             label = labels[0]
-            bbox = mergeBbox(bbox,label.bbox[0])
+            bbox = mergeBbox(bbox,label.bboxes[0])
             draws.push(label.draw)
         }
         let draw = ctx => {
             draws.forEach(d => d(ctx))
         }
 
-        return [{anchor:anchor,bbox:[bbox],draw:draw}]
+        return [{anchor:anchor,bboxes:[bbox],draw:draw}]
     }
 }
 
@@ -339,7 +343,7 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
             ctx.fillText(property,textX,0)
 
         }
-        return [{anchor:a,bbox:[bbox],draw:draw}]
+        return [{anchor:a,bboxes:[bbox],draw:draw}]
     }
 }
 
@@ -397,7 +401,7 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
             maxX:a.x+width+text_origin.x,
             maxY:a.y+descent+text_origin.y
         }
-        if (!index.collides(bbox)) return [{anchor:a,bbox:[bbox],draw:draw}]
+        if (!index.bboxCollides(bbox)) return [{anchor:a,bboxes:[bbox],draw:draw}]
 
         text_origin = new Point(-width-offset,-offset)
         bbox = {
@@ -406,7 +410,7 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
             maxX:a.x+width+text_origin.x,
             maxY:a.y+descent+text_origin.y
         }
-        if (!index.collides(bbox)) return [{anchor:a,bbox:[bbox],draw:draw}]
+        if (!index.bboxCollides(bbox)) return [{anchor:a,bboxes:[bbox],draw:draw}]
 
         return undefined
     }
@@ -477,7 +481,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
             ctx.fillText(name,0,0)
         }
 
-        return [{anchor:a,bbox:[bbox],draw:draw}]
+        return [{anchor:a,bboxes:[bbox],draw:draw}]
     }
 }
 
@@ -553,6 +557,6 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
                 y += lineHeight
             }
         }
-        return [{anchor:a,bbox:[bbox],draw:draw}]
+        return [{anchor:a,bboxes:[bbox],draw:draw}]
     }
 }
