@@ -19,6 +19,12 @@ export interface Label {
     draw:(ctx:any)=>void
 }
 
+export interface IndexedLabel {
+    label:Label
+    order:number
+    parentKey:string
+}
+
 export interface LabelRule {
     minzoom?:number
     maxzoom?:number
@@ -51,16 +57,38 @@ export const covering = (display_zoom:number,tile_width:number,bbox:Bbox) => {
     return retval
 }
 
+// order and key
 export class Index {
     tree: RBush 
+    labels: Label[]
 
-    public search(bbox) {
-        return this.tree.search(bbox)
+    constructor() {
+        this.tree = new RBush()
+        this.labels = []
     }
 
-    public insert(obj) {
-        return this.tree.insert(obj)
+    public search(bbox:Bbox) {
+        let labels = new Set<Label>()
+        for (let match of this.tree.search(bbox)) {
+            labels.add(match.label)
+        }
+        return labels
     }
+
+    public collides(bbox:Bbox) {
+        return this.tree.collides(bbox)
+    }
+
+    public insert(label:Label):void {
+        this.labels.push(label)
+        for (let bbox of label.bbox) {
+            var b:any = bbox
+            b.label = label
+            this.tree.insert(b)
+        }
+    }
+
+    // not done yet
 
     public all() {
         return this.tree.all()
@@ -69,11 +97,12 @@ export class Index {
     public remove(obj) {
         return this.tree.remove(obj)
     }
+
 }
 
-// support deduplicated Labeling
+// TODO support deduplicated Labeling
 export class Labeler {
-    tree: Index
+    index: Index
     z: number
     scratch: any
     labelRules: LabelRule[]
@@ -81,7 +110,7 @@ export class Labeler {
     callback: TileInvalidationCallback
 
     constructor(z:number,scratch,labelRules:LabelRule[],callback:TileInvalidationCallback) {
-        this.tree = new RBush()
+        this.index = new Index()
         this.z = z
         this.scratch = scratch
         this.labelRules = labelRules
@@ -105,13 +134,19 @@ export class Labeler {
             if (rule.sort) feats.sort((a,b) => rule.sort(a.properties,b.properties))
             for (let feature of feats) {
                 if (rule.filter && !rule.filter(feature.properties)) continue
-                // TODO ignore those that don't "belong" to us
                 let transformed = transformGeom(feature.geom,pt.scale,pt.origin)
-                let labels = rule.symbolizer.stash(this.tree, this.scratch, transformed,feature, this.z)
+                let labels = rule.symbolizer.stash(this.index, this.scratch, transformed,feature, this.z)
                 if (!labels) continue
 
                 for (let label of labels) {
                     this.finalizeLabel(tiles_invalidated,label,order,key,pt)
+
+                    this.index.insert(label)
+                    let bbox = label.bbox[0] // TODO fix me
+                    if (bbox.maxX > (pt.origin.x+pt.dim)|| bbox.minX < pt.origin.x || bbox.minY < pt.origin.y || bbox.maxY > (pt.origin.y+pt.dim)) {
+                        this.findInvalidatedTiles(tiles_invalidated,pt.dim,bbox,key)
+                    }
+
                 }
             }
         }
@@ -124,24 +159,9 @@ export class Labeler {
 
     private finalizeLabel(tiles_invalidated:Set<string>,label:Label,order:number,key:string,pt:PreparedTile) {
         let anchor = label.anchor
-        let bbox = label.bbox[0]
-        let collisions = this.tree.search(bbox)
-        if (collisions.length == 0) {
-            let entry = {
-                anchor: anchor,
-                draw:label.draw,
-                order: order,
-                key:key
-            }
-            this.tree.insert(Object.assign(entry,bbox))
-            // determine the display tiles that this invalidates
-            // these are the display tiles that don't belong to this data tile
-            // also consider "current"
-
-            if (bbox.maxX > (pt.origin.x+pt.dim)|| bbox.minX < pt.origin.x || bbox.minY < pt.origin.y || bbox.maxY > (pt.origin.y+pt.dim)) {
-                this.findInvalidatedTiles(tiles_invalidated,pt.dim,bbox,key)
-            }
-        } else {
+        let bbox = label.bbox[0] // TODO fix me
+        let collisions = this.index.search(bbox) // TODO optimize me
+        if (collisions.length > 0) {
             let override = true
             for (let collision of collisions) {
                 if (order >= collision.order) {
@@ -152,14 +172,8 @@ export class Labeler {
                 for (let collision of collisions) {
                     // remove all collided bboxes, and knock out
                     this.findInvalidatedTiles(tiles_invalidated,pt.dim,collision,key)
-                    this.tree.remove(collision)
+                    this.index.remove(collision)
                 }
-                let entry = {
-                    anchor: anchor,
-                    draw:label.draw,
-                    order: order
-                }
-                this.tree.insert(Object.assign(entry,bbox))
             }
         }
     }
@@ -188,13 +202,13 @@ export class Labeler {
 
             this.current.delete(max_key)
             let to_delete = []
-            for (let entry of this.tree.all()) {
+            for (let entry of this.index.all()) {
                 if (entry.key === max_key) {
                     to_delete.push(entry)
                 }
             }
             to_delete.forEach(t => {
-                this.tree.remove(t)
+                this.index.remove(t)
             })
         }
     }
@@ -232,7 +246,7 @@ export class Labelers {
         return this.labelers.get(prepared_tile.z).add(prepared_tile)
     }
 
-    public getTree(z:number):RBush {
-        return this.labelers.get(z).tree
+    public getIndex(z:number):RBush {
+        return this.labelers.get(z).index
     }
 }

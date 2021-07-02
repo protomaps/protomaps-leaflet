@@ -77,11 +77,11 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
             ctx.strokeStyle = debug
             ctx.fillStyle = debug
             ctx.globalAlpha = 1
-            let tl = new Point(label.minX,label.minY)
-            let br = new Point(label.maxX,label.maxY)
             let anchor = label.anchor
-            ctx.strokeRect(tl.x,tl.y,br.x-tl.x,br.y-tl.y)
             ctx.fillRect(anchor.x-2,anchor.y-2,4,4)
+            for (let bbox of label.bbox) {
+                ctx.strokeRect(bbox.minX,bbox.minY,bbox.maxX-bbox.minX,bbox.maxY-bbox.minY)
+            }
         }
     }
     ctx.restore() // end translation

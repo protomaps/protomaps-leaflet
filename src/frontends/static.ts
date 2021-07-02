@@ -67,7 +67,7 @@ export class Static {
             await labeler.add(prepared_tile)
         }
 
-        let p = painter({ctx:ctx},"key",prepared_tiles,labeler.tree,this.paint_rules,bbox,origin,true,this.debug)
+        let p = painter({ctx:ctx},"key",prepared_tiles,labeler.index,this.paint_rules,bbox,origin,true,this.debug)
 
         if (this.debug) {
             ctx.translate(-origin.x,-origin.y)

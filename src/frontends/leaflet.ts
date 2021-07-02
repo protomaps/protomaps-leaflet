@@ -98,7 +98,7 @@ class LeafletLayer extends L.GridLayer {
 
         let layout_time = await this.labelers.add(prepared_tile)
 
-        let label_data = this.labelers.getTree(prepared_tile.z)
+        let label_data = this.labelers.getIndex(prepared_tile.z)
 
         if (this.lastRequestedZ !== coords.z) return
         if (!this._map) return // the layer has been removed from the map
