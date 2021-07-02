@@ -291,7 +291,7 @@ export const labelRules = (params:DefaultStyleParams) => {
             dataLayer: "water",
             symbolizer: new PolygonLabelSymbolizer({
                 fill:params.waterLabel,
-                font:"italic 600 16px sans-serif"
+                font:"italic 600 12px sans-serif"
             })
         },
         {
