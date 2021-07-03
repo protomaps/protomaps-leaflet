@@ -8,7 +8,7 @@ export function linebreak(str:string):string[] {
     }
     let first:string
     let after:string
-    if (space_after == -1 || 14 - space_before < space_after - 14) {
+    if (space_after == -1 || (space_before >= 0 && 14 - space_before < space_after - 14)) {
         first = str.substring(0,space_before)
         after = str.substring(space_before+1,str.length)
     } else {

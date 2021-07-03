@@ -26,6 +26,11 @@ test('multiple breaks', async () => {
     assert.deepEqual(lines,["Idlewildgenbosch","Idlewildgenbosch","Idlewildgenbosch"])
 })
 
+test('very long break', async () => {
+    let lines = linebreak("Dorotheenstädtisch-Friedrichswerderscher und Französischer Friedhof",15)
+    assert.deepEqual(lines,["Dorotheenstädtisch-Friedrichswerderscher","und Französischer","Friedhof"])
+})
+
 test('fontspec', async () => {
     let f = new FontSpec({font:"12px serif"})
     assert.equal(f.str(),"12px serif")
