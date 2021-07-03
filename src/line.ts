@@ -5,7 +5,7 @@ export function simpleLabel(mls:any,minimum:number) {
     let longestEnd
     let longestLength = 0
     for (let ls of mls) {
-        let segments = linelabel(ls,Math.PI/2/9) // 10 degrees
+        let segments = linelabel(ls,Math.PI/2/18) // 5 degrees
         for (let segment of segments) {
             if (segment.length >= minimum && segment.length > longestLength) {
                 longestLength = segment.length

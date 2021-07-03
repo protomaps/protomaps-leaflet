@@ -434,15 +434,16 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     } 
 
     public stash(index, scratch, geom, feature, zoom) {
-        let font = this.font.str(zoom,feature.properties)
         let name = this.text.str(zoom,feature.properties)
         if (!name) return undefined
+        if (name.length > 20) return undefined
 
         let fbbox = feature.bbox
-        let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // needs to be based on zoom level
+        let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // TODO needs to be based on zoom level
         if (area < 100) return undefined
 
-        scratch.font = this.font
+        let font = this.font.str(zoom,feature.properties)
+        scratch.font = font
         let metrics = scratch.measureText(name)
         let width = metrics.width
 
@@ -452,36 +453,27 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         let dy = result.end.y - result.start.y
 
         let a = new Point(result.start.x,result.start.y)
+        let b = new Point(result.end.x,result.end.y)
 
-        var bboxMinX = 0
-        var bboxMaxX = dx
-        var bboxMinY = 0
-        var bboxMaxY = dy
-
-        if (dx < 0) {
-            bboxMinX = dx
-            bboxMaxX = 0
-        } if (dy < 0) {
-            bboxMinY = dy
-            bboxMaxY = 0
-        }
-        let bbox = {minX:a.x+bboxMinX,minY:a.y+bboxMinY,maxX:a.x+bboxMaxX,maxY:a.y+bboxMaxY}
+        let Q = 8
+        let bbox1 = {minX:a.x-Q,minY:a.y-Q,maxX:a.x+Q,maxY:a.y+Q}
+        let bbox2 = {minX:b.x-Q,minY:b.y-Q,maxX:b.x+Q,maxY:b.y+Q}
 
         let draw = ctx => {
             ctx.globalAlpha = 1
+            // ctx.beginPath()
+            // ctx.moveTo(0,0)
+            // ctx.lineTo(dx,dy)
+            // ctx.strokeStyle = "red"
+            // ctx.stroke()
             ctx.rotate(Math.atan2(dy, dx))
             if (dx < 0) ctx.scale(0,-1)
             ctx.font = font
-            if (this.width > 0) {
-                ctx.strokeStyle = this.stroke
-                ctx.lineWidth = this.width
-                ctx.strokeText(name,0,0)
-            }
             ctx.fillStyle = this.fill
             ctx.fillText(name,0,0)
         }
 
-        return [{anchor:a,bboxes:[bbox],draw:draw}]
+        return [{anchor:a,bboxes:[bbox1,bbox2],draw:draw}]
     }
 }
 
