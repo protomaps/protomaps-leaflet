@@ -249,6 +249,56 @@ export class CircleSymbolizer implements LabelSymbolizer {
     }
 }
 
+export class ShieldSymbolizer implements LabelSymbolizer {
+    font: FontSpec
+    text: TextSpec
+    background:string
+    fill: string
+    stroke: string
+    padding: number
+
+    constructor(options) {
+        this.font = new FontSpec(options)
+        this.text = new TextSpec(options)
+        this.fill = options.fill || "black"
+        this.stroke = options.stroke || "white"
+        this.background = options.background || "white"
+        this.padding = options.padding || 0
+    } 
+
+    public stash(index, order, scratch,geom,feature,zoom) {
+        let property = this.text.str(zoom,feature.properties)
+        if (!property) return undefined
+        let font = this.font.str(zoom,feature.properties)
+        scratch.font = font
+        let metrics = scratch.measureText(property)
+
+        let width = metrics.width
+        let ascent = metrics.actualBoundingBoxAscent
+        let descent = metrics.actualBoundingBoxDescent
+
+        let pt = geom[0]
+        let a = new Point(geom[0][0].x,geom[0][0].y)
+        let p = this.padding
+        let bbox = {
+            minX:a.x-width/2-p, 
+            minY:a.y-ascent-p,
+            maxX:a.x+width/2+p,
+            maxY:a.y+descent+p
+        }
+
+        let draw = ctx => {
+            ctx.globalAlpha = 1
+            ctx.fillStyle = this.background
+            ctx.fillRect(-width/2-p,-ascent-p,width+2*p,ascent+descent+2*p)
+            ctx.fillStyle = this.fill
+            ctx.font = font
+            ctx.fillText(property,-width/2,0)
+        }
+        return [{anchor:a,bboxes:[bbox],draw:draw}]
+    }
+}
+
 // TODO make me work with multiple anchors
 export class FlexSymbolizer implements LabelSymbolizer {
     list: LabelSymbolizer[]

@@ -1,4 +1,4 @@
-import { createPattern, PolygonSymbolizer, IconSymbolizer, LineSymbolizer, CenteredTextSymbolizer, OffsetTextSymbolizer, GroupSymbolizer, CircleSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
+import { createPattern, PolygonSymbolizer, IconSymbolizer, ShieldSymbolizer, LineSymbolizer, CenteredTextSymbolizer, OffsetTextSymbolizer, GroupSymbolizer, CircleSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
 
 export interface DefaultStyleParams {
     earth:string
@@ -308,6 +308,17 @@ export const labelRules = (params:DefaultStyleParams) => {
                 font:"500 12px sans-serif"
             }),
             minzoom:12
+        },
+        {
+            dataLayer: "roads",
+            symbolizer: new ShieldSymbolizer({
+                properties:["ref"],
+                font:"600 9px sans-serif",
+                background:params.highway,
+                padding:2,
+                fill:"#999"
+            }),
+            filter: f => { return f["pmap:kind"] == "highway" }
         },
         {
             dataLayer: "pois",
