@@ -111,7 +111,8 @@ class LeafletLayer extends L.GridLayer {
 
         await timer(priority)
 
-        let bbox = [256*coords.x,256*coords.y,256*(coords.x+1),256*(coords.y+1)]
+        let BUF = 16
+        let bbox = [256*coords.x-BUF,256*coords.y-BUF,256*(coords.x+1)+BUF,256*(coords.y+1)+BUF]
         let origin = new Point(256*coords.x,256*coords.y)
         let painting_time = painter(state,key,[prepared_tile],label_data,this.paint_rules,bbox,origin,false,this.debug)
 
