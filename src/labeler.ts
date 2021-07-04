@@ -242,26 +242,6 @@ export class Labeler {
         return performance.now() - start
     }
 
-    // private finalizeLabel(tiles_invalidated:Set<string>,label:Label,order:number,key:string,pt:PreparedTile) {
-    //     let anchor = label.anchor
-    //     let collisions = this.index.searchLabel(label)
-    //     if (collisions.size > 0) {
-    //         let override = true
-    //         for (let collision of collisions) {
-    //             if (order >= collision.order) {
-    //                 override = false
-    //             }
-    //         }
-    //         if (override) {
-    //             for (let collision of collisions) {
-    //                 // remove all collided bboxes, and knock out
-    //                 this.findInvalidatedTiles(tiles_invalidated,pt.dim,collision,key)
-    //                 this.index.remove(collision) // TODO need to remove entire label: all bboxes
-    //             }
-    //         }
-    //     }
-    // }
-
     private findInvalidatedTiles(tiles_invalidated:Set<string>,dim:number,bbox:Bbox,key:string) {
         let touched = covering(this.z,dim,bbox)
         for (let s of touched) {
@@ -283,6 +263,7 @@ export class Labeler {
                     max_key = key
                 }
             }
+            this.index.prune(max_key)
         }
     }
 

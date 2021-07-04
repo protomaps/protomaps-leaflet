@@ -301,13 +301,14 @@ export const labelRules = (params:DefaultStyleParams) => {
                 font:"italic 300 12px sans-serif"
             })
         },
-        // {
-        //     dataLayer: "roads",
-        //     symbolizer: new LineLabelSymbolizer({
-        //         fill: params.roadsLabel
-        //     }),
-        //     minzoom:12
-        // },
+        {
+            dataLayer: "roads",
+            symbolizer: new LineLabelSymbolizer({
+                fill: params.roadsLabel,
+                font:"500 12px sans-serif"
+            }),
+            minzoom:12
+        },
         {
             dataLayer: "pois",
             symbolizer: new GroupSymbolizer([
