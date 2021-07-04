@@ -1,3 +1,4 @@
+import Point from '@mapbox/point-geometry'
 import linelabel from 'linelabel/xy'
 
 export function simpleLabel(mls:any,minimum:number) {
@@ -16,4 +17,18 @@ export function simpleLabel(mls:any,minimum:number) {
     }
     if (!longestStart) return undefined
     return {start:longestStart,end:longestEnd}
+}
+
+export function lineCells(a:Point,b:Point,length:number,spacing:number) {
+    // determine function of line
+    let dx = b.x - a.x
+    let dy = b.y - a.y
+    let dist = Math.sqrt(Math.pow(b.x-a.x,2)+Math.pow(b.y-a.y,2))
+
+    retval = []
+    for (var i = spacing; i < length; i+=2*spacing) {
+        let factor = i * 1/dist
+        retval.push({x:a.x+factor*dx,y:a.y+factor*dy})
+    }
+    return retval
 }

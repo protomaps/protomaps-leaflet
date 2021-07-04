@@ -2,7 +2,7 @@ import Point from '@mapbox/point-geometry'
 import { GeomType, Feature } from './tilecache'
 import polylabel from 'polylabel'
 import { TextSpec, FontSpec, linebreak, isCjk } from './text'
-import { simpleLabel } from './line'
+import { lineCells, simpleLabel } from './line'
 import { Index, Label } from './labeler'
 
 export interface PaintSymbolizer {
@@ -534,12 +534,15 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         let dx = result.end.x - result.start.x
         let dy = result.end.y - result.start.y
 
-        let a = new Point(result.start.x,result.start.y)
-        let b = new Point(result.end.x,result.end.y)
-
         let Q = 8
-        let bbox1 = {minX:a.x-Q,minY:a.y-Q,maxX:a.x+Q,maxY:a.y+Q}
-        let bbox2 = {minX:b.x-Q,minY:b.y-Q,maxX:b.x+Q,maxY:b.y+Q}
+        let cells = lineCells(result.start,result.end,width,8)
+        let bboxes = cells.map(c => {
+            return {
+            minX:c.x-Q,
+            minY:c.y-Q,
+            maxX:c.x+Q,
+            maxY:c.y+Q
+        }})
 
         let draw = ctx => {
             ctx.globalAlpha = 1
@@ -558,7 +561,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
             ctx.fillText(name,0,0)
         }
 
-        return [{anchor:a,bboxes:[bbox1,bbox2],draw:draw}]
+        return [{anchor:result.start,bboxes:bboxes,draw:draw}]
     }
 }
 
