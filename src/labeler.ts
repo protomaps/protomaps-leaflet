@@ -20,9 +20,11 @@ export interface Label {
 }
 
 export interface IndexedLabel {
-    label:Label
+    anchor:Point
+    bboxes:Bbox[]
+    draw:(ctx:any)=>void
     order:number
-    parentKey:string
+    tileKey:string
 }
 
 export interface LabelRule {
@@ -57,64 +59,113 @@ export const covering = (display_zoom:number,tile_width:number,bbox:Bbox) => {
     return retval
 }
 
-// order and key
 export class Index {
     tree: RBush 
-    labels: Label[]
+    current:Map<string,Set<IndexedLabel>>
 
     constructor() {
         this.tree = new RBush()
-        this.labels = []
+        this.current = new Map()
     }
 
-    public searchBbox(bbox:Bbox) {
-        let labels = new Set<Label>()
+    public has(tileKey:string):boolean {
+        return this.current.has(tileKey)
+    }
+
+    public size():number {
+        return this.current.size
+    }
+
+    public keys() {
+        return this.current.keys()
+    }
+
+    public searchBbox(bbox:Bbox,order:number):Set<IndexedLabel> {
+        let labels = new Set<IndexedLabel>()
         for (let match of this.tree.search(bbox)) {
-            labels.add(match.label)
-        }
-        return labels
-    }
-
-    public searchLabel(label:Label) {
-        let labels = new Set<Label>()
-        for (let bbox of label.bboxes) {
-            for (let match of this.tree.search(bbox)) {
-                labels.add(match.label)
+            if (match.indexed_label.order <= order) {
+                labels.add(match.indexed_label)
             }
         }
         return labels
     }
 
-    public bboxCollides(bbox:Bbox) {
-        return this.tree.collides(bbox)
+    public searchLabel(label:Label,order:number):Set<IndexedLabel> {
+        let labels = new Set<IndexedLabel>()
+        for (let bbox of label.bboxes) {
+            for (let match of this.tree.search(bbox)) {
+                if (match.indexed_label.order <= order) {
+                    labels.add(match.indexed_label)
+                }
+            }
+        }
+        return labels
     }
 
-    public labelCollides(label:Label) {
-        for (let bbox of label.bboxes) {
-            if (this.tree.collides(bbox)) return true
+    public bboxCollides(bbox:Bbox,order:number):boolean {
+        for (let match of this.tree.search(bbox)) {
+            if (match.indexed_label.order <= order) return true
         }
         return false
     }
 
-    public insert(label:Label):void {
-        this.labels.push(label)
+    public labelCollides(label:Label,order:number):boolean {
+        for (let bbox of label.bboxes) {
+            for (let match of this.tree.search(bbox)) {
+                if (match.indexed_label.order <= order) return true
+            }
+        }
+        return false
+    }
+
+    public insert(label:Label,order:number,tileKey:string):void {
+        let indexed_label = {
+            anchor:label.anchor,
+            bboxes:label.bboxes,
+            draw:label.draw,
+            order:order,
+            tileKey:tileKey
+        }
+        if (!this.current.has(tileKey)) {
+            let newSet = new Set<IndexedLabel>()
+            newSet.add(indexed_label)
+            this.current.set(tileKey,newSet)
+        } else {
+            this.current.get(tileKey).add(indexed_label)
+        }
         for (let bbox of label.bboxes) {
             var b:any = bbox
-            b.label = label
+            b.indexed_label = indexed_label
             this.tree.insert(b)
         }
     }
 
-    // not done yet
-
-    public all() {
-        return this.tree.all()
+    public prune(keyToRemove:string):void {
+        let indexed_labels = this.current.get(keyToRemove)
+        let entries_to_delete = []
+        for (let entry of this.tree.all()) {
+            if (indexed_labels.has(entry.indexed_label)) {
+                entries_to_delete.push(entry)
+            }
+        }
+        entries_to_delete.forEach(entry => {
+            this.tree.remove(entry)
+        })
+        this.current.delete(keyToRemove)
     }
 
-    public remove(obj) {
-        return this.tree.remove(obj)
+    public removeLabel(labelToRemove:IndexedLabel):void {
+        let entries_to_delete = []
+        for (let entry of this.tree.all()) {
+            if (labelToRemove == entry.indexed_label) {
+                entries_to_delete.push(entry)
+            }
+        }
+        entries_to_delete.forEach(entry => {
+            this.tree.remove(entry)
+        })
+        this.current.get(labelToRemove.tileKey).delete(labelToRemove)
     }
-
 }
 
 // TODO support deduplicated Labeling
@@ -123,7 +174,6 @@ export class Labeler {
     z: number
     scratch: any
     labelRules: LabelRule[]
-    current: Set<string>
     callback: TileInvalidationCallback
 
     constructor(z:number,scratch,labelRules:LabelRule[],callback:TileInvalidationCallback) {
@@ -132,7 +182,6 @@ export class Labeler {
         this.scratch = scratch
         this.labelRules = labelRules
         this.callback = callback
-        this.current = new Set<string>()
     }
 
     private layout(pt:PreparedTile):number {
@@ -152,20 +201,29 @@ export class Labeler {
             for (let feature of feats) {
                 if (rule.filter && !rule.filter(feature.properties)) continue
                 let transformed = transformGeom(feature.geom,pt.scale,pt.origin)
-                let labels = rule.symbolizer.stash(this.index, this.scratch, transformed,feature, this.z)
+                let labels = rule.symbolizer.stash(this.index, order, this.scratch, transformed,feature, this.z)
                 if (!labels) continue
 
                 for (let label of labels) {
                     var label_added = false
-                    if (this.index.labelCollides(label)) {
-                        // check order
-
+                    // does the label collide with anything?
+                    if (this.index.labelCollides(label,Infinity)) {
+                        if (!this.index.labelCollides(label,order)) {
+                            let conflicts = this.index.searchLabel(label, Infinity)
+                            for (let conflict of conflicts) {
+                                this.index.removeLabel(conflict) 
+                                for (let bbox of conflict.bboxes) {
+                                    this.findInvalidatedTiles(tiles_invalidated,pt.dim,bbox,key)
+                                }
+                            }
+                            this.index.insert(label,order,key)
+                            label_added = true
+                        }
+                        // label not added.
                     } else {
-                        this.index.insert(label)
+                        this.index.insert(label,order,key)
                         label_added = true
                     }
-
-                    // this.finalizeLabel(tiles_invalidated,label,order,key,pt)
 
                     if (label_added) {
                         for (let bbox of label.bboxes) {
@@ -184,40 +242,40 @@ export class Labeler {
         return performance.now() - start
     }
 
-    private finalizeLabel(tiles_invalidated:Set<string>,label:Label,order:number,key:string,pt:PreparedTile) {
-        let anchor = label.anchor
-        let collisions = this.index.searchLabel(label)
-        if (collisions.size > 0) {
-            let override = true
-            for (let collision of collisions) {
-                if (order >= collision.order) {
-                    override = false
-                }
-            }
-            if (override) {
-                for (let collision of collisions) {
-                    // remove all collided bboxes, and knock out
-                    this.findInvalidatedTiles(tiles_invalidated,pt.dim,collision,key)
-                    this.index.remove(collision) // TODO need to remove entire label: all bboxes
-                }
-            }
-        }
-    }
+    // private finalizeLabel(tiles_invalidated:Set<string>,label:Label,order:number,key:string,pt:PreparedTile) {
+    //     let anchor = label.anchor
+    //     let collisions = this.index.searchLabel(label)
+    //     if (collisions.size > 0) {
+    //         let override = true
+    //         for (let collision of collisions) {
+    //             if (order >= collision.order) {
+    //                 override = false
+    //             }
+    //         }
+    //         if (override) {
+    //             for (let collision of collisions) {
+    //                 // remove all collided bboxes, and knock out
+    //                 this.findInvalidatedTiles(tiles_invalidated,pt.dim,collision,key)
+    //                 this.index.remove(collision) // TODO need to remove entire label: all bboxes
+    //             }
+    //         }
+    //     }
+    // }
 
     private findInvalidatedTiles(tiles_invalidated:Set<string>,dim:number,bbox:Bbox,key:string) {
         let touched = covering(this.z,dim,bbox)
         for (let s of touched) {
-            if (s.key != key && this.current.has(s.key)) {
+            if (s.key != key && this.index.has(s.key)) {
                 tiles_invalidated.add(s.display)
             }
         }
     }
 
     private pruneCache(added:PreparedTile) {
-        if (this.current.size > 16) {
+        if (this.index.size() > 16) {
             let max_key = undefined
             let max_dist = 0
-            for (let key of this.current) {
+            for (let key of this.index.keys()) {
                 let split = key.split(':')
                 let dist = Math.sqrt(Math.pow(+split[0]-added.data_tile.x,2) + Math.pow(+split[1]-added.data_tile.y,2))
                 if (dist > max_dist) {
@@ -225,27 +283,15 @@ export class Labeler {
                     max_key = key
                 }
             }
-
-            this.current.delete(max_key)
-            let to_delete = []
-            for (let entry of this.index.all()) {
-                if (entry.key === max_key) {
-                    to_delete.push(entry)
-                }
-            }
-            to_delete.forEach(t => {
-                this.index.remove(t)
-            })
         }
     }
 
     public add(prepared_tile:PreparedTile):number {
         let idx = toIndex(prepared_tile.data_tile)
-        if(this.current.has(idx)) {
+        if(this.index.has(idx)) {
             return 0
         } else {
             let timing = this.layout(prepared_tile)
-            this.current.add(idx)
             this.pruneCache(prepared_tile)
             return timing
         }

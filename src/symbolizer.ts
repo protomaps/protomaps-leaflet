@@ -15,7 +15,7 @@ export interface LabelSymbolizer {
      * if return undefined, no label is added
      * return a label, but if the label collides it is not added
      */
-    stash(index:Index,ctx:any,geom:Point[][],feature:Feature,zoom:number):Label[] | undefined
+    stash(index:Index,order:number,ctx:any,geom:Point[][],feature:Feature,zoom:number):Label[] | undefined
 }
 
 export const createPattern = (width,height, fn) => {
@@ -220,7 +220,7 @@ export class CircleSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
     } 
 
-    public stash(index, scratch,geom,feature,zoom) {
+    public stash(index, order, scratch,geom,feature,zoom) {
         let pt = geom[0]
         let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
@@ -257,8 +257,8 @@ export class FlexSymbolizer implements LabelSymbolizer {
         this.list = list
     }
 
-    public stash(index,scratch,geom,feature,zoom) {
-        var labels = this.list[0].stash(index, scratch,geom, feature,zoom)
+    public stash(index,order,scratch,geom,feature,zoom) {
+        var labels = this.list[0].stash(index, order, scratch,geom, feature,zoom)
         if (!labels) return undefined
         var label = labels[0]
         let anchor = label.anchor
@@ -267,7 +267,7 @@ export class FlexSymbolizer implements LabelSymbolizer {
 
         let newGeom = [[{x:geom[0][0].x,y:geom[0][0].y+14}]]
         for (let i = 1; i < this.list.length; i++) {
-            labels = this.list[i].stash(index, scratch,newGeom, feature,zoom)
+            labels = this.list[i].stash(index, order, scratch,newGeom, feature,zoom)
             if (!labels) return undefined
             label = labels[0]
             bbox = mergeBbox(bbox,label.bboxes[0])
@@ -301,15 +301,15 @@ export class GroupSymbolizer implements LabelSymbolizer {
         this.list = list
     }
 
-    public stash(index, scratch, geom, feature, zoom) {
-        var labels = this.list[0].stash(index, scratch,geom, feature,zoom)
+    public stash(index, order, scratch, geom, feature, zoom) {
+        var labels = this.list[0].stash(index, order, scratch,geom, feature,zoom)
         var label = labels[0]
         let anchor = label.anchor
         let bbox = label.bboxes[0]
         let draws = [label.draw]
 
         for (let i = 1; i < this.list.length; i++) {
-            labels = this.list[i].stash(index, scratch,geom, feature,zoom)
+            labels = this.list[i].stash(index, order, scratch,geom, feature,zoom)
             if (!labels) return undefined
             label = labels[0]
             bbox = mergeBbox(bbox,label.bboxes[0])
@@ -339,7 +339,7 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
     }
 
-    public stash(index, scratch, geom, feature, zoom) {
+    public stash(index, order, scratch, geom, feature, zoom) {
         if (feature.geomType !== GeomType.Point) return undefined
         let property = this.text.str(zoom,feature.properties)
         if (!property) return undefined
@@ -397,7 +397,7 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
         this.offset = options.offset || 0
     }
 
-    public stash(index, scratch, geom, feature, zoom) {
+    public stash(index, order, scratch, geom, feature, zoom) {
         if (feature.geomType !== GeomType.Point) return undefined
         let property = this.text.str(zoom,feature.properties)
         if (!property) return undefined
@@ -433,7 +433,7 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
             maxX:a.x+width+text_origin.x,
             maxY:a.y+descent+text_origin.y
         }
-        if (!index.bboxCollides(bbox)) return [{anchor:a,bboxes:[bbox],draw:draw}]
+        if (!index.bboxCollides(bbox,order)) return [{anchor:a,bboxes:[bbox],draw:draw}]
 
         text_origin = new Point(-width-offset,-offset)
         bbox = {
@@ -442,7 +442,7 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
             maxX:a.x+width+text_origin.x,
             maxY:a.y+descent+text_origin.y
         }
-        if (!index.bboxCollides(bbox)) return [{anchor:a,bboxes:[bbox],draw:draw}]
+        if (!index.bboxCollides(bbox,order)) return [{anchor:a,bboxes:[bbox],draw:draw}]
 
         return undefined
     }
@@ -465,7 +465,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
     } 
 
-    public stash(index, scratch, geom, feature, zoom) {
+    public stash(index, order, scratch, geom, feature, zoom) {
         let name = this.text.str(zoom,feature.properties)
         if (!name) return undefined
         if (name.length > 20) return undefined
@@ -525,7 +525,7 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
     }
 
-    public stash(index, scratch, geom, feature, zoom) {
+    public stash(index, order, scratch, geom, feature, zoom) {
         let fbbox = feature.bbox
         let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // TODO needs to be based on zoom level/overzooming
         if (area < 20000) return []

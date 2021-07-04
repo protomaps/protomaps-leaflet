@@ -12,17 +12,47 @@ test('covering', async () => {
 
 test('inserting label into index', async () => {
    let index = new Index()
-   index.insert({anchor:new Point(100,100),bbox:[{minX:100,minY:100,maxX:200,maxY:200}],draw:c=>{}})
-   let result = index.search({minX:90,maxX:110,minY:90,maxY:110})
+   index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:200,maxY:200}],draw:c=>{}},1,"abcd")
+   let result = index.searchBbox({minX:90,maxX:110,minY:90,maxY:110},Infinity)
    assert.equal(result.size,1)
 })
 
 test('label with multiple bboxes', async () => {
    let index = new Index()
-   index.insert({anchor:new Point(100,100),bbox:[{minX:100,minY:100,maxX:110,maxY:200},{minX:110,minY:100,maxX:120,maxY:200}],draw:c=>{}})
-   let result = index.search({minX:90,maxX:130,minY:90,maxY:110})
+   index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:110,maxY:200},{minX:110,minY:100,maxX:120,maxY:200}],draw:c=>{}},1,"abcd")
+   let result = index.searchBbox({minX:90,maxX:130,minY:90,maxY:110},Infinity)
    assert.equal(result.size,1)
+})
 
+test('label order', async () => {
+   let index = new Index()
+   index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:200,maxY:200}],draw:c=>{}},2,"abcd")
+   let result = index.searchBbox({minX:90,maxX:110,minY:90,maxY:110},1)
+   assert.equal(result.size,0)
+   result = index.searchBbox({minX:90,maxX:110,minY:90,maxY:110},3)
+   assert.equal(result.size,1)
+})
+
+test('pruning', async () => {
+   let index = new Index()
+   index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:200,maxY:200}],draw:c=>{}},1,"abcd")
+   assert.equal(index.tree.all().length,1)
+   assert.equal(index.current.has("abcd"),true)
+   index.prune("abcd")
+   assert.equal(index.current.size,0)
+   assert.equal(index.tree.all().length,0)
+})
+
+test('remove an individual label', async () => {
+   let index = new Index()
+   index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:200,maxY:200}],draw:c=>{}},1,"abcd")
+   assert.equal(index.tree.all().length,1)
+   assert.equal(index.current.get("abcd").size,1)
+   let the_label = index.tree.all()[0].indexed_label
+   index.removeLabel(the_label)
+   assert.equal(index.current.size,1)
+   assert.equal(index.current.get("abcd").size,0)
+   assert.equal(index.tree.all().length,0)
 })
 
 export default test
