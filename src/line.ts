@@ -25,7 +25,7 @@ export function lineCells(a:Point,b:Point,length:number,spacing:number) {
     let dy = b.y - a.y
     let dist = Math.sqrt(Math.pow(b.x-a.x,2)+Math.pow(b.y-a.y,2))
 
-    retval = []
+    let retval = []
     for (var i = spacing; i < length; i+=2*spacing) {
         let factor = i * 1/dist
         retval.push({x:a.x+factor*dx,y:a.y+factor*dy})
