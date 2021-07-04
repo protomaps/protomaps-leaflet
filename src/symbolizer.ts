@@ -499,7 +499,10 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
             // ctx.strokeStyle = "red"
             // ctx.stroke()
             ctx.rotate(Math.atan2(dy, dx))
-            if (dx < 0) ctx.scale(0,-1)
+            if (dx < 0) {
+                ctx.scale(-1,-1)
+                ctx.translate(-width,0)
+            }
             ctx.font = font
             ctx.fillStyle = this.fill
             ctx.fillText(name,0,0)
