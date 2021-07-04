@@ -249,9 +249,41 @@ export class CircleSymbolizer implements LabelSymbolizer {
     }
 }
 
-// export class FlowSymbolizer implements LabelSymbolizer {
+// TODO make me work with multiple anchors
+export class FlexSymbolizer implements LabelSymbolizer {
+    list: LabelSymbolizer[]
 
-// }
+    constructor(list, options) {
+        this.list = list
+    }
+
+    public stash(index,scratch,geom,feature,zoom) {
+        var labels = this.list[0].stash(index, scratch,geom, feature,zoom)
+        if (!labels) return undefined
+        var label = labels[0]
+        let anchor = label.anchor
+        let bbox = label.bboxes[0]
+        let draws = [label.draw]
+
+        let newGeom = [[{x:geom[0][0].x,y:geom[0][0].y+14}]]
+        for (let i = 1; i < this.list.length; i++) {
+            labels = this.list[i].stash(index, scratch,newGeom, feature,zoom)
+            if (!labels) return undefined
+            label = labels[0]
+            bbox = mergeBbox(bbox,label.bboxes[0])
+            draws.push(label.draw)
+        }
+
+        // TODO should be flexible to number of sub-labels
+        let draw = ctx => {
+            draws[0](ctx)
+            ctx.translate(0,12)
+            draws[1](ctx)
+        }
+
+        return [{anchor:anchor,bboxes:[bbox],draw:draw}]
+    }
+}
 
 const mergeBbox = (b1,b2) => {
     return { 
