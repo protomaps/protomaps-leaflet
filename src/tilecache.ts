@@ -175,6 +175,18 @@ export interface CacheEntry {
     data: Map<string,Feature[]>
 }
 
+let R = 6378137
+let MAX_LATITUDE = 85.0511287798
+let MAXCOORD = R * Math.PI
+
+let project = latlng => {
+    let d = Math.PI / 180
+    let constrained_lat = Math.max(Math.min(MAX_LATITUDE, latlng[0]), -MAX_LATITUDE)
+    let sin = Math.sin(constrained_lat * d)
+    return new Point(R*latlng[1]*d,R*Math.log((1+sin)/(1-sin))/2)
+}
+
+
 export class TileCache {
     source: TileSource
     cache: Map<string,CacheEntry>
@@ -186,6 +198,31 @@ export class TileCache {
         this.cache = new Map<string,CacheEntry>()
         this.inflight = new Map<string,any[]>()
         this.tileSize = tileSize
+    }
+
+    public queryFeatures(lng:number,lat:number,zoom:number):Feature[] {
+        let projected = project([lat,lng])
+        let normalized = new Point((projected.x+MAXCOORD)/(MAXCOORD*2),1-(projected.y+MAXCOORD)/(MAXCOORD*2))
+        let on_zoom = normalized.mult(1 << zoom)
+        let tile_x = Math.floor(on_zoom.x)
+        let tile_y = Math.floor(on_zoom.y)
+        const idx = toIndex({z:zoom,x:tile_x,y:tile_y})
+        let retval = []
+        if (this.cache.has(idx)) {
+            const center_bbox_x = (on_zoom.x - tile_x) * this.tileSize
+            const center_bbox_y = (on_zoom.y - tile_y) * this.tileSize
+            let entry = this.cache.get(idx)
+            let query_bbox = [center_bbox_x-8,center_bbox_y-8,center_bbox_x+8,center_bbox_y+8]
+            for (let [layer_name,layer_arr] of (entry.data).entries()) {
+                for (let feature of layer_arr) {
+                    if ((query_bbox[2] >= feature.bbox[0] && feature.bbox[2] >= query_bbox[0]) &&
+                        (query_bbox[3] >= feature.bbox[3] && feature.bbox[3] >= query_bbox[1])) {
+                        retval.push(feature)
+                    }
+                }
+            }
+        }
+        return retval
     }
 
     public async get(c:Zxy):Promise<Map<string,Feature[]>> {

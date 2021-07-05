@@ -24,6 +24,11 @@
             if (!window.location.hash) map.setView(new L.LatLng(25.0412,121.5177),16)
             var layer = protomaps.leafletLayer({attribution:'<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',url:'tpe_sample.pmtiles',dark:false})
             layer.addTo(map)
+            map.on('click',ev => {
+                for (let result of layer.queryFeatures(ev.latlng.lng,ev.latlng.lat)) {
+                    console.log(result.properties)
+                }
+            })
         </script>
     </body>
 </html>

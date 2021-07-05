@@ -165,6 +165,10 @@ export class View {
             origin:tt.origin,
             dim:tt.dim
         }
-    } 
+    }
+
+    public queryFeatures(lng:number,lat:number,display_zoom:number) {
+        return this.tileCache.queryFeatures(lng,lat,Math.min(display_zoom-this.levelDiff,this.maxDataLevel))
+    }
 }
 

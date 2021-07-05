@@ -190,6 +190,10 @@ class LeafletLayer extends L.GridLayer {
             coords: this._keyToTileCoords(key)
         })
     }
+
+    public queryFeatures(lng:number,lat:number) {
+        return this.view.queryFeatures(lng,lat,this._map.getZoom())
+    }
 }
 
 const leafletLayer = options => {
