@@ -16,6 +16,9 @@ export function simpleLabel(mls:any,minimum:number) {
         }
     }
     if (!longestStart) return undefined
+    if (longestStart.x == longestEnd.x && longestStart.y == longestEnd.y) {
+        return undefined
+    }
     return {start:longestStart,end:longestEnd}
 }
 
