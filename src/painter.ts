@@ -68,6 +68,7 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
         ctx.save()
         ctx.translate(label.anchor.x-origin.x,label.anchor.y-origin.y)
         label.draw(ctx)
+        ctx.restore()
         if (debug) {
             ctx.lineWidth = 0.5
             ctx.strokeStyle = debug
@@ -75,7 +76,7 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
             ctx.globalAlpha = 1
             ctx.fillRect(-2,-2,4,4)
             for (let bbox of label.bboxes) {
-                ctx.strokeRect(bbox.minX-label.anchor.x,bbox.minY-label.anchor.y,bbox.maxX-bbox.minX,bbox.maxY-bbox.minY)
+                ctx.strokeRect(bbox.minX-origin.x,bbox.minY-origin.y,bbox.maxX-bbox.minX,bbox.maxY-bbox.minY)
             }
         }
         ctx.restore()
