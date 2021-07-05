@@ -29,9 +29,6 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
     ctx.clearRect(0,0,256,256)
     ctx.miterLimit = 2
 
-    ctx.save() // start translation
-    ctx.translate(-origin.x,-origin.y)
-
     for (var prepared_tile of prepared_tiles) {
         let po = prepared_tile.origin
         let ps = prepared_tile.scale
@@ -41,7 +38,7 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
             ctx.rect(po.x,po.y,prepared_tile.dim,prepared_tile.dim)
             ctx.clip()
         }
-        ctx.translate(po.x,po.y)
+        ctx.translate(po.x-origin.x,po.y-origin.y)
         for (var rule of rules) {
             if (rule.minzoom && prepared_tile.z < rule.minzoom) continue
             if (rule.maxzoom && prepared_tile.z > rule.maxzoom) continue
@@ -69,21 +66,19 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
     let matches = label_data.searchBbox({minX:bbox[0],minY:bbox[1],maxX:bbox[2],maxY:bbox[3]},Infinity)
     for (var label of matches) {
         ctx.save()
-        ctx.translate(label.anchor.x,label.anchor.y)
+        ctx.translate(label.anchor.x-origin.x,label.anchor.y-origin.y)
         label.draw(ctx)
-        ctx.restore()
         if (debug) {
             ctx.lineWidth = 0.5
             ctx.strokeStyle = debug
             ctx.fillStyle = debug
             ctx.globalAlpha = 1
-            let anchor = label.anchor
-            ctx.fillRect(anchor.x-2,anchor.y-2,4,4)
+            ctx.fillRect(-2,-2,4,4)
             for (let bbox of label.bboxes) {
-                ctx.strokeRect(bbox.minX,bbox.minY,bbox.maxX-bbox.minX,bbox.maxY-bbox.minY)
+                ctx.strokeRect(bbox.minX-label.anchor.x,bbox.minY-label.anchor.y,bbox.maxX-bbox.minX,bbox.maxY-bbox.minY)
             }
         }
+        ctx.restore()
     }
-    ctx.restore() // end translation
     return performance.now() - start
 }
