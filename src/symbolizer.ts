@@ -505,6 +505,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     fill: string
     stroke: string
     width: number
+    offset: number
 
     constructor(options) {
         this.font = new FontSpec(options)
