@@ -513,6 +513,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         this.fill = options.fill || "black"
         this.stroke = options.stroke || "black"
         this.width = options.width || 0
+        this.offset = options.offset || 0
     } 
 
     public stash(index, order, scratch, geom, feature, zoom) {
@@ -556,7 +557,13 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
                 ctx.scale(-1,-1)
                 ctx.translate(-width,0)
             }
+            ctx.translate(0,-this.offset)
             ctx.font = font
+            if (this.width) {
+                ctx.lineWidth = this.width
+                ctx.strokeStyle = this.stroke
+                ctx.strokeText(name,0,0)
+            }
             ctx.fillStyle = this.fill
             ctx.fillText(name,0,0)
         }
