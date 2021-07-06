@@ -235,7 +235,7 @@ export class Labeler {
                 }
             }
         }
-        if (tiles_invalidated.size > 0) {
+        if (tiles_invalidated.size > 0 && this.callback) {
             this.callback(tiles_invalidated)
         }
 

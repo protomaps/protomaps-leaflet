@@ -35,7 +35,7 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
         ctx.save()
         if (clip) {
             ctx.beginPath()
-            ctx.rect(po.x,po.y,prepared_tile.dim,prepared_tile.dim)
+            ctx.rect(po.x-origin.x,po.y-origin.y,prepared_tile.dim,prepared_tile.dim)
             ctx.clip()
         }
         ctx.translate(po.x-origin.x,po.y-origin.y)
