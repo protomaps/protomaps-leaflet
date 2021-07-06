@@ -188,7 +188,7 @@ export class IconSymbolizer implements LabelSymbolizer {
         this.name = options.name
     } 
 
-    public stash(index, scratch,geom,feature,zoom) {
+    public stash(index, order, scratch,geom,feature,zoom) {
         let pt = geom[0]
         let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
