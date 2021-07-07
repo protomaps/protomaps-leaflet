@@ -84,7 +84,6 @@ class LeafletLayer extends L.GridLayer {
 
     public async renderTile(coords,element,key,done = ()=>{}) {
         this.lastRequestedZ = coords.z
-        let state = {element:element,tile_size:this.tile_size,ctx:null}
         var prepared_tile
         try {
             prepared_tile = await this.view.getDisplayTile(coords)
@@ -92,15 +91,22 @@ class LeafletLayer extends L.GridLayer {
             if (e.name == "AbortError") return
             else throw e
         }
+
+        if (element.key != key) return
+        if (this.lastRequestedZ !== coords.z) return
+
         await Promise.allSettled(this.tasks)
 
+        if (element.key != key) return
         if (this.lastRequestedZ !== coords.z) return
 
         let layout_time = await this.labelers.add(prepared_tile)
 
+        if (element.key != key) return
+        if (this.lastRequestedZ !== coords.z) return
+
         let label_data = this.labelers.getIndex(prepared_tile.z)
 
-        if (this.lastRequestedZ !== coords.z) return
         if (!this._map) return // the layer has been removed from the map
 
         let center = this._map.getCenter().wrap()
@@ -111,14 +117,20 @@ class LeafletLayer extends L.GridLayer {
 
         await timer(priority)
 
+        if (element.key != key) return
+        if (this.lastRequestedZ !== coords.z) return
+
         let BUF = 16
         let bbox = [256*coords.x-BUF,256*coords.y-BUF,256*(coords.x+1)+BUF,256*(coords.y+1)+BUF]
         let origin = new Point(256*coords.x,256*coords.y)
-        let painting_time = painter(state,key,[prepared_tile],label_data,this.paint_rules,bbox,origin,false,this.debug)
+
+        let ctx = element.getContext("2d")
+        ctx.setTransform(this.tile_size/256,0,0,this.tile_size/256,0,0)
+        ctx.clearRect(0,0,256,256)
+
+        let painting_time = painter(ctx,[prepared_tile],label_data,this.paint_rules,bbox,origin,false,this.debug)
 
         if (this.debug) {
-            let ctx = state.ctx
-            if (!ctx) return
             let data_tile = prepared_tile.data_tile
             ctx.save()
             ctx.fillStyle = this.debug

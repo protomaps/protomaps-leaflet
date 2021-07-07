@@ -12,22 +12,9 @@ export interface Rule {
 }
 
 // make this not depend on element?
-export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules:Rule[],bbox,origin,clip:boolean,debug) {
+export function painter(ctx,prepared_tiles:PreparedTile[],label_data,rules:Rule[],bbox,origin,clip:boolean,debug) {
     let start = performance.now()
-    let ctx
-    if (!state.ctx) {
-        ctx = state.element.getContext('2d')
-        state.ctx = ctx
-    } else {
-        ctx = state.ctx
-    }
-    // the element might not match the coordinate anymore...
-    if (state.element && state.element.key != key) {
-        return
-    }
     ctx.save()
-    ctx.scale(state.tile_size/256,state.tile_size/256)
-    ctx.clearRect(0,0,256,256)
     ctx.miterLimit = 2
 
     for (var prepared_tile of prepared_tiles) {
