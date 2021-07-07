@@ -40,16 +40,7 @@ export class Static {
         this.debug = options.debug || false
     }
 
-    async draw(canvas,latlng:Point,display_zoom:number) {
-        let dpr = window.devicePixelRatio
-        let width = canvas.clientWidth
-        let height = canvas.clientHeight
-
-        canvas.width = width * dpr
-        canvas.height = height * dpr
-        let ctx = canvas.getContext('2d')
-        ctx.setTransform(dpr,0,0,dpr,0,0)
-
+    async drawContext(ctx,width:number,height:number,latlng:Point,display_zoom:number) {
         let center = project(latlng)
         let normalized_center = new Point((center.x+MAXCOORD)/(MAXCOORD*2),1-(center.y+MAXCOORD)/(MAXCOORD*2))
 
@@ -67,15 +58,28 @@ export class Static {
             await labeler.add(prepared_tile)
         }
 
-        let p = painter({ctx:ctx},"key",prepared_tiles,labeler.index,this.paint_rules,bbox,origin,true,this.debug)
+        let p = painter(ctx,prepared_tiles,labeler.index,this.paint_rules,bbox,origin,true,this.debug)
 
         if (this.debug) {
+            ctx.save()
             ctx.translate(-origin.x,-origin.y)
             for (var prepared_tile of prepared_tiles) {
                 ctx.strokeStyle = "black"
                 ctx.strokeRect(prepared_tile.origin.x,prepared_tile.origin.y,prepared_tile.dim,prepared_tile.dim)
             }
+            ctx.restore()
         }
         return performance.now() - start
+    }
+
+    async drawCanvas(canvas,latlng:Point,display_zoom:number) {
+        let dpr = window.devicePixelRatio
+        let width = canvas.clientWidth
+        let height = canvas.clientHeight
+        canvas.width = width * dpr
+        canvas.height = height * dpr
+        let ctx = canvas.getContext('2d')
+        ctx.scale(dpr,dpr)
+        return this.drawContext(ctx,width,height,latlng,display_zoom)
     }
 }
