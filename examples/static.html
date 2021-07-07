@@ -4,6 +4,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
         <!-- <script src="../dist/protomaps.js"></script> -->
         <style>
@@ -21,7 +22,7 @@
        <script>
         let canvas = document.getElementById("map")
         let map = new protomaps.Static({url:"tpe_sample.pmtiles"})
-        map.draw(canvas,[25.0412,121.5177],14)
+        map.draw(canvas,[25.0412,121.5177],17)
 
         document.getElementById("screenshot").addEventListener('click', () => {
             window.open().document.write('<iframe src="' + canvas.toDataURL("image/png") + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>')
