@@ -25,7 +25,8 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
     if (state.element && state.element.key != key) {
         return
     }
-    ctx.setTransform(state.tile_size/256,0,0,state.tile_size/256,0,0)
+    ctx.save()
+    ctx.scale(state.tile_size/256,state.tile_size/256)
     ctx.clearRect(0,0,256,256)
     ctx.miterLimit = 2
 
@@ -68,7 +69,6 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
         ctx.save()
         ctx.translate(label.anchor.x-origin.x,label.anchor.y-origin.y)
         label.draw(ctx)
-        ctx.restore()
         if (debug) {
             ctx.lineWidth = 0.5
             ctx.strokeStyle = debug
@@ -81,5 +81,6 @@ export function painter(state,key,prepared_tiles:PreparedTile[],label_data,rules
         }
         ctx.restore()
     }
+    ctx.restore()
     return performance.now() - start
 }
