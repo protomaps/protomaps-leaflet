@@ -8,10 +8,17 @@ export function filterFn(arr) {
         return f => f[arr[1]] === arr[2]
     } else if (arr[0] == "!=") {
         return f => f[arr[1]] !== arr[2]
+    } else if (arr[0] == "!") {
+        let sub = filterFn(arr[1])
+        return f => !sub(f)
     } else if (arr[0] === "<") {
         return f => f[arr[1]] < arr[2]
+    } else if (arr[0] === "<=") {
+        return f => f[arr[1]] <= arr[2]
     } else if (arr[0] === ">") {
         return f => f[arr[1]] > arr[2]
+    } else if (arr[0] === ">=") {
+        return f => f[arr[1]] >= arr[2]
     } else if (arr[0] === "in") {
         return f => arr.slice(2,arr.length).includes(f[arr[1]])
     } else if (arr[0] === "!in") {
@@ -26,6 +33,7 @@ export function filterFn(arr) {
         return f => parts.some(p => { return p(f) })
     } else {
         console.log("Unimplemented filter: ",arr[0])
+        return null
     }
 }
 

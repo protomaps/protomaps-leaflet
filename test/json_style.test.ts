@@ -18,10 +18,20 @@ test("<",async () => {
     assert(f({"level":2}))
     assert(!f({"level":3}))
 })
+test("<=",async () => {
+    let f = filterFn(['<=','level',3])
+    assert(f({"level":2}))
+    assert(f({"level":3}))
+})
 test(">",async () => {
     let f = filterFn(['>','level',3])
     assert(f({"level":4}))
     assert(!f({"level":3}))
+})
+test(">=",async () => {
+    let f = filterFn(['>=','level',3])
+    assert(f({"level":4}))
+    assert(f({"level":3}))
 })
 test("in",async () => {
     let f = filterFn(['in','type','foo','bar'])
@@ -38,6 +48,11 @@ test("has",async () => {
     let f = filterFn(['has','type'])
     assert(f({"type":"foo"}))
     assert(!f({}))
+})
+test("!",async () => {
+    let f = filterFn(["!",['has','type']])
+    assert(!f({"type":"foo"}))
+    assert(f({}))
 })
 test("all",async () => {
     let f = filterFn(['all',["==","building","yes"],["==","type","foo"]])
