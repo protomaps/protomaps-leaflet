@@ -1,0 +1,41 @@
+<html>
+    <head>
+    </head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+        <!-- <script src="../dist/protomaps.js"></script> -->
+        <style>
+            #map {
+                width: 1024px;
+                height: 512px;
+                background-color:#eee;
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+       <canvas id="map"></canvas>
+       <script>
+        let canvas = document.getElementById("map")
+        let map = new protomaps.Static({url:"tpe_sample.pmtiles"})
+
+        async function run() {
+            return await map.drawCanvas(canvas,[25.0412,121.5177],17)
+        }
+
+        async function benchmark() {
+            await run() // first run is irrelevant
+            var total = 0
+            for (var i = 0; i < 20; i++) {
+                total += await run()
+            }
+            console.log(total/20)
+        }
+
+        benchmark()
+       </script>
+    </body>
+</html>
