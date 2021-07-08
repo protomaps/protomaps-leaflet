@@ -72,12 +72,13 @@ export class Static {
         return performance.now() - start
     }
 
-    async drawCanvas(canvas,latlng:Point,display_zoom:number) {
+    async drawCanvas(canvas,latlng:Point,display_zoom:number,options:any = {}) {
         let dpr = window.devicePixelRatio
         let width = canvas.clientWidth
         let height = canvas.clientHeight
         canvas.width = width * dpr
         canvas.height = height * dpr
+        canvas.lang = options.lang
         let ctx = canvas.getContext('2d')
         ctx.scale(dpr,dpr)
         return this.drawContext(ctx,width,height,latlng,display_zoom)
