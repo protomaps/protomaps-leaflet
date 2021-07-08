@@ -313,22 +313,25 @@ export class FlexSymbolizer implements LabelSymbolizer {
         var label = labels[0]
         let anchor = label.anchor
         let bbox = label.bboxes[0]
-        let draws = [label.draw]
+        let height = bbox.maxY - bbox.minY
+        let draws = [{draw:label.draw,translate:{x:0,y:0}}]
 
-        let newGeom = [[{x:geom[0][0].x,y:geom[0][0].y+14}]]
+        let newGeom = [[{x:geom[0][0].x,y:geom[0][0].y+height}]]
         for (let i = 1; i < this.list.length; i++) {
             labels = this.list[i].stash(index, order, scratch,newGeom, feature,zoom)
             if (!labels) return undefined
             label = labels[0]
             bbox = mergeBbox(bbox,label.bboxes[0])
-            draws.push(label.draw)
+            draws.push({draw:label.draw,translate:{x:0,y:height}})
         }
 
-        // TODO should be flexible to number of sub-labels
         let draw = ctx => {
-            draws[0](ctx)
-            ctx.translate(0,12)
-            draws[1](ctx)
+            for (let sub of draws) {
+                ctx.save()
+                ctx.translate(sub.translate.x,sub.translate.y)
+                sub.draw(ctx)
+                ctx.restore()
+            }
         }
 
         return [{anchor:anchor,bboxes:[bbox],draw:draw}]
