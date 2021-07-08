@@ -80,11 +80,11 @@ function parseTile(buffer:ArrayBuffer,tileSize:number):Map<string,Feature[]> {
         let features = []
         let layer = value as any
         for (let i = 0; i < layer.length; i++) {
-            let feat = layer.feature(i)
-            let result = loadGeomAndBbox(feat._pbf,feat._geometry,tileSize/layer.extent)
+            let result = loadGeomAndBbox(layer.feature(i)._pbf,layer.feature(i)._geometry,tileSize/layer.extent)
             let numVertices = 0
             for (let part of result.geom) numVertices+=part.length
             features.push({
+                id:layer.feature(i).id,
                 geomType:layer.feature(i).type,
                 geom:result.geom,
                 numVertices:numVertices,
