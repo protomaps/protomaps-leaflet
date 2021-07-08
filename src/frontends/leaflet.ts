@@ -121,7 +121,7 @@ class LeafletLayer extends L.GridLayer {
         if (this.lastRequestedZ !== coords.z) return
 
         let BUF = 16
-        let bbox = [256*coords.x-BUF,256*coords.y-BUF,256*(coords.x+1)+BUF,256*(coords.y+1)+BUF]
+        let bbox = {minX:256*coords.x-BUF,minY:256*coords.y-BUF,maxX:256*(coords.x+1)+BUF,maxY:256*(coords.y+1)+BUF}
         let origin = new Point(256*coords.x,256*coords.y)
 
         let ctx = element.getContext("2d")

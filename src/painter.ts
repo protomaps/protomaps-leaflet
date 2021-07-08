@@ -1,7 +1,8 @@
 import Point from '@mapbox/point-geometry'
-import { Zxy } from './tilecache'
+import { Zxy, Bbox } from './tilecache'
 import { PreparedTile, transformGeom } from './view'
 import { PaintSymbolizer } from './symbolizer'
+import { Index } from './labeler'
 
 export interface Rule {
     minzoom:number
@@ -12,7 +13,7 @@ export interface Rule {
 }
 
 // make this not depend on element?
-export function painter(ctx,prepared_tiles:PreparedTile[],label_data,rules:Rule[],bbox,origin,clip:boolean,debug) {
+export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,rules:Rule[],bbox:Bbox,origin:Point,clip:boolean,debug:string) {
     let start = performance.now()
     ctx.save()
     ctx.miterLimit = 2
@@ -37,7 +38,7 @@ export function painter(ctx,prepared_tiles:PreparedTile[],label_data,rules:Rule[
             for (var feature of layer) {
                 let geom = feature.geom
                 let fbox = feature.bbox
-                if (fbox[2]*ps+po.x < bbox[0] || fbox[0]*ps+po.x > bbox[2] || fbox[1]*ps+po.y > bbox[3] || fbox[3]*ps+po.y < bbox[1]) {
+                if (fbox.maxX*ps+po.x < bbox.minX || fbox.minX*ps+po.x > bbox.maxX || fbox.minY*ps+po.y > bbox.maxY || fbox.maxY*ps+po.y < bbox.minY) {
                     continue
                 }
                 let properties = feature.properties
@@ -51,7 +52,7 @@ export function painter(ctx,prepared_tiles:PreparedTile[],label_data,rules:Rule[
         ctx.restore()
     }
 
-    let matches = label_data.searchBbox({minX:bbox[0],minY:bbox[1],maxX:bbox[2],maxY:bbox[3]},Infinity)
+    let matches = label_data.searchBbox(bbox,Infinity)
     for (var label of matches) {
         ctx.save()
         ctx.translate(label.anchor.x-origin.x,label.anchor.y-origin.y)

@@ -20,7 +20,7 @@ export class Static {
     paint_rules:Rule[]
     label_rules:LabelRule[]
     view:View
-    debug:boolean
+    debug:string
     scratch:any
 
     constructor(options) {
@@ -48,7 +48,7 @@ export class Static {
         let origin = normalized_center.clone().mult((1 << display_zoom) * 256).sub(new Point(width/2,height/2))
 
         // the bounds of the painter call in global Z coordinates
-        let bbox = [origin.x,origin.y,origin.x+width,origin.y+height]
+        let bbox = {minX:origin.x,minY:origin.y,maxX:origin.x+width,maxY:origin.y+height}
 
         let prepared_tiles = await this.view.getBbox(display_zoom,bbox)
 

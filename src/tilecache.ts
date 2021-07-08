@@ -9,9 +9,16 @@ export enum GeomType {
    Polygon = 3
 }
 
+export interface Bbox {
+    minX:number,
+    minY:number,
+    maxX:number,
+    maxY:number
+}
+
 export interface Feature {
     readonly properties: any
-    readonly bbox: number[]
+    readonly bbox: Bbox
     readonly geomType: GeomType
     readonly geom: Point[][]
     readonly numVertices:number
@@ -70,7 +77,7 @@ const loadGeomAndBbox = (pbf,geometry,scale:number) => {
         } else throw new Error('unknown command ' + cmd)
     }
     if (line) lines.push(line)
-    return {geom:lines, bbox: [x1, y1, x2, y2]}
+    return {geom:lines, bbox: {minX:x1,minY:y1,maxX:x2,maxY:y2}}
 }
 
 function parseTile(buffer:ArrayBuffer,tileSize:number):Map<string,Feature[]> {
@@ -212,11 +219,11 @@ export class TileCache {
             const center_bbox_x = (on_zoom.x - tile_x) * this.tileSize
             const center_bbox_y = (on_zoom.y - tile_y) * this.tileSize
             let entry = this.cache.get(idx)
-            let query_bbox = [center_bbox_x-8,center_bbox_y-8,center_bbox_x+8,center_bbox_y+8]
+            let query_bbox = {minX:center_bbox_x-8,minY:center_bbox_y-8,maxX:center_bbox_x+8,maxY:center_bbox_y+8}
             for (let [layer_name,layer_arr] of (entry.data).entries()) {
                 for (let feature of layer_arr) {
-                    if ((query_bbox[2] >= feature.bbox[0] && feature.bbox[2] >= query_bbox[0]) &&
-                        (query_bbox[3] >= feature.bbox[3] && feature.bbox[3] >= query_bbox[1])) {
+                    if ((query_bbox.maxX >= feature.bbox.minX && feature.bbox.maxX >= query_bbox.minX) &&
+                        (query_bbox.maxY >= feature.bbox.minY && feature.bbox.maxY >= query_bbox.minY)) {
                         retval.push(feature)
                     }
                 }

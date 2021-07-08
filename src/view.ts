@@ -1,5 +1,5 @@
 import Point from '@mapbox/point-geometry'
-import { Zxy, TileCache, Feature } from './tilecache'
+import { Zxy, TileCache, Feature, Bbox } from './tilecache'
 
 /* 
  * PreparedTile
@@ -68,10 +68,10 @@ export class View {
             })
         } else if (display_zoom <= this.levelDiff + this.maxDataLevel) {
             let f = 1 << this.levelDiff
-            let mintile_x = Math.floor(bounds[0] / f / 256)
-            let mintile_y = Math.floor(bounds[1] / f / 256)
-            let maxtile_x = Math.floor(bounds[2] / f / 256)
-            let maxtile_y = Math.floor(bounds[3] / f / 256)
+            let mintile_x = Math.floor(bounds.minX / f / 256)
+            let mintile_y = Math.floor(bounds.minY / f / 256)
+            let maxtile_x = Math.floor(bounds.maxX / f / 256)
+            let maxtile_y = Math.floor(bounds.maxY / f / 256)
             for (var tx = mintile_x; tx <= maxtile_x; tx++) {
                 for (var ty = mintile_y; ty <= maxtile_y; ty++) {
                     let origin = new Point(tx * f * 256,ty * f * 256)
@@ -86,10 +86,10 @@ export class View {
         } else {
             let f = 1 << this.levelDiff
             scale = 1 << (display_zoom - this.maxDataLevel - this.levelDiff)
-            let mintile_x = Math.floor(bounds[0] / f / 256 / scale)
-            let mintile_y = Math.floor(bounds[1] / f / 256 / scale)
-            let maxtile_x = Math.floor(bounds[2] / f / 256 / scale)
-            let maxtile_y = Math.floor(bounds[3] / f / 256 / scale)
+            let mintile_x = Math.floor(bounds.minX / f / 256 / scale)
+            let mintile_y = Math.floor(bounds.minY / f / 256 / scale)
+            let maxtile_x = Math.floor(bounds.maxX / f / 256 / scale)
+            let maxtile_y = Math.floor(bounds.maxY / f / 256 / scale)
             for (var tx = mintile_x; tx <= maxtile_x; tx++) {
                 for (var ty = mintile_y; ty <= maxtile_y; ty++) {
                     let origin = new Point(tx * f * 256 * scale,ty * f * 256 * scale)
@@ -138,7 +138,7 @@ export class View {
         return {data_tile:data_tile,scale:scale,origin:origin,dim:dim}
     }
 
-    public async getBbox(display_zoom:number,bounds:any):Promise<Array<PreparedTile>> {
+    public async getBbox(display_zoom:number,bounds:Bbox):Promise<Array<PreparedTile>> {
         let needed = this.dataTilesForBounds(display_zoom,bounds)
         let result = await Promise.all(needed.map(tt => this.tileCache.get(tt.data_tile)))
         return result.map((data,i) => { 

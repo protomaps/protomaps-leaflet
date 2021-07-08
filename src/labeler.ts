@@ -1,17 +1,10 @@
 import Point from '@mapbox/point-geometry'
 import { PreparedTile, transformGeom } from './view'
-import { Zxy, toIndex } from './tilecache'
+import { Zxy, toIndex, Bbox } from './tilecache'
 import RBush from 'rbush'
 import { LabelSymbolizer } from './symbolizer'
 
 type TileInvalidationCallback = (tiles:Set<string>)=>void
-
-export interface Bbox {
-    minX:number,
-    minY:number,
-    maxX:number,
-    maxY:number
-}
 
 export interface Label {
     anchor:Point
@@ -189,7 +182,7 @@ export class Labeler {
         let key = toIndex(pt.data_tile)
 
         let tiles_invalidated = new Set<string>()
-        for (var [order, rule] of this.labelRules.entries()) {
+        for (let [order, rule] of this.labelRules.entries()) {
             if (rule.visible == false) continue
             if (rule.minzoom && this.z < rule.minzoom) continue
             if (rule.maxzoom && this.z > rule.maxzoom) continue
@@ -238,7 +231,6 @@ export class Labeler {
         if (tiles_invalidated.size > 0 && this.callback) {
             this.callback(tiles_invalidated)
         }
-
         return performance.now() - start
     }
 

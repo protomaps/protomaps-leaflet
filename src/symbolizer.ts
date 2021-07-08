@@ -526,7 +526,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         if (name.length > 20) return undefined
 
         let fbbox = feature.bbox
-        let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // TODO needs to be based on zoom level
+        let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level
         if (area < 100) return undefined
 
         let font = this.font.str(zoom,feature.properties)
@@ -594,7 +594,7 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
 
     public stash(index, order, scratch, geom, feature, zoom) {
         let fbbox = feature.bbox
-        let area = (fbbox[3] - fbbox[1]) * (fbbox[2]-fbbox[0]) // TODO needs to be based on zoom level/overzooming
+        let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level/overzooming
         if (area < 20000) return []
 
         let property = this.text.str(zoom,feature.properties)
