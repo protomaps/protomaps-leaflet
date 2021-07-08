@@ -5,6 +5,7 @@ import { PaintSymbolizer } from './symbolizer'
 import { Index } from './labeler'
 
 export interface Rule {
+    id?:string
     minzoom:number
     maxzoom:number
     dataLayer: string

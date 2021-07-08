@@ -28,6 +28,7 @@ export interface Layout {
 }
 
 export interface LabelRule {
+    id?:string
     minzoom?:number
     maxzoom?:number
     dataLayer:string 

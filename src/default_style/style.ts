@@ -247,6 +247,7 @@ export const labelRules = (params:DefaultStyleParams) => {
             sort: (a,b) => { return a["pmap:rank"] - b["pmap:rank"] }
         },
         {
+            id:"cities",
             dataLayer: "places",
             filter: f => { return f["pmap:kind"] == "city" },
             maxzoom:6,
