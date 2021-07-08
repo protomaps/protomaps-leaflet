@@ -1,4 +1,7 @@
 [![Test suite](https://github.com/protomaps/protomaps.js/actions/workflows/node.js.yml/badge.svg)](https://github.com/protomaps/protomaps.js/actions/workflows/node.js.yml)
+[![minzipped size](https://badgen.net/bundlephobia/minzip/protomaps)](https://bundlephobia.com/package/protomaps)
+
+A vector map renderer for the web.
 
 * [Simple Leaflet demo](https://protomaps.github.io/protomaps.js/examples/leaflet.html)
 * [Satellite + labels demo](https://protomaps.github.io/protomaps.js/examples/labels.html)
@@ -8,8 +11,6 @@
 Above examples use a local PMTiles file and do not need an API key.
 
 [Worldwide Demo](http://protomaps.com/map/)
-
-A vector map renderer for the web. < 20 KB gzipped.
 
 See the docs on [what protomaps.js is, what protomaps.js is not](https://protomaps.com/docs/protomaps-js#protomapsjs-is-not)
 
