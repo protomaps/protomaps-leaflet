@@ -9,10 +9,10 @@
   "main": "src/index.js",
   "devDependencies": {
     "baretest": "^2.0.0",
-    "esbuild": "^0.12.9",
+    "esbuild": "^0.12.15",
     "esbuild-runner": "^2.2.0",
     "tslib": "^2.3.0",
-    "typescript": "^4.3.4"
+    "typescript": "^4.3.5"
   },
   "dependencies": {
     "@mapbox/point-geometry": "^0.1.0",
