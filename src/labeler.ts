@@ -20,6 +20,13 @@ export interface IndexedLabel {
     tileKey:string
 }
 
+export interface Layout {
+    index:Index
+    order:number
+    scratch:any
+    zoom:number
+}
+
 export interface LabelRule {
     minzoom?:number
     maxzoom?:number
@@ -191,10 +198,17 @@ export class Labeler {
 
             let feats = layer
             if (rule.sort) feats.sort((a,b) => rule.sort(a.properties,b.properties))
+
+            let layout = {
+                index:this.index,
+                zoom:this.z,
+                scratch:this.scratch,
+                order:order
+            }
             for (let feature of feats) {
                 if (rule.filter && !rule.filter(feature.properties)) continue
                 let transformed = transformGeom(feature.geom,pt.scale,pt.origin)
-                let labels = rule.symbolizer.stash(this.index, order, this.scratch, transformed,feature, this.z)
+                let labels = rule.symbolizer.place(layout, transformed,feature)
                 if (!labels) continue
 
                 for (let label of labels) {

@@ -3,7 +3,7 @@ import { GeomType, Feature } from './tilecache'
 import polylabel from 'polylabel'
 import { TextSpec, FontSpec, linebreak, isCjk } from './text'
 import { lineCells, simpleLabel } from './line'
-import { Index, Label } from './labeler'
+import { Index, Label, Layout } from './labeler'
 
 export interface PaintSymbolizer {
     before(ctx:any,z:number):void
@@ -15,7 +15,7 @@ export interface LabelSymbolizer {
      * if return undefined, no label is added
      * return a label, but if the label collides it is not added
      */
-    stash(index:Index,order:number,ctx:any,geom:Point[][],feature:Feature,zoom:number):Label[] | undefined
+    place(layout:Layout,geom:Point[][],feature:Feature):Label[] | undefined
 }
 
 export const createPattern = (width,height, fn) => {
@@ -188,7 +188,7 @@ export class IconSymbolizer implements LabelSymbolizer {
         this.name = options.name
     } 
 
-    public stash(index, order, scratch,geom,feature,zoom) {
+    public place(layout,geom,feature) {
         let pt = geom[0]
         let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
@@ -220,7 +220,7 @@ export class CircleSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
     } 
 
-    public stash(index, order, scratch,geom,feature,zoom) {
+    public place(layout,geom,feature) {
         let pt = geom[0]
         let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
@@ -266,12 +266,12 @@ export class ShieldSymbolizer implements LabelSymbolizer {
         this.padding = options.padding || 0
     } 
 
-    public stash(index, order, scratch,geom,feature,zoom) {
-        let property = this.text.str(zoom,feature.properties)
+    public place(layout,geom,feature) {
+        let property = this.text.str(layout.zoom,feature.properties)
         if (!property) return undefined
-        let font = this.font.str(zoom,feature.properties)
-        scratch.font = font
-        let metrics = scratch.measureText(property)
+        let font = this.font.str(layout.zoom,feature.properties)
+        layout.scratch.font = font
+        let metrics = layout.scratch.measureText(property)
 
         let width = metrics.width
         let ascent = metrics.actualBoundingBoxAscent
@@ -307,8 +307,8 @@ export class FlexSymbolizer implements LabelSymbolizer {
         this.list = list
     }
 
-    public stash(index,order,scratch,geom,feature,zoom) {
-        var labels = this.list[0].stash(index, order, scratch,geom, feature,zoom)
+    public place(layout,geom,feature) {
+        var labels = this.list[0].place(layout,geom,feature)
         if (!labels) return undefined
         var label = labels[0]
         let anchor = label.anchor
@@ -318,7 +318,7 @@ export class FlexSymbolizer implements LabelSymbolizer {
 
         let newGeom = [[{x:geom[0][0].x,y:geom[0][0].y+height}]]
         for (let i = 1; i < this.list.length; i++) {
-            labels = this.list[i].stash(index, order, scratch,newGeom, feature,zoom)
+            labels = this.list[i].place(layout,newGeom,feature)
             if (!labels) return undefined
             label = labels[0]
             bbox = mergeBbox(bbox,label.bboxes[0])
@@ -354,15 +354,15 @@ export class GroupSymbolizer implements LabelSymbolizer {
         this.list = list
     }
 
-    public stash(index, order, scratch, geom, feature, zoom) {
-        var labels = this.list[0].stash(index, order, scratch,geom, feature,zoom)
+    public place(layout,geom, feature) {
+        var labels = this.list[0].place(layout,geom,feature)
         var label = labels[0]
         let anchor = label.anchor
         let bbox = label.bboxes[0]
         let draws = [label.draw]
 
         for (let i = 1; i < this.list.length; i++) {
-            labels = this.list[i].stash(index, order, scratch,geom, feature,zoom)
+            labels = this.list[i].place(layout,geom,feature)
             if (!labels) return undefined
             label = labels[0]
             bbox = mergeBbox(bbox,label.bboxes[0])
@@ -392,13 +392,13 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
     }
 
-    public stash(index, order, scratch, geom, feature, zoom) {
+    public place(layout,geom,feature) {
         if (feature.geomType !== GeomType.Point) return undefined
-        let property = this.text.str(zoom,feature.properties)
+        let property = this.text.str(layout.zoom,feature.properties)
         if (!property) return undefined
-        let font = this.font.str(zoom,feature.properties)
-        scratch.font = font
-        let metrics = scratch.measureText(property)
+        let font = this.font.str(layout.zoom,feature.properties)
+        layout.scratch.font = font
+        let metrics = layout.scratch.measureText(property)
 
         let width = metrics.width
         let ascent = metrics.actualBoundingBoxAscent
@@ -450,13 +450,13 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
         this.offset = options.offset || 0
     }
 
-    public stash(index, order, scratch, geom, feature, zoom) {
+    public place(layout, geom, feature) {
         if (feature.geomType !== GeomType.Point) return undefined
-        let property = this.text.str(zoom,feature.properties)
+        let property = this.text.str(layout.zoom,feature.properties)
         if (!property) return undefined
-        let font = this.font.str(zoom,feature.properties)
-        scratch.font = font
-        let metrics = scratch.measureText(property)
+        let font = this.font.str(layout.zoom,feature.properties)
+        layout.scratch.font = font
+        let metrics = layout.scratch.measureText(property)
 
         let width = metrics.width
         let ascent = metrics.actualBoundingBoxAscent
@@ -486,7 +486,7 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
             maxX:a.x+width+text_origin.x,
             maxY:a.y+descent+text_origin.y
         }
-        if (!index.bboxCollides(bbox,order)) return [{anchor:a,bboxes:[bbox],draw:draw}]
+        if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:a,bboxes:[bbox],draw:draw}]
 
         text_origin = new Point(-width-offset,-offset)
         bbox = {
@@ -495,7 +495,7 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
             maxX:a.x+width+text_origin.x,
             maxY:a.y+descent+text_origin.y
         }
-        if (!index.bboxCollides(bbox,order)) return [{anchor:a,bboxes:[bbox],draw:draw}]
+        if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:a,bboxes:[bbox],draw:draw}]
 
         return undefined
     }
@@ -520,8 +520,8 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         this.offset = options.offset || 0
     } 
 
-    public stash(index, order, scratch, geom, feature, zoom) {
-        let name = this.text.str(zoom,feature.properties)
+    public place(layout,geom,feature) {
+        let name = this.text.str(layout.zoom,feature.properties)
         if (!name) return undefined
         if (name.length > 20) return undefined
 
@@ -529,9 +529,9 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level
         if (area < 100) return undefined
 
-        let font = this.font.str(zoom,feature.properties)
-        scratch.font = font
-        let metrics = scratch.measureText(name)
+        let font = this.font.str(layout.zoom,feature.properties)
+        layout.scratch.font = font
+        let metrics = layout.scratch.measureText(name)
         let width = metrics.width
 
         let result = simpleLabel(geom,width)
@@ -592,20 +592,20 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
         this.width = options.width || 0
     }
 
-    public stash(index, order, scratch, geom, feature, zoom) {
+    public place(layout,geom,feature) {
         let fbbox = feature.bbox
         let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level/overzooming
         if (area < 20000) return []
 
-        let property = this.text.str(zoom,feature.properties)
+        let property = this.text.str(layout.zoom,feature.properties)
         if (!property) return undefined
 
         let first_poly = geom[0]
         let found = polylabel([first_poly.map(c => [c.x,c.y])])
         let a = new Point(found[0],found[1])
-        let font = this.font.str(zoom,feature.properties)
+        let font = this.font.str(layout.zoom,feature.properties)
 
-        scratch.font = font
+        layout.scratch.font = font
 
         let lines = linebreak(property)
 
@@ -620,7 +620,7 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
             }
         }
 
-        let metrics = scratch.measureText(longestLine)
+        let metrics = layout.scratch.measureText(longestLine)
         let width = metrics.width
         let bbox = {
             minX:a.x-width/2, 
