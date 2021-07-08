@@ -527,7 +527,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
 
         let fbbox = feature.bbox
         let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level
-        if (area < 100) return undefined
+        if (area < 400) return undefined
 
         let font = this.font.str(layout.zoom,feature.properties)
         layout.scratch.font = font
