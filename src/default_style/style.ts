@@ -38,7 +38,7 @@ export interface DefaultStyleParams {
 
 const doShading = (params:DefaultStyleParams,shade:string) => {
     let shadeHsl = parseToHsla(shade)
-    let outParams = {}
+    let outParams = {...params}
     for (const [key,value] of Object.entries(params)) {
         let o = parseToHsla(value)
         outParams[key] = hsla(shadeHsl[0],shadeHsl[1],o[2],o[3])
