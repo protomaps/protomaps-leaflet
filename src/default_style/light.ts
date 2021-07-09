@@ -1,6 +1,6 @@
-import { paintRules, labelRules, DefaultStyleParams } from './style'
+import { DefaultStyleParams } from './style'
 
-const light:DefaultStyleParams = {
+export const light:DefaultStyleParams = {
     earth:"#FFFBF6",
     glacier:"#ffffff",
     residential:"#F4F4F8",
@@ -34,6 +34,3 @@ const light:DefaultStyleParams = {
     roadsLabel:"#888888",
     poisLabel:"#606060"
 }
-
-export const paint_rules = paintRules(light)
-export const label_rules = labelRules(light)

@@ -1,4 +1,5 @@
 import { createPattern, PolygonSymbolizer, IconSymbolizer, ShieldSymbolizer, LineSymbolizer, CenteredTextSymbolizer, OffsetTextSymbolizer, GroupSymbolizer, CircleSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
+import { hsla, parseToHsla } from 'color2k'
 
 export interface DefaultStyleParams {
     earth:string
@@ -35,7 +36,18 @@ export interface DefaultStyleParams {
     poisLabel:string
 }
 
-export const paintRules = (params:DefaultStyleParams) => {
+const doShading = (params:DefaultStyleParams,shade:string) => {
+    let shadeHsl = parseToHsla(shade)
+    let outParams = {}
+    for (const [key,value] of Object.entries(params)) {
+        let o = parseToHsla(value)
+        outParams[key] = hsla(shadeHsl[0],shadeHsl[1],o[2],o[3])
+    }
+    return outParams
+}
+
+export const paintRules = (params:DefaultStyleParams,shade:string) => {
+    if (shade) params = doShading(params,shade)
     return [
         {
             dataLayer: "earth",
@@ -206,7 +218,8 @@ export const paintRules = (params:DefaultStyleParams) => {
     ]
 }
 
-export const labelRules = (params:DefaultStyleParams) => {
+export const labelRules = (params:DefaultStyleParams,shade:string) => {
+    if (shade) params = doShading(params,shade)
     return [
         {
             dataLayer: "places",

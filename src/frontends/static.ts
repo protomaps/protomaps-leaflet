@@ -3,7 +3,9 @@ import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
 import { View } from '../view'
 import { Rule, painter } from '../painter'
 import { LabelRule, Labeler } from '../labeler'
-import { paint_rules , label_rules } from '../default_style/light'
+import { light } from '../default_style/light'
+import { dark } from '../default_style/dark'
+import { paintRules , labelRules } from '../default_style/style'
 
 let R = 6378137
 let MAX_LATITUDE = 85.0511287798
@@ -24,8 +26,9 @@ export class Static {
     scratch:any
 
     constructor(options) {
-        this.paint_rules = options.paint_rules || paint_rules
-        this.label_rules = options.label_rules || label_rules
+        let theme = options.dark ? dark : light
+        this.paint_rules = options.paint_rules || paintRules(theme,options.shade)
+        this.label_rules = options.label_rules || labelRules(theme,options.shade)
 
         let source
         if (options.url.url) {

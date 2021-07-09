@@ -5,8 +5,9 @@ import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
 import { View } from '../view'
 import { painter } from '../painter'
 import { Labelers } from '../labeler'
-import { paint_rules as lightPaintRules, label_rules as lightLabelRules } from '../default_style/light'
-import { paint_rules as darkPaintRules, label_rules as darkLabelRules } from '../default_style/dark'
+import { light } from '../default_style/light'
+import { dark } from '../default_style/dark'
+import { paintRules, labelRules } from '../default_style/style'
 
 class CanvasPool {
     unused: any[]
@@ -49,8 +50,10 @@ class LeafletLayer extends L.GridLayer {
         if (options.noWrap && !options.bounds) options.bounds = [[-90,-180],[90,180]]
         if (!options.attribution) options.attribution = '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>'
         super(options)
-        this.paint_rules = options.paint_rules || (options.dark ? darkPaintRules : lightPaintRules)
-        this.label_rules = options.label_rules || (options.dark ? darkLabelRules : lightLabelRules)
+
+        let theme = options.dark ? dark : light
+        this.paint_rules = options.paint_rules || paintRules(theme,options.shade)
+        this.label_rules = options.label_rules || labelRules(theme,options.shade)
         this.lastRequestedZ = undefined
 
         let source
