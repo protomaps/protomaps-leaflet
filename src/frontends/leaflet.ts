@@ -138,9 +138,6 @@ class LeafletLayer extends L.GridLayer {
             ctx.font = '600 12px sans-serif'
             ctx.fillText(coords.z + " " + coords.x + " " + coords.y,4,14)
             ctx.font = '200 12px sans-serif'
-            if ((data_tile.x % 2 + data_tile.y % 2) % 2 == 0) {
-                ctx.font = '200 italic 12px sans-serif'
-            }
             ctx.fillText(data_tile.z + " " + data_tile.x + " " + data_tile.y,4,28)
             ctx.font = '600 10px sans-serif'
             if (painting_time > 8) {
@@ -150,8 +147,19 @@ class LeafletLayer extends L.GridLayer {
                 ctx.fillText(layout_time.toFixed() + " ms layout",4,56)
             }
             ctx.strokeStyle = this.debug
-            ctx.lineWidth = 0.5
-            ctx.strokeRect(0,0,256,256)
+
+            ctx.lineWidth = (coords.x/4 === data_tile.x) ? 1.5 : 0.5
+            ctx.beginPath()
+            ctx.moveTo(0,0)
+            ctx.lineTo(0,256)
+            ctx.stroke()
+
+            ctx.lineWidth = (coords.y/4 === data_tile.y) ? 1.5 : 0.5
+            ctx.beginPath()
+            ctx.moveTo(0,0)
+            ctx.lineTo(256,0)
+            ctx.stroke()
+
             ctx.restore()
         }
         done()
