@@ -1,3 +1,4 @@
+[![npm](https://img.shields.io/npm/v/protomaps)](https://www.npmjs.com/package/protomaps)
 [![Test suite](https://github.com/protomaps/protomaps.js/actions/workflows/node.js.yml/badge.svg)](https://github.com/protomaps/protomaps.js/actions/workflows/node.js.yml)
 [![minzipped size](https://badgen.net/bundlephobia/minzip/protomaps)](https://bundlephobia.com/package/protomaps)
 
