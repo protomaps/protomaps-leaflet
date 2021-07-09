@@ -1,0 +1,77 @@
+<html>
+    <head>
+    </head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="pixelmatch.js"></script>
+        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+        <!-- <script src="../dist/protomaps.js"></script> -->
+        <style>
+            canvas {
+                width: 400px;
+                height: 400px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="example_1">
+            <canvas class="rendered"></canvas>
+            <canvas class="stored" width="800" height="800"></canvas>
+            <canvas class="diff" width="800" height="800"></canvas>
+            <span><span class="elapsed"></span> ms</span>
+            <button>Save</button>
+        </div>
+        <script>
+        let RUNS = 10
+        let map = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
+
+        let example = document.getElementById("example_1")
+        let rendered = example.getElementsByClassName('rendered')[0]
+        let stored = example.getElementsByClassName('stored')[0]
+        let diff = example.getElementsByClassName('diff')[0]
+
+        async function run() {
+            return await map.drawCanvas(rendered,[42.3238,-83.0512],11)
+        }
+
+        async function benchmark() {
+            await run() // first run is irrelevant
+            var total = 0
+            for (var i = 0; i < RUNS; i++) {
+                total += await run()
+            }
+            example.getElementsByClassName("elapsed")[0].innerHTML = (total/RUNS).toFixed(2)
+
+            let width = 800
+            let height = 800
+
+            let p = new Promise(resolve => {
+                let img = new Image()
+                img.onload = () => {
+                    stored.getContext('2d').drawImage(img,0,0)
+                    resolve(img)
+                }
+                img.src = "example_1.png"
+            })
+            await p
+
+            const img1 = rendered.getContext('2d').getImageData(0, 0, width, height);
+            const img2 = stored.getContext('2d').getImageData(0, 0, width, height);
+            const img3 = diff.getContext('2d').createImageData(width, height);
+            pixelmatch(img1.data, img2.data, img3.data, width, height, {threshold: 0.1});
+            diff.getContext('2d').putImageData(img3, 0, 0);
+        }
+
+        benchmark()
+
+        example.getElementsByTagName('button')[0].addEventListener('mouseup', () => {
+            var a = document.createElement("a")
+            a.href = rendered.toDataURL("image/png")
+            a.download = "example_1.png"
+            a.click()
+        })
+        </script>
+    </body>
+</html>
