@@ -318,7 +318,7 @@ export const labelRules = (params:DefaultStyleParams) => {
                 font:"600 9px sans-serif",
                 background:params.highway,
                 padding:2,
-                fill:"#999"
+                fill:params.neighbourhoodLabel
             }),
             filter: f => { return f["pmap:kind"] == "highway" }
         },
