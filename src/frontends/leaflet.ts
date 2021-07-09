@@ -47,6 +47,7 @@ const timer = duration => {
 class LeafletLayer extends L.GridLayer {
     constructor(options) {
         if (options.noWrap && !options.bounds) options.bounds = [[-90,-180],[90,180]]
+        if (!options.attribution) options.attribution = '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>'
         super(options)
         this.paint_rules = options.paint_rules || (options.dark ? darkPaintRules : lightPaintRules)
         this.label_rules = options.label_rules || (options.dark ? darkLabelRules : lightLabelRules)

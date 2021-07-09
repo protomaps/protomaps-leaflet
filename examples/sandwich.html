@@ -73,7 +73,7 @@
 
             // https://leafletjs.com/examples/map-panes/
             map.createPane('labels');
-            let labels = protomaps.leafletLayer({attribution:'<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',url:'tpe_sample.pmtiles',paint_rules:[],label_rules:label_rules,pane:'labels'})
+            let labels = protomaps.leafletLayer({url:'tpe_sample.pmtiles',paint_rules:[],label_rules:label_rules,pane:'labels'})
             labels.addTo(map)
         </script>
     </body>
