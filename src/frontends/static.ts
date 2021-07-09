@@ -76,11 +76,14 @@ export class Static {
         let dpr = window.devicePixelRatio
         let width = canvas.clientWidth
         let height = canvas.clientHeight
-        canvas.width = width * dpr
-        canvas.height = height * dpr
+        if (!canvas.sizeSet) {
+            canvas.width = width * dpr
+            canvas.height = height * dpr
+            canvas.sizeSet = true
+        }
         canvas.lang = options.lang
         let ctx = canvas.getContext('2d')
-        ctx.scale(dpr,dpr)
+        ctx.setTransform(dpr,0,0,dpr,0,0)
         return this.drawContext(ctx,width,height,latlng,display_zoom)
     }
 }

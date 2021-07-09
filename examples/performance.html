@@ -8,8 +8,8 @@
         <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
         <!-- <script src="../dist/protomaps.js"></script> -->
         <style>
-            #map {
-                width: 1024px;
+            #example_1 {
+                width: 512px;
                 height: 512px;
                 background-color:#eee;
                 display: block;
@@ -17,25 +17,29 @@
         </style>
     </head>
     <body>
-       <canvas id="map"></canvas>
-       <script>
-        let canvas = document.getElementById("map")
-        let map = new protomaps.Static({url:"tpe_sample.pmtiles"})
+        <div>
+            <canvas id="example_1"></canvas>
+            <span><span id="example_1_elapsed"></span> ms</span>
+        </div>
+        <script>
+        let RUNS = 20
+        let canvas = document.getElementById("example_1")
+        let map = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
 
         async function run() {
-            return await map.drawCanvas(canvas,[25.0412,121.5177],17)
+            return await map.drawCanvas(canvas,[42.3238,-83.0512],11)
         }
 
         async function benchmark() {
             await run() // first run is irrelevant
             var total = 0
-            for (var i = 0; i < 20; i++) {
+            for (var i = 0; i < RUNS; i++) {
                 total += await run()
             }
-            console.log(total/20)
+            document.getElementById("example_1_elapsed").innerHTML = total/RUNS
         }
 
         benchmark()
-       </script>
+        </script>
     </body>
 </html>
