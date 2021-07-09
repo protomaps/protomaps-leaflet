@@ -209,7 +209,8 @@ export class TileCache {
 
     public queryFeatures(lng:number,lat:number,zoom:number):Feature[] {
         let projected = project([lat,lng])
-        let normalized = new Point((projected.x+MAXCOORD)/(MAXCOORD*2),1-(projected.y+MAXCOORD)/(MAXCOORD*2))
+        var normalized = new Point((projected.x+MAXCOORD)/(MAXCOORD*2),1-(projected.y+MAXCOORD)/(MAXCOORD*2))
+        if (normalized.x > 1) normalized.x = normalized.x - Math.floor(normalized.x)
         let on_zoom = normalized.mult(1 << zoom)
         let tile_x = Math.floor(on_zoom.x)
         let tile_y = Math.floor(on_zoom.y)
