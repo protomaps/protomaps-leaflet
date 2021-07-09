@@ -1,8 +1,14 @@
+# protomaps.js
+
+A vector map renderer for the web.
+
 [![npm](https://img.shields.io/npm/v/protomaps)](https://www.npmjs.com/package/protomaps)
 [![Test suite](https://github.com/protomaps/protomaps.js/actions/workflows/node.js.yml/badge.svg)](https://github.com/protomaps/protomaps.js/actions/workflows/node.js.yml)
 [![minzipped size](https://badgen.net/bundlephobia/minzip/protomaps)](https://bundlephobia.com/package/protomaps)
 
-A vector map renderer for the web.
+<p float="left">
+    <img src="benchmark/example_1.png" width="400">
+</p>
 
 * [Simple Leaflet demo](https://protomaps.github.io/protomaps.js/examples/leaflet.html)
 * [Satellite + labels demo](https://protomaps.github.io/protomaps.js/examples/labels.html)
