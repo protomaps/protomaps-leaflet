@@ -229,6 +229,7 @@ export const labelRules = (params:DefaultStyleParams) => {
             filter: f => { return f["pmap:kind"] == "state" }
         },
         {
+            id:"cities_high",
             dataLayer: "places",
             filter: f => { return f["pmap:kind"] == "city" },
             minzoom:7,
@@ -247,7 +248,7 @@ export const labelRules = (params:DefaultStyleParams) => {
             sort: (a,b) => { return a["pmap:rank"] - b["pmap:rank"] }
         },
         {
-            id:"cities",
+            id:"cities_low",
             dataLayer: "places",
             filter: f => { return f["pmap:kind"] == "city" },
             maxzoom:6,
