@@ -232,7 +232,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                     fill:symbolizer.fill,
                     properties:language2
                 })
-            ])
+            ],{})
         } else {
             return new FlexSymbolizer([
                 symbolizer,
@@ -240,7 +240,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                     fill:symbolizer.fill,
                     properties:language2
                 })
-            ])
+            ],{})
         }
     }
 

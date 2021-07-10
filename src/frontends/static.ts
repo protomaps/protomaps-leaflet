@@ -28,7 +28,7 @@ export class Static {
     constructor(options) {
         let theme = options.dark ? dark : light
         this.paint_rules = options.paint_rules || paintRules(theme,options.shade)
-        this.label_rules = options.label_rules || labelRules(theme,options.shade)
+        this.label_rules = options.label_rules || labelRules(theme,options.shade,options.language1,options.language2)
 
         let source
         if (options.url.url) {

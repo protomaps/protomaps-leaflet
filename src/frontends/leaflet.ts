@@ -52,7 +52,7 @@ class LeafletLayer extends L.GridLayer {
         super(options)
 
         let theme = options.dark ? dark : light
-        this.paint_rules = options.paint_rules || paintRules(theme,options.shade,options)
+        this.paint_rules = options.paint_rules || paintRules(theme,options.shade)
         this.label_rules = options.label_rules || labelRules(theme,options.shade,options.language1,options.language2)
         this.lastRequestedZ = undefined
 
