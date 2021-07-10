@@ -595,7 +595,7 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
     public place(layout,geom,feature) {
         let fbbox = feature.bbox
         let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level/overzooming
-        if (area < 20000) return []
+        if (area < 20000) return undefined
 
         let property = this.text.str(layout.zoom,feature.properties)
         if (!property) return undefined
