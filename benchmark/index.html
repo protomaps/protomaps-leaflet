@@ -12,28 +12,58 @@
             html {
                 font-family: sans-serif;
             }
-            canvas {
+            .stored, .rendered, .diff {
                 width: 400px;
                 height: 400px;
+            }
+
+            .perf {
+                width: 400px;
+                height: 50px;
+                background-color: #F4F4F4;
+            }
+
+            .row {
+                display: flex;
             }
         </style>
     </head>
     <body>
         <div id="example_1">
-            <canvas class="rendered"></canvas>
-            <canvas class="stored" width="800" height="800"></canvas>
-            <canvas class="diff" width="800" height="800"></canvas>
-            <span><span class="elapsed"></span> ms</span>
-            <button>Save</button>
+            <div class="row">
+                <canvas class="rendered"></canvas>
+                <canvas class="stored" width="800" height="800"></canvas>
+                <canvas class="diff" width="800" height="800"></canvas>
+            </div>
+            <canvas class="perf" width="800" height="100"></canvas>
         </div>
         <script>
-        let RUNS = 10
+        let RUNS = 20
 
         function doExample(map, identifier,lat,lon,zoom) {
             let example = document.getElementById(identifier)
             let rendered = example.getElementsByClassName('rendered')[0]
             let stored = example.getElementsByClassName('stored')[0]
             let diff = example.getElementsByClassName('diff')[0]
+            let perf = example.getElementsByClassName('perf')[0]
+
+            let avg = 34
+            let yaxis = ms => 50 - ms / avg * 25
+            let xaxis = num => num / RUNS * 400
+
+            let ctx = perf.getContext('2d')
+            ctx.scale(window.devicePixelRatio,window.devicePixelRatio)
+            ctx.strokeStyle = "#19A974"
+            ctx.fillStyle = "#19A974"
+            ctx.fillText(avg + " ms",5,yaxis(avg)-2)
+            ctx.beginPath()
+            ctx.moveTo(5,25)
+            ctx.lineTo(395,25)
+            ctx.lineWidth = 0.5
+            ctx.stroke()
+            ctx.fillStyle = "black"
+            let width = 800
+            let height = 800
 
             async function run() {
                 return await map.drawCanvas(rendered,[lat,lon],zoom)
@@ -43,12 +73,17 @@
                 await run() // first run is irrelevant
                 var total = 0
                 for (var i = 0; i < RUNS; i++) {
-                    total += await run()
+                    let timing = await run()
+                    ctx.fillRect(xaxis(i),yaxis(timing)-2,2,4)
+                    total += timing
                 }
-                example.getElementsByClassName("elapsed")[0].innerHTML = (total/RUNS).toFixed(2)
-
-                let width = 800
-                let height = 800
+                let tot = (total/RUNS).toFixed(2)
+                ctx.beginPath()
+                ctx.moveTo(5,yaxis(tot))
+                ctx.lineTo(395,yaxis(tot))
+                ctx.strokeStyle = "black"
+                ctx.stroke()
+                ctx.fillText(tot + " ms",355,yaxis(tot)-2)
 
                 let p = new Promise(resolve => {
                     let img = new Image()
@@ -69,7 +104,7 @@
 
             benchmark()
 
-            example.getElementsByTagName('button')[0].addEventListener('mouseup', () => {
+            example.getElementsByClassName('rendered')[0].addEventListener('mouseup', () => {
                 var a = document.createElement("a")
                 a.href = rendered.toDataURL("image/png")
                 a.download = identifier + ".png"
