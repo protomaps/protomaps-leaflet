@@ -11,16 +11,26 @@ A vector map renderer for the web.
     <img src="benchmark/example_2.png" width="400">
 </p>
 
+This project is a complete web map renderer - including quality label layout, pattern fills, and icons - in as simple as possible of an implementation. It's an alternative to renderers like [Mapbox GL JS](https://docs.mapbox.com/mapbox-gl-js/api/) in a fraction of the size.
+
+### Features
+
+* Render static maps to Canvas elements or interactive maps with [Leaflet](https://leafletjs.com) integration
+* Supports variable web fonts with multiple weights and italics in a single font file
+* Can read normal Z/X/Y tile URLs or offline, S3-hosted tile archives in [PMTiles format](github.com/protomaps/PMTiles)
+* Full out-of-the-box support for right-to-left and Indic/Brahmic writing systems
+* Configurable via plain JavaScript
+* Extensible API for defining your own symbolizers
+
+See the docs on [what protomaps.js is, what protomaps.js is not](https://protomaps.com/docs/protomaps-js#protomapsjs-is-not)
+
+## Demos
+
 * [Simple Leaflet demo](https://protomaps.github.io/protomaps.js/examples/leaflet.html)
+* [Multi-language customization](https://protomaps.github.io/protomaps.js/examples/multi_language.html)
 * [Satellite + labels demo](https://protomaps.github.io/protomaps.js/examples/labels.html)
 * [GeoJSON between basemap and labels demo](https://protomaps.github.io/protomaps.js/examples/sandwich.html)
 * [JSON style](https://protomaps.github.io/protomaps.js/examples/json_style.html)
-
-Above examples use a local PMTiles file and do not need an API key.
-
-[Worldwide Demo](http://protomaps.com/map/)
-
-See the docs on [what protomaps.js is, what protomaps.js is not](https://protomaps.com/docs/protomaps-js#protomapsjs-is-not)
 
 ## How to use
 
