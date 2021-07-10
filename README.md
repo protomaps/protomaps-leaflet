@@ -8,6 +8,7 @@ A vector map renderer for the web.
 
 <p float="left">
     <img src="benchmark/example_1.png" width="400">
+    <img src="benchmark/example_2.png" width="400">
 </p>
 
 * [Simple Leaflet demo](https://protomaps.github.io/protomaps.js/examples/leaflet.html)
