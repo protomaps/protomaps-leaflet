@@ -28,53 +28,75 @@
         </div>
         <script>
         let RUNS = 10
-        let map = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
 
-        let example = document.getElementById("example_1")
-        let rendered = example.getElementsByClassName('rendered')[0]
-        let stored = example.getElementsByClassName('stored')[0]
-        let diff = example.getElementsByClassName('diff')[0]
+        function doExample(map, identifier,lat,lon,zoom) {
+            let example = document.getElementById(identifier)
+            let rendered = example.getElementsByClassName('rendered')[0]
+            let stored = example.getElementsByClassName('stored')[0]
+            let diff = example.getElementsByClassName('diff')[0]
 
-        async function run() {
-            return await map.drawCanvas(rendered,[42.3238,-83.0512],11)
-        }
-
-        async function benchmark() {
-            await run() // first run is irrelevant
-            var total = 0
-            for (var i = 0; i < RUNS; i++) {
-                total += await run()
+            async function run() {
+                return await map.drawCanvas(rendered,[lat,lon],zoom)
             }
-            example.getElementsByClassName("elapsed")[0].innerHTML = (total/RUNS).toFixed(2)
 
-            let width = 800
-            let height = 800
-
-            let p = new Promise(resolve => {
-                let img = new Image()
-                img.onload = () => {
-                    stored.getContext('2d').drawImage(img,0,0)
-                    resolve(img)
+            async function benchmark() {
+                await run() // first run is irrelevant
+                var total = 0
+                for (var i = 0; i < RUNS; i++) {
+                    total += await run()
                 }
-                img.src = "example_1.png"
-            })
-            await p
+                example.getElementsByClassName("elapsed")[0].innerHTML = (total/RUNS).toFixed(2)
 
-            const img1 = rendered.getContext('2d').getImageData(0, 0, width, height);
-            const img2 = stored.getContext('2d').getImageData(0, 0, width, height);
-            const img3 = diff.getContext('2d').createImageData(width, height);
-            pixelmatch(img1.data, img2.data, img3.data, width, height, {threshold: 0.1});
-            diff.getContext('2d').putImageData(img3, 0, 0);
+                let width = 800
+                let height = 800
+
+                let p = new Promise(resolve => {
+                    let img = new Image()
+                    img.onload = () => {
+                        stored.getContext('2d').drawImage(img,0,0)
+                        resolve(img)
+                    }
+                    img.src = identifier + ".png"
+                })
+                await p
+
+                const img1 = rendered.getContext('2d').getImageData(0, 0, width, height);
+                const img2 = stored.getContext('2d').getImageData(0, 0, width, height);
+                const img3 = diff.getContext('2d').createImageData(width, height);
+                pixelmatch(img1.data, img2.data, img3.data, width, height, {threshold: 0.1});
+                diff.getContext('2d').putImageData(img3, 0, 0);
+            }
+
+            benchmark()
+
+            example.getElementsByTagName('button')[0].addEventListener('mouseup', () => {
+                var a = document.createElement("a")
+                a.href = rendered.toDataURL("image/png")
+                a.download = identifier + ".png"
+                a.click()
+            })
         }
 
-        benchmark()
+        let example_1 = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
+        doExample(example_1,"example_1",42.3238,-83.0512,11)
 
-        example.getElementsByTagName('button')[0].addEventListener('mouseup', () => {
-            var a = document.createElement("a")
-            a.href = rendered.toDataURL("image/png")
-            a.download = "example_1.png"
-            a.click()
-        })
+        // let rules = protomaps.labelRules(protomaps.light,"red")
+        // let cities_idx = rules.findIndex(rule => rule.id == 'neighbourhood')
+        // rules[cities_idx].symbolizer = new protomaps.FlexSymbolizer([
+        //     new protomaps.CenteredTextSymbolizer({
+        //         properties:["name:zh"],
+        //         fill:"#6C6C6C",
+        //         font:"500 20px serif"
+        //     }),
+        //     new protomaps.CenteredTextSymbolizer({
+        //         properties:["name:en"],
+        //         fill:"#6C6C6C",
+        //         font:"300 10px sans-serif",
+        //         textTransform:"uppercase"
+        //     })
+        // ])
+        // let example_2 = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f",label_rules:rules})
+        // doExample(example_2,"example_2",22.3118,114.1804,13)
         </script>
     </body>
 </html>
