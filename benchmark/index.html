@@ -37,17 +37,24 @@
             </div>
             <canvas class="perf" width="800" height="100"></canvas>
         </div>
+        <div id="example_2">
+            <div class="row">
+                <canvas class="rendered"></canvas>
+                <canvas class="stored" width="800" height="800"></canvas>
+                <canvas class="diff" width="800" height="800"></canvas>
+            </div>
+            <canvas class="perf" width="800" height="100"></canvas>
+        </div>
         <script>
         let RUNS = 20
 
-        function doExample(map, identifier,lat,lon,zoom) {
+        function doExample(map, identifier,lat,lon,zoom,avg) {
             let example = document.getElementById(identifier)
             let rendered = example.getElementsByClassName('rendered')[0]
             let stored = example.getElementsByClassName('stored')[0]
             let diff = example.getElementsByClassName('diff')[0]
             let perf = example.getElementsByClassName('perf')[0]
 
-            let avg = 34
             let yaxis = ms => 50 - ms / avg * 25
             let xaxis = num => num / RUNS * 400
 
@@ -113,25 +120,10 @@
         }
 
         let example_1 = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
-        doExample(example_1,"example_1",42.3238,-83.0512,11)
+        doExample(example_1,"example_1",42.3238,-83.0512,11,34)
 
-        // let rules = protomaps.labelRules(protomaps.light,"red")
-        // let cities_idx = rules.findIndex(rule => rule.id == 'neighbourhood')
-        // rules[cities_idx].symbolizer = new protomaps.FlexSymbolizer([
-        //     new protomaps.CenteredTextSymbolizer({
-        //         properties:["name:zh"],
-        //         fill:"#6C6C6C",
-        //         font:"500 20px serif"
-        //     }),
-        //     new protomaps.CenteredTextSymbolizer({
-        //         properties:["name:en"],
-        //         fill:"#6C6C6C",
-        //         font:"300 10px sans-serif",
-        //         textTransform:"uppercase"
-        //     })
-        // ])
-        // let example_2 = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f",label_rules:rules})
-        // doExample(example_2,"example_2",22.3118,114.1804,13)
+        let example_2 = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f",shade:"#00449E",language1:["name:zh"],language2:["name:en"]})
+        doExample(example_2,"example_2",22.3118,114.1804,14,62.85)
         </script>
     </body>
 </html>
