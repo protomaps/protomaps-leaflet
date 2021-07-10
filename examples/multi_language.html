@@ -7,36 +7,116 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
-        <!-- <script src="../dist/protomaps.js"></script> -->
+        <!-- <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script> -->
+        <script src="../dist/protomaps.js"></script>
         <style>
-            body, #map {
-                height:100vh;
+            body {
+                margin: 0;
+                font-family: sans-serif;
+            }
+            .main {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+            }
+
+            #map {
+                height:100%;
                 margin:0px;
+                flex-grow: 1;
+            }
+
+
+            .controls {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .control {
+                padding: 0.2rem;
+            }
+
+            @media (min-width:600px)  {
+                .controls {
+                    flex-direction: row;
+                }
+
+                .control {
+                    padding: 0.5rem;
+                }
+            }
+
+            .control label {
+                font-size: 12px;
+                font-weight: 500;
+                text-transform:  uppercase;
+                display: block;
             }
         </style>
     </head>
     <body>
-        <div id="map"></div> 
+        <div class="main">
+            <div id="map"></div> 
+            <div class="controls">
+                <span class="control">
+                    <label for="language1">Language 1</label>
+                    <select id="language1">
+                        <option value="name">Default</option>
+                        <option value="none">No Labels</option>
+                        <option value="name:en,name">English</option>
+                        <option value="name:zh-Hant,name:zh,name">繁體中文</option>
+                        <option value="name:zh-Hans,name:zh,name">簡體中文</option>
+                    </select>
+                </span>
+                <span class="control">
+                    <label for="language2">Language 2</label>
+                    <select id="language2">
+                        <option value="none">None</option>
+                        <option value="name">Default</option>
+                        <option value="name:en">English</option>
+                        <option value="name:zh-Hant,name:zh">繁體中文</option>
+                        <option value="name:zh-Hans,name:zh">簡體中文</option>
+                    </select>
+                </span>
+                <span class="control">
+                    <label for="shade">Shade</label>
+                    <input id="shade" type="color"></input>
+                </span>
+            </div>
+        </div>
         <script>
-            let rules = protomaps.label_rules
-            let cities_idx = rules.findIndex(rule => rule.id == 'cities_high')
-            rules[cities_idx].symbolizer = new protomaps.FlexSymbolizer([
-                new protomaps.CenteredTextSymbolizer({
-                    fill:"#6C6C6C",
-                    font:"600 16px sans-serif"
-                }),
-                new protomaps.CenteredTextSymbolizer({
-                    properties:["name:en"],
-                    fill:"#6C6C6C",
-                    font:"300 11px sans-serif"
-                })
-            ])
             const map = L.map('map')
             hash = new L.Hash(map)
-            if (!window.location.hash) map.setView(new L.LatLng(33.418,132.660),7)
-            var layer = protomaps.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',label_rules:rules})
+            if (!window.location.hash) map.setView(new L.LatLng(25.0412,121.5177),16)
+            var layer = protomaps.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'})
             layer.addTo(map)
+            map.on('click',ev => {
+                for (let result of layer.queryFeatures(ev.latlng.lng,ev.latlng.lat)) {
+                    console.log(result.properties)
+                }
+            })
+
+            var language1, language2
+
+            document.getElementById("shade").addEventListener('change', e => {
+                layer.setDefaultStyle(false,e.target.value)
+                layer.clearLayout()
+                layer.rerenderTiles()
+            })
+
+            document.getElementById("language1").addEventListener('change', e=> {
+                language1 = e.target.value.split(',')
+                layer.setDefaultStyle(false,undefined,language1,language2)
+                layer.clearLayout()
+                layer.rerenderTiles()
+            })
+
+            document.getElementById("language2").addEventListener('change', e=> {
+                language2 = e.target.value.split(',')
+                layer.setDefaultStyle(false,undefined,language1,language2)
+                layer.clearLayout()
+                layer.rerenderTiles()
+            })
         </script>
     </body>
 </html>
