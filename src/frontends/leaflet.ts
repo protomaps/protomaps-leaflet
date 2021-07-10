@@ -52,8 +52,8 @@ class LeafletLayer extends L.GridLayer {
         super(options)
 
         let theme = options.dark ? dark : light
-        this.paint_rules = options.paint_rules || paintRules(theme,options.shade)
-        this.label_rules = options.label_rules || labelRules(theme,options.shade)
+        this.paint_rules = options.paint_rules || paintRules(theme,options.shade,options)
+        this.label_rules = options.label_rules || labelRules(theme,options.shade,options.language1,options.language2)
         this.lastRequestedZ = undefined
 
         let source
@@ -81,10 +81,10 @@ class LeafletLayer extends L.GridLayer {
         this.pool = new CanvasPool(options.lang)
     }
 
-    public setDefaultStyle(darkOption:boolean,shade:string) {
+    public setDefaultStyle(darkOption:boolean,shade:string,language1:string[],language2:string[]) {
         let theme = darkOption ? dark : light
         this.paint_rules = paintRules(theme,shade)
-        this.label_rules = labelRules(theme,shade)
+        this.label_rules = labelRules(theme,shade,language1,language2)
     }
 
     public async renderTile(coords,element,key,done = ()=>{}) {

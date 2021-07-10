@@ -1,4 +1,4 @@
-import { createPattern, PolygonSymbolizer, IconSymbolizer, ShieldSymbolizer, LineSymbolizer, CenteredTextSymbolizer, OffsetTextSymbolizer, GroupSymbolizer, CircleSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
+import { createPattern, PolygonSymbolizer, IconSymbolizer, ShieldSymbolizer, LineSymbolizer, CenteredTextSymbolizer, OffsetTextSymbolizer, GroupSymbolizer, FlexSymbolizer, CircleSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp } from '../symbolizer'
 import { hsla, parseToHsla } from 'color2k'
 
 export interface DefaultStyleParams {
@@ -218,14 +218,36 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
     ]
 }
 
-export const labelRules = (params:DefaultStyleParams,shade:string,nametagsparam:string[]) => {
+export const labelRules = (params:DefaultStyleParams,shade:string,language1:string[],language2:string[]) => {
     if (shade) params = doShading(params,shade)
     var nametags = ["name"]
-    if (nametagsparam) nametags = nametagsparam
+    if (language1) nametags = language1
+
+    let languageStack = symbolizer => {
+        if (!language2) return symbolizer
+        if (symbolizer instanceof OffsetTextSymbolizer) {
+            return new FlexSymbolizer([
+                symbolizer,
+                new OffsetTextSymbolizer({
+                    fill:symbolizer.fill,
+                    properties:language2
+                })
+            ])
+        } else {
+            return new FlexSymbolizer([
+                symbolizer,
+                new CenteredTextSymbolizer({
+                    fill:symbolizer.fill,
+                    properties:language2
+                })
+            ])
+        }
+    }
+
     return [
         {
             dataLayer: "places",
-            symbolizer: new CenteredTextSymbolizer({
+            symbolizer: languageStack(new CenteredTextSymbolizer({
                 properties:nametags,
                 fill:params.countryLabel,
                 font:(z,p) => {
@@ -233,16 +255,16 @@ export const labelRules = (params:DefaultStyleParams,shade:string,nametagsparam:
                     return "200 20px sans-serif"
                 },
                 textTransform:"uppercase"
-            }),
+            })),
             filter: f => { return f["pmap:kind"] == "country" }
         },
         {
             dataLayer: "places",
-            symbolizer: new CenteredTextSymbolizer({
+            symbolizer: languageStack(new CenteredTextSymbolizer({
                 properties:nametags,
                 fill:params.stateLabel,
                 font:"300 16px sans-serif"
-            }),
+            })),
             filter: f => { return f["pmap:kind"] == "state" }
         },
         {
@@ -250,7 +272,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,nametagsparam:
             dataLayer: "places",
             filter: f => { return f["pmap:kind"] == "city" },
             minzoom:7,
-            symbolizer: new CenteredTextSymbolizer({
+            symbolizer: languageStack(new CenteredTextSymbolizer({
                 properties:nametags,
                 fill:params.cityLabel,
                 font:(z,p) => {
@@ -262,7 +284,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,nametagsparam:
                         return "600 10px sans-serif"
                     }
                 }
-            }),
+            })),
             sort: (a,b) => { return a["pmap:rank"] - b["pmap:rank"] }
         },
         {
@@ -275,7 +297,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,nametagsparam:
                     radius:2,
                     fill:params.cityLabel
                 }),
-                new OffsetTextSymbolizer({
+                languageStack(new OffsetTextSymbolizer({
                     properties:nametags,
                     fill:params.cityLabel,
                     offset:2,
@@ -288,52 +310,52 @@ export const labelRules = (params:DefaultStyleParams,shade:string,nametagsparam:
                             return "600 10px sans-serif"
                         }
                     }
-                })
+                }))
             ]),
             sort: (a,b) => { return a["pmap:rank"] - b["pmap:rank"] }
         },
         {
             id:"neighbourhood",
             dataLayer: "places",
-            symbolizer: new CenteredTextSymbolizer({
+            symbolizer: languageStack(new CenteredTextSymbolizer({
                 properties:nametags,
                 fill:params.neighbourhoodLabel,
                 font:"500 10px sans-serif",
                 textTransform:"uppercase"
-            }),
+            })),
             filter: f => { return f["pmap:kind"] == "neighbourhood" }
         },
         {
             dataLayer: "landuse",
-            symbolizer: new PolygonLabelSymbolizer({
+            symbolizer: languageStack(new PolygonLabelSymbolizer({
                 properties:nametags,
                 fill:params.landuseLabel,
                 font:"300 12px sans-serif"
-            })
+            }))
         },
         {
             dataLayer: "water",
-            symbolizer: new PolygonLabelSymbolizer({
+            symbolizer: languageStack(new PolygonLabelSymbolizer({
                 properties:nametags,
                 fill:params.waterLabel,
                 font:"italic 600 12px sans-serif"
-            })
+            }))
         },
         {
             dataLayer: "natural",
-            symbolizer: new PolygonLabelSymbolizer({
+            symbolizer: languageStack(new PolygonLabelSymbolizer({
                 properties:nametags,
                 fill:params.naturalLabel,
                 font:"italic 300 12px sans-serif"
-            })
+            }))
         },
         {
             dataLayer: "roads",
-            symbolizer: new LineLabelSymbolizer({
+            symbolizer: languageStack(new LineLabelSymbolizer({
                 properties:nametags,
                 fill: params.roadsLabel,
                 font:"500 12px sans-serif"
-            }),
+            })),
             minzoom:12
         },
         {
@@ -354,12 +376,12 @@ export const labelRules = (params:DefaultStyleParams,shade:string,nametagsparam:
                     radius:2,
                     fill:params.poisLabel
                 }),
-                new OffsetTextSymbolizer({
+                languageStack(new OffsetTextSymbolizer({
                     properties:nametags,
                     fill:params.poisLabel,
                     offset:2,
                     font:"300 10px sans-serif"
-                })
+                }))
             ]),
         },
     ]
