@@ -3,7 +3,7 @@
     </head>
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
@@ -17,11 +17,11 @@
             .main {
                 display: flex;
                 flex-direction: column;
-                height: 100vh;
+                height: 100%;
             }
 
             #map {
-                height:100%;
+                height: 100%;
                 margin:0px;
                 flex-grow: 1;
             }
@@ -33,7 +33,11 @@
             }
 
             .control {
-                padding: 0.2rem;
+                padding: 0.5rem;
+            }
+
+            select {
+                width: 100%;
             }
 
             @media (min-width:600px)  {
@@ -41,8 +45,8 @@
                     flex-direction: row;
                 }
 
-                .control {
-                    padding: 0.5rem;
+                select {
+                    width: auto;
                 }
             }
 
