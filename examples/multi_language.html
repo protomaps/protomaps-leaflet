@@ -32,7 +32,7 @@
                 flex-direction: column;
             }
 
-            .control {
+            .control, .comment {
                 padding: 0.5rem;
             }
 
@@ -43,6 +43,7 @@
             @media (min-width:600px)  {
                 .controls {
                     flex-direction: row;
+                    align-items: center;
                 }
 
                 select {
@@ -65,7 +66,7 @@
                 <span class="control">
                     <label for="language1">Language 1</label>
                     <select id="language1">
-                        <option value="name">Default</option>
+                        <option value="">Default</option>
                         <option value="none">No Labels</option>
                         <option value="name:en">en</option>
                         <option value="name:ru">ru</option>
@@ -114,8 +115,8 @@
                 <span class="control">
                     <label for="language2">Language 2</label>
                     <select id="language2">
-                        <option value="name">None</option>
-                        <option value="name">Default</option>
+                        <option value="none">None</option>
+                        <option value="">Default</option>
                         <option value="name:en">en</option>
                         <option value="name:ru">ru</option>
                         <option value="name:ar">ar‎</option>
@@ -164,12 +165,13 @@
                     <label for="shade">Shade</label>
                     <input id="shade" type="color"></input>
                 </span>
+                <span class="comment">multilingual demo of <a href="https://github.com/protomaps/protomaps.js">protomaps.js</a></span>
             </div>
         </div>
         <script>
             const map = L.map('map')
             hash = new L.Hash(map)
-            if (!window.location.hash) map.setView(new L.LatLng(25.0412,121.5177),16)
+            if (!window.location.hash) map.setView(new L.LatLng(0,0),3)
             var layer = protomaps.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'})
             layer.addTo(map)
             map.on('click',ev => {
@@ -178,24 +180,28 @@
                 }
             })
 
-            var language1, language2
+            var language1 = ["name"]
+            var language2, shade
 
             document.getElementById("shade").addEventListener('change', e => {
-                layer.setDefaultStyle(false,e.target.value)
+                shade = e.target.value
+                layer.setDefaultStyle(false,shade,language1,language2)
                 layer.clearLayout()
                 layer.rerenderTiles()
             })
 
             document.getElementById("language1").addEventListener('change', e=> {
                 language1 = e.target.value.split(',')
-                layer.setDefaultStyle(false,undefined,language1,language2)
+                if (language1 === [""]) language1 = []
+                if (e.target.value !== "none") language1.push("name")
+                layer.setDefaultStyle(false,shade,language1,language2)
                 layer.clearLayout()
                 layer.rerenderTiles()
             })
 
             document.getElementById("language2").addEventListener('change', e=> {
                 language2 = e.target.value.split(',')
-                layer.setDefaultStyle(false,undefined,language1,language2)
+                layer.setDefaultStyle(false,shade,language1,language2)
                 layer.clearLayout()
                 layer.rerenderTiles()
             })

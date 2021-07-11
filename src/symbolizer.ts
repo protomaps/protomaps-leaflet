@@ -319,10 +319,11 @@ export class FlexSymbolizer implements LabelSymbolizer {
         let newGeom = [[{x:geom[0][0].x,y:geom[0][0].y+height}]]
         for (let i = 1; i < this.list.length; i++) {
             labels = this.list[i].place(layout,newGeom,feature)
-            if (!labels) return undefined
-            label = labels[0]
-            bbox = mergeBbox(bbox,label.bboxes[0])
-            draws.push({draw:label.draw,translate:{x:0,y:height}})
+            if (labels) {
+                label = labels[0]
+                bbox = mergeBbox(bbox,label.bboxes[0])
+                draws.push({draw:label.draw,translate:{x:0,y:height}})
+            }
         }
 
         let draw = ctx => {
