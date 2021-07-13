@@ -7,6 +7,7 @@
     "src"
   ],
   "main": "src/index.js",
+  "module": "src/index.js",
   "devDependencies": {
     "baretest": "^2.0.0",
     "esbuild": "^0.12.15",
