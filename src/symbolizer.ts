@@ -1,5 +1,7 @@
+// @ts-ignore
 import Point from '@mapbox/point-geometry'
 import { GeomType, Feature, Bbox } from './tilecache'
+// @ts-ignore
 import polylabel from 'polylabel'
 import { TextSpec, FontSpec, linebreak, isCjk } from './text'
 import { lineCells, simpleLabel } from './line'
@@ -325,7 +327,10 @@ export class GroupSymbolizer implements LabelSymbolizer {
     }
 
     public place(layout:Layout,geom:Point[][],feature:any) {
-        var labels = this.list[0].place(layout,geom,feature)
+        let first = this.list[0]
+        if (!first) return undefined
+        var labels = first.place(layout,geom,feature)
+        if (!labels) return undefined
         var label = labels[0]
         let anchor = label.anchor
         let bbox = label.bboxes[0]

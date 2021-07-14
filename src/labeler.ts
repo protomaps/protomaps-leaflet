@@ -1,6 +1,8 @@
+// @ts-ignore
 import Point from '@mapbox/point-geometry'
 import { PreparedTile, transformGeom } from './view'
 import { Zxy, toIndex, Bbox } from './tilecache'
+// @ts-ignore
 import RBush from 'rbush'
 import { LabelSymbolizer } from './symbolizer'
 
@@ -127,13 +129,15 @@ export class Index {
             order:order,
             tileKey:tileKey
         }
-        if (!this.current.has(tileKey)) {
+        let entry = this.current.get(tileKey)
+        if (entry) {
+            entry.add(indexed_label)
+        } else {
             let newSet = new Set<IndexedLabel>()
             newSet.add(indexed_label)
             this.current.set(tileKey,newSet)
-        } else {
-            this.current.get(tileKey).add(indexed_label)
         }
+
         for (let bbox of label.bboxes) {
             var b:any = bbox
             b.indexed_label = indexed_label
@@ -143,6 +147,7 @@ export class Index {
 
     public prune(keyToRemove:string):void {
         let indexed_labels = this.current.get(keyToRemove)
+        if (!indexed_labels) return // TODO: not that clean...
         let entries_to_delete = []
         for (let entry of this.tree.all()) {
             if (indexed_labels.has(entry.indexed_label)) {
@@ -165,7 +170,8 @@ export class Index {
         entries_to_delete.forEach(entry => {
             this.tree.remove(entry)
         })
-        this.current.get(labelToRemove.tileKey).delete(labelToRemove)
+        let c = this.current.get(labelToRemove.tileKey)
+        if (c) c.delete(labelToRemove)
     }
 }
 
@@ -175,9 +181,9 @@ export class Labeler {
     z: number
     scratch: any
     labelRules: LabelRule[]
-    callback: TileInvalidationCallback
+    callback?: TileInvalidationCallback
 
-    constructor(z:number,scratch:any,labelRules:LabelRule[],callback:TileInvalidationCallback) {
+    constructor(z:number,scratch:any,labelRules:LabelRule[],callback?:TileInvalidationCallback) {
         this.index = new Index()
         this.z = z
         this.scratch = scratch
@@ -198,7 +204,12 @@ export class Labeler {
             if (layer === undefined) continue
 
             let feats = layer
-            if (rule.sort) feats.sort((a,b) => rule.sort(a.properties,b.properties))
+            if (rule.sort) feats.sort((a,b) => {
+                if (rule.sort) { // TODO ugly hack for type checking
+                    return rule.sort(a.properties,b.properties)
+                }
+                return 0
+            })
 
             let layout = {
                 index:this.index,
@@ -270,7 +281,7 @@ export class Labeler {
                     max_key = key
                 }
             }
-            this.index.prune(max_key)
+            if (max_key) this.index.prune(max_key) // TODO cleanup
         }
     }
 
@@ -300,13 +311,18 @@ export class Labelers {
     }
 
     public add(prepared_tile:PreparedTile):number {
-        if (!this.labelers.get(prepared_tile.z)) {
-            this.labelers.set(prepared_tile.z,new Labeler(prepared_tile.z,this.scratch,this.labelRules,this.callback))
+        var labeler = this.labelers.get(prepared_tile.z)
+        if (labeler) {
+            return labeler.add(prepared_tile) 
+        } else {
+            labeler = new Labeler(prepared_tile.z,this.scratch,this.labelRules,this.callback)
+            this.labelers.set(prepared_tile.z,labeler)
+            return labeler.add(prepared_tile)
         }
-        return this.labelers.get(prepared_tile.z).add(prepared_tile)
     }
 
     public getIndex(z:number):RBush {
-        return this.labelers.get(z).index
+        let labeler = this.labelers.get(z)
+        if (labeler) return labeler.index // TODO cleanup
     }
 }

@@ -34,7 +34,7 @@ export class TextSpec {
         this.textTransform = options.textTransform
     }
 
-    public str(z:number,f:string) {
+    public str(z:number,f:any):string {
         var retval
         for (let property of this.properties) {
             if (f.hasOwnProperty(property)) {

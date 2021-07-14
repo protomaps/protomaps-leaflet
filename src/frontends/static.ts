@@ -1,4 +1,6 @@
+// @ts-ignore
 import Point from '@mapbox/point-geometry'
+
 import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
 import { View } from '../view'
 import { Rule, painter } from '../painter'
@@ -56,7 +58,7 @@ export class Static {
         let prepared_tiles = await this.view.getBbox(display_zoom,bbox)
 
         let start = performance.now()
-        let labeler = new Labeler(display_zoom,ctx,this.label_rules,null) // because need ctx to measure
+        let labeler = new Labeler(display_zoom,ctx,this.label_rules,undefined) // because need ctx to measure
         for (var prepared_tile of prepared_tiles) {
             await labeler.add(prepared_tile)
         }

@@ -38,7 +38,7 @@ export interface DefaultStyleParams {
 
 const doShading = (params:DefaultStyleParams,shade:string) => {
     let shadeHsl = parseToHsla(shade)
-    let outParams = {...params}
+    let outParams:any = {...params}
     for (const [key,value] of Object.entries(params)) {
         let o = parseToHsla(value)
         outParams[key] = hsla(shadeHsl[0],shadeHsl[1],o[2],o[3])
@@ -223,13 +223,13 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
     var nametags = ["name"]
     if (language1) nametags = language1
 
-    let languageStack = (symbolizer:LabelSymbolizer) => {
+    let languageStack = (symbolizer:LabelSymbolizer,fill:string) => {
         if (!language2) return symbolizer
         if (symbolizer instanceof OffsetTextSymbolizer) {
             return new FlexSymbolizer([
                 symbolizer,
                 new OffsetTextSymbolizer({
-                    fill:symbolizer.fill,
+                    fill:fill,
                     properties:language2
                 })
             ],{})
@@ -237,7 +237,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
             return new FlexSymbolizer([
                 symbolizer,
                 new CenteredTextSymbolizer({
-                    fill:symbolizer.fill,
+                    fill:fill,
                     properties:language2
                 })
             ],{})
@@ -255,7 +255,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                     return "200 20px sans-serif"
                 },
                 textTransform:"uppercase"
-            })),
+            }),params.countryLabel),
             filter: (f:any) => { return f["pmap:kind"] == "country" }
         },
         {
@@ -264,7 +264,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 properties:nametags,
                 fill:params.stateLabel,
                 font:"300 16px sans-serif"
-            })),
+            }),params.stateLabel),
             filter: (f:any) => { return f["pmap:kind"] == "state" }
         },
         {
@@ -284,7 +284,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                         return "600 10px sans-serif"
                     }
                 }
-            })),
+            }),params.cityLabel),
             sort: (a:any,b:any) => { return a["pmap:rank"] - b["pmap:rank"] }
         },
         {
@@ -310,7 +310,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                             return "600 10px sans-serif"
                         }
                     }
-                }))
+                }),params.cityLabel)
             ]),
             sort: (a:any,b:any) => { return a["pmap:rank"] - b["pmap:rank"] }
         },
@@ -322,7 +322,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 fill:params.neighbourhoodLabel,
                 font:"500 10px sans-serif",
                 textTransform:"uppercase"
-            })),
+            }),params.neighbourhoodLabel),
             filter: (f:any) => { return f["pmap:kind"] == "neighbourhood" }
         },
         {
@@ -331,7 +331,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 properties:nametags,
                 fill:params.landuseLabel,
                 font:"300 12px sans-serif"
-            }))
+            }),params.landuseLabel)
         },
         {
             dataLayer: "water",
@@ -339,7 +339,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 properties:nametags,
                 fill:params.waterLabel,
                 font:"italic 600 12px sans-serif"
-            }))
+            }),params.waterLabel)
         },
         {
             dataLayer: "natural",
@@ -347,7 +347,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 properties:nametags,
                 fill:params.naturalLabel,
                 font:"italic 300 12px sans-serif"
-            }))
+            }),params.naturalLabel)
         },
         {
             dataLayer: "roads",
@@ -355,7 +355,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 properties:nametags,
                 fill: params.roadsLabel,
                 font:"500 12px sans-serif"
-            })),
+            }),params.roadsLabel),
             minzoom:12
         },
         {
@@ -381,7 +381,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                     fill:params.poisLabel,
                     offset:2,
                     font:"300 10px sans-serif"
-                }))
+                }),params.poisLabel)
             ]),
         },
     ]

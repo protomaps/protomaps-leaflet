@@ -1,6 +1,10 @@
+// @ts-ignore
 import Point from '@mapbox/point-geometry'
+// @ts-ignore
 import { VectorTile } from '@mapbox/vector-tile'
+// @ts-ignore
 import Protobuf from 'pbf'
+// @ts-ignore
 import { PMTiles } from 'pmtiles'
 
 export enum GeomType {
@@ -40,19 +44,20 @@ export interface TileSource {
 
 // reimplement loadGeometry with a scalefactor
 // so the general tile rendering case does not need rescaling.
-const loadGeomAndBbox = (pbf,geometry:Point[][],scale:number) => {
+const loadGeomAndBbox = (pbf:any,geometry:number,scale:number) => {
     pbf.pos = geometry
     var end = pbf.readVarint() + pbf.pos,
         cmd = 1,
         length = 0,
         x = 0,
         y = 0,
-        lines = [],
-        line,
         x1 = Infinity,
         x2 = -Infinity,
         y1 = Infinity,
         y2 = -Infinity;
+
+    var lines:number[][] = []
+    var line:any
     while (pbf.pos < end) {
         if (length <= 0) {
             var cmdLen = pbf.readVarint()
@@ -216,10 +221,10 @@ export class TileCache {
         let tile_y = Math.floor(on_zoom.y)
         const idx = toIndex({z:zoom,x:tile_x,y:tile_y})
         let retval = []
-        if (this.cache.has(idx)) {
+        let entry = this.cache.get(idx)
+        if (entry) {
             const center_bbox_x = (on_zoom.x - tile_x) * this.tileSize
             const center_bbox_y = (on_zoom.y - tile_y) * this.tileSize
-            let entry = this.cache.get(idx)
             let query_bbox = {minX:center_bbox_x-8,minY:center_bbox_y-8,maxX:center_bbox_x+8,maxY:center_bbox_y+8}
             for (let [layer_name,layer_arr] of (entry.data).entries()) {
                 for (let feature of layer_arr) {
@@ -236,33 +241,39 @@ export class TileCache {
     public async get(c:Zxy):Promise<Map<string,Feature[]>> {
         const idx = toIndex(c)
         return new Promise((resolve, reject) => { 
-            if (this.cache.has(idx)) {
-                let entry = this.cache.get(idx)
+            let entry = this.cache.get(idx)
+            if (entry) {
                 entry.used = performance.now()
                 resolve(entry.data)
-            } else if (this.inflight.has(idx)) {
-                this.inflight.get(idx).push([resolve,reject])
             } else {
-                this.inflight.set(idx,[])
-                this.source.get(c,this.tileSize).then(tile => {
-                    this.cache.set(idx,{used:performance.now(),data:tile})
-                    this.inflight.get(idx).forEach(f => f[0](tile))
-                    this.inflight.delete(idx)
-                    resolve(tile)
+                let ifentry = this.inflight.get(idx)
+                if (ifentry) {
+                    ifentry.push([resolve,reject])
+                } else {
+                    this.inflight.set(idx,[])
+                    this.source.get(c,this.tileSize).then(tile => {
+                        this.cache.set(idx,{used:performance.now(),data:tile})
 
-                    if (this.cache.size >= 64) {
-                        let min_used = +Infinity
-                        let min_key = undefined
-                        this.cache.forEach((value,key) => {
-                            if (value.used < min_used) min_key = key
-                        })
-                        this.cache.delete(min_key)
-                    }
-                }).catch(e => {
-                    this.inflight.get(idx).forEach(f => f[1](e))
-                    this.inflight.delete(idx)
-                    reject(e)
-                })
+                        let ifentry2 = this.inflight.get(idx)
+                        if (ifentry2) ifentry2.forEach(f => f[0](tile))
+                        this.inflight.delete(idx)
+                        resolve(tile)
+
+                        if (this.cache.size >= 64) {
+                            let min_used = +Infinity
+                            let min_key = undefined
+                            this.cache.forEach((value,key) => {
+                                if (value.used < min_used) min_key = key
+                            })
+                            if (min_key) this.cache.delete(min_key)
+                        }
+                    }).catch(e => {
+                        let ifentry2 = this.inflight.get(idx)
+                        if (ifentry2) ifentry2.forEach(f => f[1](e))
+                        this.inflight.delete(idx)
+                        reject(e)
+                    })
+                }
             }
         })
     }

@@ -1,3 +1,4 @@
+// @ts-ignore
 import Point from '@mapbox/point-geometry'
 import { Zxy, TileCache, Feature, Bbox } from './tilecache'
 

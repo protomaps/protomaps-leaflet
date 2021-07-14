@@ -1,4 +1,6 @@
+// @ts-ignore
 import Point from '@mapbox/point-geometry'
+// @ts-ignore
 import linelabel from 'linelabel/xy'
 
 export function simpleLabel(mls:any,minimum:number) {
