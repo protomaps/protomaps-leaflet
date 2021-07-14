@@ -60,6 +60,7 @@ export function numberFn(obj:any):((z:number,f:any)=>number) {
         }
     } else {
         console.log("Unimplemented numeric fn: ", obj)
+        return (z) => 1
     }
 }
 
@@ -121,6 +122,7 @@ export function getFont(obj,fontsubmap:Map<string,FontSub>) {
         }
     } else {
         console.log("Can't parse font: ", obj)
+        return (z,p) => "12px sans-serif"
     }
 }
 
