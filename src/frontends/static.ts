@@ -25,7 +25,7 @@ export class Static {
     debug:string
     scratch:any
 
-    constructor(options) {
+    constructor(options:any) {
         let theme = options.dark ? dark : light
         this.paint_rules = options.paint_rules || paintRules(theme,options.shade)
         this.label_rules = options.label_rules || labelRules(theme,options.shade,options.language1,options.language2)
@@ -43,7 +43,7 @@ export class Static {
         this.debug = options.debug || false
     }
 
-    async drawContext(ctx,width:number,height:number,latlng:Point,display_zoom:number) {
+    async drawContext(ctx:any,width:number,height:number,latlng:Point,display_zoom:number) {
         let center = project(latlng)
         let normalized_center = new Point((center.x+MAXCOORD)/(MAXCOORD*2),1-(center.y+MAXCOORD)/(MAXCOORD*2))
 
@@ -75,7 +75,7 @@ export class Static {
         return performance.now() - start
     }
 
-    async drawCanvas(canvas,latlng:Point,display_zoom:number,options:any = {}) {
+    async drawCanvas(canvas:any,latlng:Point,display_zoom:number,options:any = {}) {
         let dpr = window.devicePixelRatio
         let width = canvas.clientWidth
         let height = canvas.clientHeight

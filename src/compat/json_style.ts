@@ -1,6 +1,6 @@
 import { PolygonSymbolizer, LineSymbolizer, LineLabelSymbolizer, CenteredTextSymbolizer, exp } from './../symbolizer'
 
-export function filterFn(arr) {
+export function filterFn(arr:any[]):((f:any)=>boolean) {
     // hack around "$type"
     if (arr.includes("$type")) {
         return f => true 
@@ -33,7 +33,7 @@ export function filterFn(arr) {
         return f => parts.some(p => { return p(f) })
     } else {
         console.log("Unimplemented filter: ",arr[0])
-        return null
+        return f => false
     }
 }
 
@@ -72,10 +72,10 @@ export function numberOrFn(obj:any,defaultValue = 0):(number|((z:number,f:any)=>
     return numberFn(obj)
 }
 
-export function widthFn(width_obj,gap_obj) {
+export function widthFn(width_obj:any,gap_obj:any) {
     let w = numberOrFn(width_obj,1)
     let g = numberOrFn(gap_obj)
-    return (z) => {
+    return (z:number) => {
         let tmp = (typeof(w) == "number" ? w : w(z,{}))
         if (g) {
             return tmp + (typeof(g) == "number" ? g : g(z,{}))
@@ -90,8 +90,8 @@ interface FontSub {
     style?: string
 }
 
-export function getFont(obj,fontsubmap:Map<string,FontSub>) {
-    let fontfaces = []
+export function getFont(obj:any,fontsubmap:Map<string,FontSub>) {
+    let fontfaces:FontSub[] = []
     for (let wanted_face of obj['text-font']) {
         if (fontsubmap.hasOwnProperty(wanted_face)) {
             fontfaces.push(fontsubmap[wanted_face])
@@ -112,21 +112,21 @@ export function getFont(obj,fontsubmap:Map<string,FontSub>) {
         var base = 1.4
         if(text_size.base) base = text_size.base
         let t = numberFn(text_size)
-        return z => {
+        return (z:number) => {
             return `${style}${weight}${t(z,{})}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else if (text_size[0] == 'step') {
         let t = numberFn(text_size)
-        return (z,p) => {
+        return (z:number,p:any) => {
             return `${style}${weight}${t(z,p)}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else {
         console.log("Can't parse font: ", obj)
-        return (z,p) => "12px sans-serif"
+        return (z:number,p:any) => "12px sans-serif"
     }
 }
 
-export function json_style(obj,fontsubmap:Map<string,FontSub>) {
+export function json_style(obj:any,fontsubmap:Map<string,FontSub>) {
     let paint_rules = []
     let label_rules = []
     let refs = new Map<string,any>()

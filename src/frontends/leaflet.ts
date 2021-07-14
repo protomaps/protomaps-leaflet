@@ -18,7 +18,7 @@ class CanvasPool {
         this.unused = []
     }
 
-    public get(tile_size) {
+    public get(tile_size:number) {
         if (this.unused.length) {
             let tile = this.unused.shift()
             tile.removed = false
@@ -37,7 +37,7 @@ class CanvasPool {
     }
 }
 
-const timer = duration => {
+const timer = (duration:number) => {
     return new Promise<void>((resolve,reject) => {
         setTimeout(() => {
             resolve()
@@ -46,7 +46,7 @@ const timer = duration => {
 }
 
 class LeafletLayer extends L.GridLayer {
-    constructor(options) {
+    constructor(options:any) {
         if (options.noWrap && !options.bounds) options.bounds = [[-90,-180],[90,180]]
         if (!options.attribution) options.attribution = '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>'
         super(options)
@@ -221,7 +221,7 @@ class LeafletLayer extends L.GridLayer {
     }
 }
 
-const leafletLayer = options => {
+const leafletLayer = (options:any) => {
     return new LeafletLayer(options)
 }
 

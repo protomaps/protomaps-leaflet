@@ -40,7 +40,7 @@ export interface TileSource {
 
 // reimplement loadGeometry with a scalefactor
 // so the general tile rendering case does not need rescaling.
-const loadGeomAndBbox = (pbf,geometry,scale:number) => {
+const loadGeomAndBbox = (pbf,geometry:Point[][],scale:number) => {
     pbf.pos = geometry
     var end = pbf.readVarint() + pbf.pos,
         cmd = 1,
