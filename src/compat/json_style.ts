@@ -42,7 +42,7 @@ export function numberFn(obj:any):((z:number,f:any)=>number) {
         return (z,f) => { return exp(obj.base,obj.stops)(z-1) }
     } else if (obj[0] == 'interpolate' && obj[1][0] == "exponential" && obj[2] == "zoom") {
         let slice = obj.slice(3)
-        let stops = []
+        let stops:number[][] = []
         for (var i = 0; i < slice.length; i+=2) {
             stops.push([slice[i],slice[i+1]])
         }
@@ -90,7 +90,7 @@ interface FontSub {
     style?: string
 }
 
-export function getFont(obj:any,fontsubmap:Map<string,FontSub>) {
+export function getFont(obj:any,fontsubmap:any) {
     let fontfaces:FontSub[] = []
     for (let wanted_face of obj['text-font']) {
         if (fontsubmap.hasOwnProperty(wanted_face)) {

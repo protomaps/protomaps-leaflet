@@ -1,7 +1,7 @@
 declare var L: any
 
 import Point from '@mapbox/point-geometry'
-import { ZxySource, PmtilesSource, TileCache } from '../tilecache'
+import { ZxySource, Zxy, PmtilesSource, TileCache } from '../tilecache'
 import { View } from '../view'
 import { painter } from '../painter'
 import { Labelers } from '../labeler'
@@ -31,7 +31,7 @@ class CanvasPool {
         return element
     }
 
-    public put(elem) {
+    public put(elem:any) {
         L.DomUtil.removeClass(elem,'leaflet-tile-loaded')
         this.unused.push(elem)
     }
@@ -71,7 +71,7 @@ class LeafletLayer extends L.GridLayer {
         this.debug = options.debug
         let scratch = document.createElement('canvas').getContext('2d')
         this.scratch = scratch
-        this.onTilesInvalidated = tiles => {
+        this.onTilesInvalidated = (tiles:Set<string>) => {
             tiles.forEach(t => {
                 this.rerenderTile(t)
             })
@@ -87,7 +87,7 @@ class LeafletLayer extends L.GridLayer {
         this.label_rules = labelRules(theme,shade,language1,language2)
     }
 
-    public async renderTile(coords,element,key,done = ()=>{}) {
+    public async renderTile(coords:any,element:any,key:string,done = ()=>{}) {
         this.lastRequestedZ = coords.z
         var prepared_tile
         try {
@@ -169,7 +169,7 @@ class LeafletLayer extends L.GridLayer {
         done()
     }
 
-    public rerenderTile(key) {
+    public rerenderTile(key:string) {
         for (let unwrapped_k in this._tiles) {
             let wrapped_coord = this._wrapCoords(this._keyToTileCoords(unwrapped_k))
             if (key === this._tileCoordsToKey(wrapped_coord)) {
@@ -190,7 +190,7 @@ class LeafletLayer extends L.GridLayer {
         }
     }
 
-    public createTile(coords,showTile) {
+    public createTile(coords:any,showTile:any) {
         let element = this.pool.get(this.tile_size)
         let key = this._tileCoordsToKey(coords)
         element.key = key
@@ -202,7 +202,7 @@ class LeafletLayer extends L.GridLayer {
         return element
     }
 
-    public _removeTile(key) {
+    public _removeTile(key:string) {
         let tile = this._tiles[key]
         if (!tile) { return }
         tile.el.removed = true

@@ -11,7 +11,7 @@ let R = 6378137
 let MAX_LATITUDE = 85.0511287798
 let MAXCOORD = R * Math.PI
 
-let project = latlng => {
+let project = (latlng:number[]) => {
     let d = Math.PI / 180
     let constrained_lat = Math.max(Math.min(MAX_LATITUDE, latlng[0]), -MAX_LATITUDE)
     let sin = Math.sin(constrained_lat * d)

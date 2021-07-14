@@ -177,7 +177,7 @@ export class Labeler {
     labelRules: LabelRule[]
     callback: TileInvalidationCallback
 
-    constructor(z:number,scratch,labelRules:LabelRule[],callback:TileInvalidationCallback) {
+    constructor(z:number,scratch:any,labelRules:LabelRule[],callback:TileInvalidationCallback) {
         this.index = new Index()
         this.z = z
         this.scratch = scratch

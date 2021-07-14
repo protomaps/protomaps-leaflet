@@ -18,7 +18,7 @@ export interface LabelSymbolizer {
     place(layout:Layout,geom:Point[][],feature:Feature):Label[] | undefined
 }
 
-export const createPattern = (width:number,height:number, fn) => {
+export const createPattern = (width:number,height:number, fn:((canvas:any,ctx:any)=>void)) => {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
     canvas.width = width
@@ -72,7 +72,7 @@ export function arr(base:number,a:number[]):((z:number)=>number) {
     }
 }
 
-export function exp(base:number,stops) : ((z:number) => number) {
+export function exp(base:number,stops:number[][]) : ((z:number) => number) {
     return z => {
         if (z <= stops[0][0]) return stops[0][1]
         if (z >= stops[stops.length-1][0]) return stops[stops.length-1][1]
