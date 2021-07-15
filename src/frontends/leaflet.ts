@@ -47,7 +47,7 @@ const timer = (duration:number) => {
     })
 }
 
-const leafletLayer = (options:any) => {
+const leafletLayer = (options:any):any => {
     class LeafletLayer extends L.GridLayer {
         constructor(options:any) {
             if (options.noWrap && !options.bounds) options.bounds = [[-90,-180],[90,180]]
