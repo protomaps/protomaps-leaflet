@@ -1,6 +1,6 @@
 {
   "name": "protomaps",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "files": [
     "dist",
     "src"
@@ -8,7 +8,7 @@
   "main": "dist/protomaps.js",
   "module": "dist/protomaps.module.js",
   "source": "src/index.ts",
-  "types":"dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "devDependencies": {
     "baretest": "^2.0.0",
     "esbuild": "^0.12.15",
