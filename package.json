@@ -2,12 +2,13 @@
   "name": "protomaps",
   "version": "0.14.0",
   "files": [
-    "dist/protomaps.js",
-    "dist/protomaps.min.js",
+    "dist",
     "src"
   ],
-  "main": "src/index.js",
-  "module": "src/index.js",
+  "main": "dist/protomaps.js",
+  "module": "dist/protomaps.module.js",
+  "source": "src/index.ts",
+  "types":"dist/index.d.ts",
   "devDependencies": {
     "baretest": "^2.0.0",
     "esbuild": "^0.12.15",
@@ -31,10 +32,11 @@
     "dev": "esbuild src/index.ts --bundle --target=es2015 --servedir=. --outfile=dist/protomaps.js --global-name=protomaps",
     "build": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps.js --global-name=protomaps",
     "build-min": "esbuild src/index.ts --bundle --target=es2015 --minify --outfile=dist/protomaps.min.js --global-name=protomaps",
-    "build-tsc": "tsc",
+    "build-module": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps.module.js --format=esm",
+    "build-tsc": "tsc --noEmit --declaration --outdir dist",
     "tsc": "tsc --noEmit --watch",
     "test": "node -r esbuild-runner/register test/index.ts",
-    "dist": "npm run build && npm run build-min && npm run build-tsc"
+    "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc"
   },
   "repository": {
     "type": "git",
