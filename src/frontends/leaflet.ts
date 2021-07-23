@@ -68,9 +68,14 @@ const leafletLayer = (options:any):any => {
                 source = new ZxySource(options.url)
             }
 
+            let maxZoom = 14;
+            if (options.maxZoom) {
+              maxZoom = options.maxZoom;
+            }
+
             this.tasks = options.tasks || []
             let cache = new TileCache(source,1024)
-            this.view = new View(cache,14,2)
+            this.view = new View(cache,maxZoom,2)
             this.debug = options.debug
             let scratch = document.createElement('canvas').getContext('2d')
             this.scratch = scratch
