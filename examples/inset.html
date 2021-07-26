@@ -1,0 +1,32 @@
+<html>
+    <head>
+    </head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+        <!-- <script src="../dist/protomaps.js"></script> -->
+        <style>
+            #map {
+                width: 800px;
+                height: 600px;
+            }
+        </style>
+    </head>
+    <body>
+       <canvas id="map" width="800" height="600"></canvas>
+       <script>
+        async function draw() {
+            let canvas = document.getElementById("map")
+            let context = canvas.getContext('2d')
+            let map = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
+
+            await map.drawContext(context,800,600,[22.2777,114.1635],10)
+            context.translate(100,100)
+            await map.drawContext(context,200,200,[22.2777,114.1635],12)
+            context.strokeRect(0,0,200,200)
+        }
+        draw()
+       </script>
+    </body>
+</html>
