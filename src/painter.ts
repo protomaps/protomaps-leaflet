@@ -26,7 +26,11 @@ export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,r
         ctx.save()
         if (clip) {
             ctx.beginPath()
-            ctx.rect(po.x-origin.x,po.y-origin.y,prepared_tile.dim,prepared_tile.dim)
+            let minX = Math.max(po.x-origin.x,bbox.minX-origin.x)
+            let minY = Math.max(po.y-origin.y,bbox.minY-origin.y)
+            let maxX = Math.min(po.x-origin.x+prepared_tile.dim,bbox.maxX-origin.x)
+            let maxY = Math.min(po.y-origin.y+prepared_tile.dim,bbox.maxY-origin.y)
+            ctx.rect(minX,minY,maxX-minX,maxY-minY)
             ctx.clip()
         }
         ctx.translate(po.x-origin.x,po.y-origin.y)
@@ -52,6 +56,12 @@ export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,r
             }
         }
         ctx.restore()
+    }
+
+    if (clip) {
+        ctx.beginPath()
+        ctx.rect(bbox.minX-origin.x,bbox.minY-origin.y,bbox.maxX-bbox.minX,bbox.maxY-bbox.minY)
+        ctx.clip()
     }
 
     let matches = label_data.searchBbox(bbox,Infinity)
