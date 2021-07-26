@@ -34,11 +34,11 @@ export class Static {
 
         let source
         if (options.url.url) {
-            source = new PmtilesSource(options.url)
+            source = new PmtilesSource(options.url,false)
         } else if (options.url.endsWith(".pmtiles")) {
-            source = new PmtilesSource(options.url)
+            source = new PmtilesSource(options.url,false)
         } else {
-            source = new ZxySource(options.url)
+            source = new ZxySource(options.url,false)
         }
         let cache = new TileCache(source,1024)
         this.view = new View(cache,14,2)

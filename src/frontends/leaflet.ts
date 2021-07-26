@@ -61,11 +61,11 @@ const leafletLayer = (options:any):any => {
 
             let source
             if (options.url.url) {
-                source = new PmtilesSource(options.url)
+                source = new PmtilesSource(options.url,true)
             } else if (options.url.endsWith(".pmtiles")) {
-                source = new PmtilesSource(options.url)
+                source = new PmtilesSource(options.url,true)
             } else {
-                source = new ZxySource(options.url)
+                source = new ZxySource(options.url,true)
             }
 
             this.tasks = options.tasks || []

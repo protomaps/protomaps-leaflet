@@ -112,24 +112,28 @@ function parseTile(buffer:ArrayBuffer,tileSize:number):Map<string,Feature[]> {
 export class PmtilesSource implements TileSource {
     p: PMTiles
     controllers: any[]
+    shouldCancelZooms: boolean
 
-    constructor(url:any) {
+    constructor(url:any,shouldCancelZooms:boolean) {
         if (url.url) {
             this.p = url
         } else {
             this.p = new PMTiles(url)
         }
         this.controllers = []
+        this.shouldCancelZooms = shouldCancelZooms
     }
 
     public async get(c:Zxy,tileSize:number):Promise<Map<string,Feature[]>> {
-        this.controllers = this.controllers.filter(cont => {
-            if (cont[0] != c.z) {
-                cont[1].abort()
-                return false
-            }
-            return true
-        })
+        if (this.shouldCancelZooms) {
+            this.controllers = this.controllers.filter(cont => {
+                if (cont[0] != c.z) {
+                    cont[1].abort()
+                    return false
+                }
+                return true
+            })
+        }
         let result = await this.p.getZxy(c.z,c.x,c.y)
         if (!result) throw new Error(`Tile ${c.z} ${c.x} ${c.y} not found in archive`)
         const controller = new AbortController()
@@ -151,20 +155,24 @@ export class PmtilesSource implements TileSource {
 export class ZxySource implements TileSource {
     url: string
     controllers: any[]
+    shouldCancelZooms: boolean
 
-    constructor(url:string) {
+    constructor(url:string,shouldCancelZooms:boolean) {
         this.url = url
         this.controllers = []
+        this.shouldCancelZooms = shouldCancelZooms
     }
 
     public async get(c: Zxy,tileSize:number):Promise<Map<string,Feature[]>> {
-        this.controllers = this.controllers.filter(cont => {
-            if (cont[0] != c.z) {
-                cont[1].abort()
-                return false
-            }
-            return true
-        })
+        if (this.shouldCancelZooms) {
+            this.controllers = this.controllers.filter(cont => {
+                if (cont[0] != c.z) {
+                    cont[1].abort()
+                    return false
+                }
+                return true
+            })
+        }
         let url = this.url.replace("{z}",c.z.toString()).replace("{x}",c.x.toString()).replace("{y}",c.y.toString())
         const controller = new AbortController()
         this.controllers.push([c.z,controller])
