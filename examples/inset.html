@@ -4,12 +4,14 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
-        <!-- <script src="../dist/protomaps.js"></script> -->
+        <!-- <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script> -->
+        <script src="../dist/protomaps.js"></script>
         <style>
             #map {
                 width: 800px;
                 height: 600px;
+                opacity: 0;
+                transition: opacity 0.1s;
             }
         </style>
     </head>
@@ -21,10 +23,23 @@
             let context = canvas.getContext('2d')
             let map = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
 
-            await map.drawContext(context,800,600,[22.2777,114.1635],10)
-            context.translate(100,100)
-            await map.drawContext(context,200,200,[22.2777,114.1635],12)
-            context.strokeRect(0,0,200,200)
+            let {project,unproject} = await map.drawContext(context,800,600,[22.2777,114.1635],10)
+            let highlight = project([22.2777,114.1635])
+            context.strokeStyle = "black"
+            context.globalAlpha = 0.2
+            context.lineWidth = 1
+            context.strokeRect(highlight.x-20,highlight.y-10,40,20)
+            context.beginPath()
+            context.moveTo(highlight.x-20,highlight.y-10)
+            context.lineTo(highlight.x+20,highlight.y-10)
+            context.lineTo(280+500,330)
+            context.lineTo(280,330)
+            context.closePath()
+            context.fill()
+            context.translate(280,330)
+            await map.drawContext(context,500,250,[22.2777,114.1635],14)
+            context.strokeRect(0,0,500,250)
+            canvas.style.opacity = 1
         }
         draw()
        </script>
