@@ -35,7 +35,7 @@
                 <canvas class="stored" width="800" height="800"></canvas>
                 <canvas class="diff" width="800" height="800"></canvas>
             </div>
-            <canvas class="perf" width="800" height="100"></canvas>
+            <canvas class="perf"></canvas>
         </div>
         <div id="example_2">
             <div class="row">
@@ -43,7 +43,7 @@
                 <canvas class="stored" width="800" height="800"></canvas>
                 <canvas class="diff" width="800" height="800"></canvas>
             </div>
-            <canvas class="perf" width="800" height="100"></canvas>
+            <canvas class="perf"></canvas>
         </div>
         <script>
         let RUNS = 20
@@ -60,6 +60,8 @@
 
             let ctx = perf.getContext('2d')
             ctx.scale(window.devicePixelRatio,window.devicePixelRatio)
+            perf.width = 400 * window.devicePixelRatio
+            perf.height = 50 * window.devicePixelRatio
             ctx.strokeStyle = "#19A974"
             ctx.fillStyle = "#19A974"
             ctx.fillText(avg + " ms",5,yaxis(avg)-2)
