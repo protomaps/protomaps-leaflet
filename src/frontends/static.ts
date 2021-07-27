@@ -74,7 +74,7 @@ export class Static {
             }
             ctx.restore()
         }
-        return performance.now() - start
+        return {elapsed:performance.now() - start}
     }
 
     async drawCanvas(canvas:any,latlng:Point,display_zoom:number,options:any = {}) {

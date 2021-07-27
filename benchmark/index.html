@@ -83,8 +83,8 @@
                 var total = 0
                 for (var i = 0; i < RUNS; i++) {
                     let timing = await run()
-                    ctx.fillRect(xaxis(i),yaxis(timing)-2,2,4)
-                    total += timing
+                    ctx.fillRect(xaxis(i),yaxis(timing.elapsed)-2,2,4)
+                    total += timing.elapsed
                 }
                 let tot = (total/RUNS).toFixed(2)
                 ctx.beginPath()
