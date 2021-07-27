@@ -20,6 +20,31 @@ let project = (latlng:number[]) => {
     return new Point(R*latlng[1]*d,R*Math.log((1+sin)/(1-sin))/2)
 }
 
+let unproject = (point:Point) => {
+    var d = 180 / Math.PI
+    return {
+        lat:(2*Math.atan(Math.exp(point.y/R)) - (Math.PI/2))*d,
+        lng:point.x*d/R
+    }
+}
+
+let instancedProject = (origin:Point,display_zoom:number) => {
+    return (latlng:number[]) => {
+        let projected = project(latlng)
+        let normalized = new Point((projected.x+MAXCOORD)/(MAXCOORD*2),1-(projected.y+MAXCOORD)/(MAXCOORD*2))
+        return normalized.mult((1 << display_zoom) * 256).sub(origin)
+    }
+}
+
+let instancedUnproject = (origin:Point,display_zoom:number) => {
+    return (point:Point) => {
+        console.log(point)
+        let normalized = new Point(point.x,point.y).add(origin).div((1 << display_zoom) * 256)
+        let projected = new Point(normalized.x*(MAXCOORD*2)-MAXCOORD,(1-normalized.y)*(MAXCOORD*2)-MAXCOORD)
+        return unproject(projected)
+    }
+}
+
 export class Static {
     paint_rules:Rule[]
     label_rules:LabelRule[]
@@ -45,7 +70,7 @@ export class Static {
         this.debug = options.debug || false
     }
 
-    async drawContext(ctx:any,width:number,height:number,latlng:Point,display_zoom:number) {
+    async drawContext(ctx:any,width:number,height:number,latlng:number[],display_zoom:number) {
         let center = project(latlng)
         let normalized_center = new Point((center.x+MAXCOORD)/(MAXCOORD*2),1-(center.y+MAXCOORD)/(MAXCOORD*2))
 
@@ -74,7 +99,11 @@ export class Static {
             }
             ctx.restore()
         }
-        return {elapsed:performance.now() - start}
+        return {
+            elapsed:performance.now() - start,
+            project:instancedProject(origin,display_zoom),
+            unproject:instancedUnproject(origin,display_zoom)
+        }
     }
 
     async drawCanvas(canvas:any,latlng:Point,display_zoom:number,options:any = {}) {
