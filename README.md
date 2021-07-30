@@ -31,7 +31,9 @@ See the docs on [what protomaps.js is, what protomaps.js is not](https://protoma
 * [Satellite + labels demo](https://protomaps.github.io/protomaps.js/examples/labels.html)
 * [GeoJSON between basemap and labels demo](https://protomaps.github.io/protomaps.js/examples/sandwich.html)
 * [JSON style](https://protomaps.github.io/protomaps.js/examples/json_style.html)
-
+* [Map inset](https://protomaps.github.io/protomaps.js/examples/inset.html)
+* [PostGIS](https://protomaps.github.io/protomaps.js/examples/postgis.html)
+* 
 ## How to use
 
 ```html
