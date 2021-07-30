@@ -1,0 +1,59 @@
+<html>
+    <head>
+    </head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+        <!-- <script src="../dist/protomaps.js"></script> -->
+        <style>
+            body, #map {
+                height:100vh;
+                margin:0px;
+            }
+
+            .leaflet-tile {
+                background-color: #B8D4EE;
+            }
+
+            #text {
+                position: absolute;
+                bottom: 0px;
+                z-index: 99999;
+                font-family: sans-serif;
+                padding: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div> 
+        <div id="text">Requires the <a href="https://access.crunchydata.com/documentation/pg_tileserv/latest/examples/">pg_tileserv example</a> to be running on localhost:7800</div>
+        <script>
+            const map = L.map('map')
+            map.setView(new L.LatLng(0,0),2)
+            let paint_rules = [
+              {
+                dataLayer:"public.ne_50m_admin_0_countries",
+                symbolizer:new protomaps.PolygonSymbolizer({fill:"#DFDCF2"})
+              },
+              {
+                dataLayer:"public.ne_50m_admin_0_countries",
+                symbolizer:new protomaps.LineSymbolizer({color:"#6F6FF6"})
+              }
+            ]
+            let label_rules = [
+              {
+                dataLayer:"public.ne_50m_admin_0_countries",
+                symbolizer:new protomaps.PolygonLabelSymbolizer({properties:["name_en"],font:"600 12px sans-serif",fill:"blue"})
+              }
+            ]
+            protomaps.leafletLayer({
+                url:'http://localhost:7800/public.ne_50m_admin_0_countries/{z}/{x}/{y}.pbf',
+                paint_rules:paint_rules,
+                label_rules:label_rules
+            }).addTo(map) 
+        </script>
+    </body>
+</html>
