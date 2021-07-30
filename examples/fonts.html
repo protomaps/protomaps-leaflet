@@ -1,0 +1,119 @@
+<html>
+    <head>
+    </head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+        <!-- <script src="../dist/protomaps.js"></script> -->
+
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Work+Sans:wght@100..900&family=Petrona:wght@100..900&family=Raleway:wght@100..900" rel="stylesheet">
+
+        <style>
+            body, #map {
+                margin:0px;
+                font-family: sans-serif;
+            }
+            .main {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+            .controls {
+                padding: 1rem;
+            }
+            #map {
+                height: 100%;
+                margin:0px;
+                flex-grow: 1;
+            }
+
+            .leaflet-tile {
+                background-color: #E8FDF5;
+            }
+
+            #text {
+                position: absolute;
+                bottom: 0px;
+                z-index: 99999;
+                font-family: sans-serif;
+                padding: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="main">
+            <div id="map"></div> 
+            <div class="controls">
+                <select id="font">
+                    <option value="Inter">Inter</option>
+                    <option value="Raleway">Raleway</option>
+                    <option value="Work Sans">Work Sans</option>
+                    <option value="sans-serif">sans-serif</option>
+                    <option value="serif">serif</option>
+                </select>
+                <a href="https://github.com/protomaps/protomaps.js">protomaps.js</a> web fonts demo /
+                <a href="https://fonts.google.com/?vfonly=true">Browse more variable fonts at Google Fonts</a>
+            </div>
+        </div>
+        <script>
+            const map = L.map('map')
+            hash = new L.Hash(map)
+            if (!window.location.hash) map.setView(new L.LatLng(0,0),2)
+            let paint_rules = [
+              {
+                dataLayer:"water",
+                symbolizer:new protomaps.PolygonSymbolizer({fill:"#CDECFF"})
+              },
+              {
+                dataLayer:"boundaries",
+                symbolizer:new protomaps.LineSymbolizer({color:"#357EDD"})
+              }
+            ]
+
+            const labelRulesWithFont = font => {
+                return [
+                  {
+                    dataLayer:"places",
+                    symbolizer:new protomaps.CenteredTextSymbolizer({
+                        properties:["name:en"],
+                        font: (z,f) => {
+                            if (f.place === 'city') return "100 24px " + font
+                            else if (f.place === 'state') return "400 28px " + font
+                            else if (f.place === 'country') return "900 32px " + font
+                            return "400 12px " + font
+                        },
+                        fill:"#19A974"
+                    })
+                  },
+                  {
+                    dataLayer:"water",
+                    symbolizer:new protomaps.PolygonLabelSymbolizer({
+                        properties:["name:en"],
+                        font:"900 20px " + font,
+                        fill:"#00449E"
+                    })
+                  }
+                ]
+            }
+
+            let layer = protomaps.leafletLayer({
+                url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',
+                paint_rules:paint_rules,
+                label_rules:labelRulesWithFont("sans-serif"),
+                tasks:[document.fonts.load("12px Work Sans"),document.fonts.load("12px Manrope"),document.fonts.load("12px Inter"),document.fonts.load("12px Petrona"),document.fonts.load("12px Raleway")]
+            })
+            layer.addTo(map) 
+
+            document.getElementById("font").addEventListener('change', e => {
+                let font = e.target.value
+                layer.label_rules = labelRulesWithFont(font)
+                layer.clearLayout()
+                layer.rerenderTiles()
+            })
+        </script>
+    </body>
+</html>
