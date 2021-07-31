@@ -27,27 +27,24 @@
             }).addTo(map);
 
             let label_rules = [
-                {                        
-                    dataLayer: "places",
-                    symbolizer: new protomaps.CenteredTextSymbolizer({
-                        properties:["name:en"],
-                        fill:"white",
-                        font:"600 16px sans-serif"
-                    }),
-                    filter: f => { return f["pmap:kind"] == "city" }
-                },
                 {
                     dataLayer: "places",
                     symbolizer: new protomaps.CenteredTextSymbolizer({
                         properties:["name:en"],
                         fill:"white",
-                        font:"400 16px sans-serif"
-                    }),
-                    filter: f => { return f["pmap:kind"] == "neighbourhood" }
+                        width:2,
+                        stroke:"black",
+                        font:(z,f) => {
+                            if (f["pmap:kind"] === "country") return "600 16px sans-serif"
+                            else if (f["pmap:kind"] === "city") return "400 14px sans-serif"
+                            else if (f["pmap:kind"] === "neighbourhood") return "200 12px sans-serif"
+                            return "800 18px sans-serif"
+                        }
+                    })
                 }
             ]
 
-            let labels = protomaps.leafletLayer({url:'tpe_sample.pmtiles',paint_rules:[],label_rules:label_rules})
+            let labels = protomaps.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',paint_rules:[],label_rules:label_rules})
             labels.addTo(map)
         </script>
     </body>
