@@ -49,6 +49,11 @@ test("has",async () => {
     assert(f({"type":"foo"}))
     assert(!f({}))
 })
+test("!has",async () => {
+    let f = filterFn(['!has','type'])
+    assert(!f({"type":"foo"}))
+    assert(f({}))
+})
 test("!",async () => {
     let f = filterFn(["!",['has','type']])
     assert(!f({"type":"foo"}))
