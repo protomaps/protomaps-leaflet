@@ -33,7 +33,8 @@ See the docs on [what protomaps.js is, what protomaps.js is not](https://protoma
 * [JSON style](https://protomaps.github.io/protomaps.js/examples/json_style.html)
 * [Map inset](https://protomaps.github.io/protomaps.js/examples/inset.html)
 * [PostGIS](https://protomaps.github.io/protomaps.js/examples/postgis.html)
-* 
+* [Custom fonts](https://protomaps.github.io/protomaps.js/examples/fonts.html)
+
 ## How to use
 
 ```html
