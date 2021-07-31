@@ -25,6 +25,8 @@ export function filterFn(arr:any[]):((f:any)=>boolean) {
         return f => !arr.slice(2,arr.length).includes(f[arr[1]])
     } else if (arr[0] === "has") {
         return f => f.hasOwnProperty(arr[1])
+    } else if (arr[0] === "!has") {
+        return f => !f.hasOwnProperty(arr[1])
     } else if (arr[0] === "all") {
         let parts = arr.slice(1,arr.length).map(e => filterFn(e))
         return f => parts.every(p => { return p(f)})
