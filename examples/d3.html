@@ -8,16 +8,48 @@
         <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
         <!-- <script src="../dist/protomaps.js"></script> -->
         <style>
-            #map {
-                width: 1024px;
-                height: 512px;
+            #basemap {
+                position: absolute;
+                width: 800px;
+                height: 600px;
+            }
+            #overlay {
+                position: absolute;
+            }
+
+            path {
+                stroke: blue;
+                fill:  none;
+                stroke-width: 8;
+                opacity: 0.7;
+            }
+            path:hover {
+                stroke: aquamarine;
             }
         </style>
     </head>
     <body>
-        <canvas id="map"></canvas>
+        <p>Below is a SVG and canvas basemap positioned on top of each other. SVG elements are drawn using d3.js.</p>
+        <canvas id="basemap"></canvas>
+        <svg id="overlay" width="800" height="600"></svg>
         <script>
-            console.log("HelloWorld")
+            let object = {
+                type:'Feature',
+                geometry:{type:'LineString',coordinates:[[-122.3939,37.7951],[-122.4351,37.7627]]}
+            }
+            let width = 800
+            let height = 600
+            var projection = d3.geoMercator()
+            let val = projection.fitExtent([[50,50],[width-50,height-50]],object)
+            var path = d3.geoPath().projection(projection)
+            let svg = d3.select("#overlay")
+            svg.selectAll("path").data([object]).enter()
+                .append("path")
+                .attr("d",path)
+            let map = new protomaps.Static({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'})
+            let top_left = projection.invert([0,0])
+            let bottom_right = projection.invert([width,height])
+            map.drawCanvasBounds(d3.select("#basemap").node(),top_left,bottom_right,width)
         </script>
     </body>
 </html>
