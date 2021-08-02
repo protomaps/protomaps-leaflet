@@ -45,6 +45,11 @@ let instancedUnproject = (origin:Point,display_zoom:number) => {
     }
 }
 
+export const getZoom = (degrees_lng:number,css_pixels:number):number => {
+    let d = css_pixels * (360/degrees_lng)
+    return Math.log2(d/256)
+}
+
 export class Static {
     paint_rules:Rule[]
     label_rules:LabelRule[]
