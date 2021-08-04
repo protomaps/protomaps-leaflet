@@ -137,6 +137,12 @@ export class Static {
         return this.drawContext(ctx,width,height,latlng,display_zoom)
     }
 
+    async drawContextBounds(ctx:any,top_left:Point,bottom_right:Point,width:number,height:number) {
+        let delta_degrees = bottom_right[0] - top_left[0]
+        let center = [(top_left[1]+bottom_right[1])/2,(top_left[0]+bottom_right[0])/2]
+        return this.drawContext(ctx,width,height,center,getZoom(delta_degrees,width))
+    }
+
     async drawCanvasBounds(canvas:any,top_left:Point,bottom_right:Point,width:number,options:any = {}) {
         let delta_degrees = bottom_right[0] - top_left[0]
         let center = [(top_left[1]+bottom_right[1])/2,(top_left[0]+bottom_right[0])/2]
