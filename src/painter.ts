@@ -23,20 +23,23 @@ export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,r
     for (var prepared_tile of prepared_tiles) {
         let po = prepared_tile.origin
         let ps = prepared_tile.scale
+        let dim = prepared_tile.dim
         ctx.save()
         if (clip) {
             ctx.beginPath()
-            let minX = Math.max(po.x-origin.x,bbox.minX-origin.x)
-            let minY = Math.max(po.y-origin.y,bbox.minY-origin.y)
-            let maxX = Math.min(po.x-origin.x+prepared_tile.dim,bbox.maxX-origin.x)
-            let maxY = Math.min(po.y-origin.y+prepared_tile.dim,bbox.maxY-origin.y)
+            let minX = Math.max(po.x-origin.x,bbox.minX-origin.x) - 0.5
+            let minY = Math.max(po.y-origin.y,bbox.minY-origin.y) - 0.5
+            let maxX = Math.min(po.x-origin.x+dim,bbox.maxX-origin.x) + 0.5
+            let maxY = Math.min(po.y-origin.y+dim,bbox.maxY-origin.y) + 0.5
             ctx.rect(minX,minY,maxX-minX,maxY-minY)
             ctx.clip()
         }
         ctx.translate(po.x-origin.x,po.y-origin.y)
         if (clip) {
             // small fudge factor in static mode to fix seams
-            ctx.scale(1.0004,1.0004)
+            ctx.translate(dim/2,dim/2)
+            ctx.scale(1+1/dim,1+1/dim)
+            ctx.translate(-dim/2,-dim/2)
         }
         for (var rule of rules) {
             if (rule.minzoom && prepared_tile.z < rule.minzoom) continue
