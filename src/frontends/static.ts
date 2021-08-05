@@ -108,7 +108,7 @@ export class Static {
             ctx.save()
             ctx.translate(-origin.x,-origin.y)
             for (var prepared_tile of prepared_tiles) {
-                ctx.strokeStyle = "black"
+                ctx.strokeStyle = this.debug
                 ctx.strokeRect(prepared_tile.origin.x,prepared_tile.origin.y,prepared_tile.dim,prepared_tile.dim)
             }
             ctx.restore()

@@ -34,6 +34,10 @@ export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,r
             ctx.clip()
         }
         ctx.translate(po.x-origin.x,po.y-origin.y)
+        if (clip) {
+            // small fudge factor in static mode to fix seams
+            ctx.scale(1.0004,1.0004)
+        }
         for (var rule of rules) {
             if (rule.minzoom && prepared_tile.z < rule.minzoom) continue
             if (rule.maxzoom && prepared_tile.z > rule.maxzoom) continue
