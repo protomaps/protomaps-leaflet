@@ -60,6 +60,7 @@ export class View {
         var scale = 1
         var dim = this.tileCache.tileSize
         if (display_zoom < this.levelDiff) {
+            // TODO fractional zooms
             scale = 1 / (1 << (this.levelDiff - display_zoom))
             needed.push({
                 data_tile:{z:0,x:0,y:0},
@@ -69,22 +70,27 @@ export class View {
             })
         } else if (display_zoom <= this.levelDiff + this.maxDataLevel) {
             let f = 1 << this.levelDiff
-            let mintile_x = Math.floor(bounds.minX / f / 256)
-            let mintile_y = Math.floor(bounds.minY / f / 256)
-            let maxtile_x = Math.floor(bounds.maxX / f / 256)
-            let maxtile_y = Math.floor(bounds.maxY / f / 256)
+
+            let fractional = Math.pow(2,display_zoom)/Math.pow(2,Math.floor(display_zoom))
+            let basetile_size = 256 * fractional
+
+            let mintile_x = Math.floor(bounds.minX / f / basetile_size)
+            let mintile_y = Math.floor(bounds.minY / f / basetile_size)
+            let maxtile_x = Math.floor(bounds.maxX / f / basetile_size)
+            let maxtile_y = Math.floor(bounds.maxY / f / basetile_size)
             for (var tx = mintile_x; tx <= maxtile_x; tx++) {
                 for (var ty = mintile_y; ty <= maxtile_y; ty++) {
-                    let origin = new Point(tx * f * 256,ty * f * 256)
+                    let origin = new Point(tx * f * basetile_size,ty * f * basetile_size)
                     needed.push({
-                        data_tile:{z:display_zoom-this.levelDiff,x:tx,y:ty},
+                        data_tile:{z:Math.floor(display_zoom)-this.levelDiff,x:tx,y:ty},
                         origin:origin,
-                        scale:1,
-                        dim:dim
+                        scale:fractional,
+                        dim:dim * fractional
                     })
                 }
             }
         } else {
+            // TODO fractional zooms
             let f = 1 << this.levelDiff
             scale = 1 << (display_zoom - this.maxDataLevel - this.levelDiff)
             let mintile_x = Math.floor(bounds.minX / f / 256 / scale)

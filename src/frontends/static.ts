@@ -79,25 +79,16 @@ export class Static {
         let center = project(latlng)
         let normalized_center = new Point((center.x+MAXCOORD)/(MAXCOORD*2),1-(center.y+MAXCOORD)/(MAXCOORD*2))
 
-        let snapped_zoom = Math.round(display_zoom)
-        if (display_zoom !== snapped_zoom) {
-            let fractional = Math.pow(2,display_zoom)/Math.pow(2,snapped_zoom)
-            ctx.translate(width/2,height/2)
-            ctx.scale(fractional,fractional)
-            ctx.translate(-width/2,-height/2)
-            // // TODO modify width based on fractional
-        }
-
         // the origin of the painter call in global Z coordinates
-        let origin = normalized_center.clone().mult((1 << snapped_zoom) * 256).sub(new Point(width/2,height/2))
+        let origin = normalized_center.clone().mult(Math.pow(2,display_zoom) * 256).sub(new Point(width/2,height/2))
 
         // the bounds of the painter call in global Z coordinates
         let bbox = {minX:origin.x,minY:origin.y,maxX:origin.x+width,maxY:origin.y+height}
 
-        let prepared_tiles = await this.view.getBbox(snapped_zoom,bbox)
+        let prepared_tiles = await this.view.getBbox(display_zoom,bbox)
 
         let start = performance.now()
-        let labeler = new Labeler(snapped_zoom,ctx,this.label_rules,undefined) // because need ctx to measure
+        let labeler = new Labeler(display_zoom,ctx,this.label_rules,undefined) // because need ctx to measure
         for (var prepared_tile of prepared_tiles) {
             await labeler.add(prepared_tile)
         }
@@ -117,8 +108,8 @@ export class Static {
         // TODO this API isn't so elegant
         return {
             elapsed:performance.now() - start,
-            project:instancedProject(origin,snapped_zoom),
-            unproject:instancedUnproject(origin,snapped_zoom)
+            project:instancedProject(origin,display_zoom),
+            unproject:instancedUnproject(origin,display_zoom)
         }
     }
 

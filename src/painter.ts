@@ -14,7 +14,6 @@ export interface Rule {
     filter?(properties:any): boolean
 }
 
-// make this not depend on element?
 export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,rules:Rule[],bbox:Bbox,origin:Point,clip:boolean,debug:string) {
     let start = performance.now()
     ctx.save()
