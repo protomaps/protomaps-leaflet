@@ -71,7 +71,7 @@ export class View {
         } else if (display_zoom <= this.levelDiff + this.maxDataLevel) {
             let f = 1 << this.levelDiff
 
-            let fractional = Math.pow(2,display_zoom)/Math.pow(2,Math.floor(display_zoom))
+            let fractional = Math.pow(2,display_zoom)/Math.pow(2,Math.ceil(display_zoom))
             let basetile_size = 256 * fractional
 
             let mintile_x = Math.floor(bounds.minX / f / basetile_size)
@@ -82,7 +82,7 @@ export class View {
                 for (var ty = mintile_y; ty <= maxtile_y; ty++) {
                     let origin = new Point(tx * f * basetile_size,ty * f * basetile_size)
                     needed.push({
-                        data_tile:{z:Math.floor(display_zoom)-this.levelDiff,x:tx,y:ty},
+                        data_tile:{z:Math.ceil(display_zoom)-this.levelDiff,x:tx,y:ty},
                         origin:origin,
                         scale:fractional,
                         dim:dim * fractional
