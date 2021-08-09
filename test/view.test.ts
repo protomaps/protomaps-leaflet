@@ -1,6 +1,6 @@
 import Point from '@mapbox/point-geometry'
 import { Zxy, TileCache, TileSource } from '../src/tilecache'
-import { View } from '../src/view'
+import { wrap, View } from '../src/view'
 import { StubSource } from './test_helpers'
 import assert from 'assert'
 import baretest from 'baretest'
@@ -62,6 +62,19 @@ test('get center level diff = 2', async () => {
     let view = new View(cache,3,2)
     let result = view.dataTilesForBounds(6,{minX:100,minY:100,maxX:400,maxY:400})
     assert.equal(result.length,1)
+})
+
+test('wrap tile coordinates', async () => {
+    let view = new View(cache,3,2)
+    let result = view.dataTilesForBounds(6,{minX:-100,minY:100,maxX:400,maxY:400})
+    assert.equal(result.length,2)
+    assert.deepEqual(result[0].data_tile,{z:3,x:7,y:0})
+    assert.deepEqual(result[1].data_tile,{z:3,x:0,y:0})
+})
+
+test('wrap', async() => {
+    assert.equal(wrap(-1,3),7)
+    assert.equal(wrap(8,3),0)
 })
 
 export default test

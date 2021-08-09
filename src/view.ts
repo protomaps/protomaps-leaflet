@@ -40,6 +40,13 @@ export const transformGeom = (geom:Array<Array<Point>>,scale:number,translate:Po
     return retval
 }
 
+export const wrap = (val,z) => {
+    let dim = 1 << z
+    if (val < 0) val = dim + val
+    if (val >= dim) val = val % dim
+    return val
+}
+
 /* 
  * @class View
  * expresses relationship between canvas coordinates and data tiles.
@@ -74,6 +81,8 @@ export class View {
             let fractional = Math.pow(2,display_zoom)/Math.pow(2,Math.ceil(display_zoom))
             let basetile_size = 256 * fractional
 
+            let data_zoom = Math.ceil(display_zoom) - this.levelDiff
+
             let mintile_x = Math.floor(bounds.minX / f / basetile_size)
             let mintile_y = Math.floor(bounds.minY / f / basetile_size)
             let maxtile_x = Math.floor(bounds.maxX / f / basetile_size)
@@ -82,7 +91,7 @@ export class View {
                 for (var ty = mintile_y; ty <= maxtile_y; ty++) {
                     let origin = new Point(tx * f * basetile_size,ty * f * basetile_size)
                     needed.push({
-                        data_tile:{z:Math.ceil(display_zoom)-this.levelDiff,x:tx,y:ty},
+                        data_tile:{z:data_zoom,x:wrap(tx,data_zoom),y:wrap(ty,data_zoom)},
                         origin:origin,
                         scale:fractional,
                         dim:dim * fractional
@@ -101,7 +110,7 @@ export class View {
                 for (var ty = mintile_y; ty <= maxtile_y; ty++) {
                     let origin = new Point(tx * f * 256 * scale,ty * f * 256 * scale)
                     needed.push({
-                        data_tile:{z:this.maxDataLevel,x:tx,y:ty},
+                        data_tile:{z:this.maxDataLevel,x:wrap(tx,this.maxDataLevel),y:wrap(ty,this.maxDataLevel)},
                         origin:origin,
                         scale:scale,
                         dim:dim * scale
