@@ -40,7 +40,7 @@ export const transformGeom = (geom:Array<Array<Point>>,scale:number,translate:Po
     return retval
 }
 
-export const wrap = (val,z) => {
+export const wrap = (val:number,z:number) => {
     let dim = 1 << z
     if (val < 0) val = dim + val
     if (val >= dim) val = val % dim
