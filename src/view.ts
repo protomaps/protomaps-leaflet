@@ -63,12 +63,12 @@ export class View {
     }
 
     public dataTilesForBounds(display_zoom:number,bounds:any):Array<TileTransform> {
+        let fractional = Math.pow(2,display_zoom)/Math.pow(2,Math.ceil(display_zoom))
         let needed = []
         var scale = 1
         var dim = this.tileCache.tileSize
         if (display_zoom < this.levelDiff) {
-            // TODO fractional zooms
-            scale = 1 / (1 << (this.levelDiff - display_zoom))
+            scale = 1 / (1 << (this.levelDiff - display_zoom)) * fractional
             needed.push({
                 data_tile:{z:0,x:0,y:0},
                 origin:new Point(0,0),
@@ -78,7 +78,6 @@ export class View {
         } else if (display_zoom <= this.levelDiff + this.maxDataLevel) {
             let f = 1 << this.levelDiff
 
-            let fractional = Math.pow(2,display_zoom)/Math.pow(2,Math.ceil(display_zoom))
             let basetile_size = 256 * fractional
 
             let data_zoom = Math.ceil(display_zoom) - this.levelDiff
@@ -99,9 +98,8 @@ export class View {
                 }
             }
         } else {
-            // TODO fractional zooms
             let f = 1 << this.levelDiff
-            scale = 1 << (display_zoom - this.maxDataLevel - this.levelDiff)
+            scale = (1 << (Math.ceil(display_zoom) - this.maxDataLevel - this.levelDiff)) * fractional
             let mintile_x = Math.floor(bounds.minX / f / 256 / scale)
             let mintile_y = Math.floor(bounds.minY / f / 256 / scale)
             let maxtile_x = Math.floor(bounds.maxX / f / 256 / scale)
