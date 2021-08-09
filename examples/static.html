@@ -18,10 +18,28 @@
     <body>
        <canvas id="map"></canvas>
        <button id="screenshot">Capture image</button>
+       <span id="zoom"></span>
+       <button id="zoomin">+0.5</button>
+       <button id="zoomout">-0.5</button>
        <script>
         let canvas = document.getElementById("map")
+        var zoom = 12
         let map = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
-        map.drawCanvas(canvas,[37.7658,-122.4221],15)
+        let center = [37.7658,-122.4221]
+        map.drawCanvas(canvas,center,zoom)
+        document.getElementById("zoom").innerHTML = zoom
+
+        document.getElementById("zoomin").addEventListener('click', () => {
+            zoom = zoom + 0.5
+            map.drawCanvas(canvas,center,zoom)
+            document.getElementById("zoom").innerHTML = zoom
+        })
+
+        document.getElementById("zoomout").addEventListener('click', () => {
+            zoom = zoom - 0.5
+            map.drawCanvas(canvas,center,zoom)
+            document.getElementById("zoom").innerHTML = zoom
+        })
 
         document.getElementById("screenshot").addEventListener('click', () => {
             window.open().document.write('<iframe src="' + canvas.toDataURL("image/png") + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>')
