@@ -8,7 +8,7 @@ import { lineCells, simpleLabel } from './line'
 import { Index, Label, Layout } from './labeler'
 
 export interface PaintSymbolizer {
-    before(ctx:any,z:number):void
+    before?(ctx:any,z:number):void
     draw(ctx:any,geom:Point[][],properties:any):void
 }
 

@@ -45,7 +45,7 @@ export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,r
             if (rule.maxzoom && prepared_tile.z > rule.maxzoom) continue
             var layer = prepared_tile.data.get(rule.dataLayer)
             if (layer === undefined) continue
-            rule.symbolizer.before(ctx,prepared_tile.z)
+            if (rule.symbolizer.before) rule.symbolizer.before(ctx,prepared_tile.z)
 
             for (var feature of layer) {
                 let geom = feature.geom
