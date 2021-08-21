@@ -6,6 +6,10 @@ export * from './default_style/light'
 export * from './default_style/dark'
 export * from './default_style/style'
 export * from './compat/json_style'
+export * from './painter'
+export * from './tilecache'
+export * from './view'
+export * from './labeler'
 
 // @ts-ignore
 export { PMTiles } from 'pmtiles'
