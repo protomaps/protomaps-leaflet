@@ -178,7 +178,7 @@ export class IconSymbolizer implements LabelSymbolizer {
     }
 }
 
-export class CircleSymbolizer implements LabelSymbolizer {
+export class CircleSymbolizer implements LabelSymbolizer, PaintSymbolizer {
     radius: number
     fill: string
     stroke: string
@@ -190,6 +190,22 @@ export class CircleSymbolizer implements LabelSymbolizer {
         this.stroke = options.stroke || "white"
         this.width = options.width || 0
     } 
+    
+    public draw(ctx:any,geom:Point[][],properties:any) {
+        ctx.globalAlpha = 1
+
+        if (this.width > 0) {
+            ctx.fillStyle = this.stroke
+            ctx.beginPath()
+            ctx.arc(geom[0][0].x,geom[0][0].y, this.radius + this.width, 0, 2* Math.PI)
+            ctx.fill()
+        }
+
+        ctx.fillStyle = this.fill
+        ctx.beginPath()
+        ctx.arc(geom[0][0].x,geom[0][0].y, this.radius, 0, 2* Math.PI)
+        ctx.fill()
+    }
 
     public place(layout:Layout,geom:Point[][],feature:any) {
         let pt = geom[0]
@@ -202,21 +218,9 @@ export class CircleSymbolizer implements LabelSymbolizer {
         }
 
         let draw = (ctx:any) => {
-            ctx.globalAlpha = 1
-
-            if (this.width > 0) {
-                ctx.fillStyle = this.stroke
-                ctx.beginPath()
-                ctx.arc(0,0, this.radius + this.width, 0, 2* Math.PI)
-                ctx.fill()
-            }
-
-            ctx.fillStyle = this.fill
-            ctx.beginPath()
-            ctx.arc(0,0, this.radius, 0, 2* Math.PI)
-            ctx.fill()
+            this.draw(ctx, [[new Point(0,0)]], {})
         }
-        return [{anchor:a,bboxes:[bbox],draw:draw}]
+        return [{anchor:a,bboxes:[bbox],draw}]
     }
 }
 

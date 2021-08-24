@@ -1,4 +1,4 @@
-import { PolygonSymbolizer, LineSymbolizer, LineLabelSymbolizer, CenteredTextSymbolizer, exp } from './../symbolizer'
+import { PolygonSymbolizer, LineSymbolizer, LineLabelSymbolizer, CenteredTextSymbolizer, exp, CircleSymbolizer } from './../symbolizer'
 
 export function filterFn(arr:any[]):((f:any)=>boolean) {
     // hack around "$type"
@@ -225,7 +225,18 @@ export function json_style(obj:any,fontsubmap:Map<string,FontSub>) {
                     })
                 })
             }
-        }
+        } else if (layer.type == "circle") {
+            paint_rules.push({
+                dataLayer: layer['source-layer'],
+                filter:filter,
+                symbolizer: new CircleSymbolizer({
+                    radius:layer.paint['circle-radius'],
+                    fill:layer.paint['circle-color'],
+                    stroke:layer.paint['circle-stroke-color'],
+                    width:layer.paint['circle-stroke-width']
+                })
+            })
+        } 
     }
 
     label_rules.reverse()
