@@ -1,9 +1,11 @@
 // @ts-ignore
 import Point from '@mapbox/point-geometry'
-import { Zxy, Bbox } from './tilecache'
+import { Zxy, Bbox, Feature } from './tilecache'
 import { PreparedTile, transformGeom } from './view'
 import { PaintSymbolizer } from './symbolizer'
 import { Index } from './labeler'
+
+export type Filter = (properties: any, feature?: Feature) => boolean
 
 export interface Rule {
     id?:string
@@ -11,7 +13,7 @@ export interface Rule {
     maxzoom:number
     dataLayer: string
     symbolizer: PaintSymbolizer
-    filter?(properties:any): boolean
+    filter?:Filter
 }
 
 export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,rules:Rule[],bbox:Bbox,origin:Point,clip:boolean,debug:string) {
@@ -54,7 +56,7 @@ export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,r
                     continue
                 }
                 let properties = feature.properties
-                if (rule.filter && !rule.filter(properties)) continue
+                if (rule.filter && !rule.filter(properties, feature)) continue
                 if (ps != 1) {
                     geom = transformGeom(geom,ps, new Point(0,0))
                 }
