@@ -209,7 +209,8 @@ export function json_style(obj:any,fontsubmap:Map<string,FontSub>) {
                         fill:layer.paint['text-color'],
                         width:layer.paint['text-halo-width'],
                         stroke:layer.paint['text-halo-color'],
-                        textTransform:layer.layout["text-transform"]
+                        textTransform:layer.layout["text-transform"],
+                        properties:layer.layout["text-field"] ? [layer.layout["text-field"]] : undefined
                     })
                 })
             } else {
@@ -221,7 +222,8 @@ export function json_style(obj:any,fontsubmap:Map<string,FontSub>) {
                         fill: layer.paint['text-color'],
                         stroke: layer.paint['text-halo-color'],
                         width:layer.paint['text-halo-width'],
-                        textTransform:layer.layout["text-transform"]
+                        textTransform:layer.layout["text-transform"],
+                        properties:layer.layout["text-field"] ? [layer.layout["text-field"]] : undefined
                     })
                 })
             }
