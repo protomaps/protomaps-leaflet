@@ -55,12 +55,11 @@ export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,r
                 if (fbox.maxX*ps+po.x < bbox.minX || fbox.minX*ps+po.x > bbox.maxX || fbox.minY*ps+po.y > bbox.maxY || fbox.maxY*ps+po.y < bbox.minY) {
                     continue
                 }
-                let properties = feature.properties
                 if (rule.filter && !rule.filter(prepared_tile.z, feature)) continue
                 if (ps != 1) {
                     geom = transformGeom(geom,ps, new Point(0,0))
                 }
-                rule.symbolizer.draw(ctx,geom,properties)
+                rule.symbolizer.draw(ctx,geom,feature.props)
             }
         }
         ctx.restore()

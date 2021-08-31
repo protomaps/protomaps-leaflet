@@ -1,3 +1,5 @@
+import { Feature } from './tilecache'
+
 export class TextSpec {
     properties:string[]
     textTransform:string
@@ -7,11 +9,11 @@ export class TextSpec {
         this.textTransform = options.textTransform
     }
 
-    public str(z:number,f:any):string {
+    public str(z:number,f:Feature):string {
         var retval
         for (let property of this.properties) {
-            if (f.hasOwnProperty(property)) {
-                retval = f[property]
+            if (f.props.hasOwnProperty(property)) {
+                retval = f.props[property]
                 break
             }
         } 
@@ -21,11 +23,11 @@ export class TextSpec {
 }
 
 export class FontSpec {
-    family?: string | ((z:number,f:any) => string)
-    size?: number | ((z:number,f:any) => number)
-    weight?: number | ((z:number,f:any) => number)
-    style?: number | ((z:number,f:any) => number)
-    font?: string | ((z:number,f:any) => string)
+    family?: string | ((z:number,f:Feature) => string)
+    size?: number | ((z:number,f:Feature) => number)
+    weight?: number | ((z:number,f:Feature) => number)
+    style?: number | ((z:number,f:Feature) => number)
+    font?: string | ((z:number,f:Feature) => string)
 
     constructor(options:any) {
         if (options.font) {
@@ -38,7 +40,7 @@ export class FontSpec {
         }
     }
 
-    public str(z:number,f:string) {
+    public str(z:number,f:Feature) {
         if (this.font) {
             if (typeof this.font === 'function') {
                 return this.font(z,f)
