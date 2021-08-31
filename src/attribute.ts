@@ -1,5 +1,37 @@
 import { Feature } from './tilecache'
 
+export class ColorAttr {
+    color: string | ((z:number,f:Feature) => string)
+
+    constructor(c:any,defaultValue:string = "black") {
+        this.color = c || defaultValue
+    }
+
+    public get(z:number,f:Feature):string {
+        if (typeof this.color == 'function') {
+            return this.color(z,f)
+        } else {
+            return this.color
+        }
+    }
+}
+
+export class NumberAttr {
+    value: number | ((z:number,f:Feature) => number)
+
+    constructor(c:any,defaultValue:number = 1) {
+        this.value = c || defaultValue
+    }
+
+    public get(z:number,f:Feature):number {
+        if (typeof this.value == 'function') {
+            return this.value(z,f)
+        } else {
+            return this.value
+        }
+    }
+ }
+
 export class TextAttr {
     properties:string[]
     textTransform:string

@@ -67,7 +67,7 @@
                         fill:"black",
                         font:"600 14px sans-serif"
                     }),
-                    filter: f => { return f["pmap:kind"] == "neighbourhood" }
+                    filter: (z,f) => { return f.props["pmap:kind"] == "neighbourhood" }
                 }
             ]
 

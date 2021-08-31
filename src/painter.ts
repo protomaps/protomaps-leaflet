@@ -59,7 +59,7 @@ export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,r
                 if (ps != 1) {
                     geom = transformGeom(geom,ps, new Point(0,0))
                 }
-                rule.symbolizer.draw(ctx,geom,feature.props)
+                rule.symbolizer.draw(ctx,geom,prepared_tile.z,feature)
             }
         }
         ctx.restore()

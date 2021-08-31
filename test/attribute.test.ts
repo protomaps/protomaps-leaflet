@@ -1,9 +1,45 @@
-import { FontAttr, TextAttr } from '../src/attribute'
+import { NumberAttr, ColorAttr, FontAttr, TextAttr } from '../src/attribute'
 import { GeomType } from '../src/tilecache'
 import assert from 'assert'
 import baretest from 'baretest'
 
 test = baretest("Attribute")
+
+test('numberattr', async () => {
+    let n = new NumberAttr(undefined,undefined)
+    assert.equal(n.get(),1)
+
+    n = new NumberAttr(2,undefined)
+    assert.equal(n.get(),2)
+
+    n = new NumberAttr(undefined,3)
+    assert.equal(n.get(),3)
+
+    n = new NumberAttr(undefined,0)
+    assert.equal(n.get(),0)
+
+    n = new NumberAttr((z,f) => { return z },0)
+    assert.equal(n.get(2),2)
+    assert.equal(n.get(3),3)
+})
+
+test('colorattr', async () => {
+    let c = new ColorAttr(undefined,undefined)
+    assert.equal(c.get(),"black")
+
+    c = new ColorAttr(undefined,"red")
+    assert.equal(c.get(),"red")
+
+    c = new ColorAttr("blue")
+    assert.equal(c.get(),"blue")
+
+    c = new ColorAttr((z,f) => { 
+        if (z < 4) return "green" 
+        return "aquamarine"
+    })
+    assert.equal(c.get(3),"green")
+    assert.equal(c.get(5),"aquamarine")
+})
 
 test('fontattr', async () => {
     let f = new FontAttr({font:"12px serif"})
