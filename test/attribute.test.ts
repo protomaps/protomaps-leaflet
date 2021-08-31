@@ -75,11 +75,11 @@ test('fontattr', async () => {
 test ('textattr', async () => {
     let t = new TextAttr()
     assert.equal(t.get(0,{props:{name:"臺北"},geomType:GeomType.Point}),"臺北")
-    t = new TextAttr({properties:["name:en"]})
+    t = new TextAttr({label_props:["name:en"]})
     assert.equal(t.get(0,{props:{'name:en':"Taipei",'name':"臺北"},geomType:GeomType.Point}),"Taipei")
-    t = new TextAttr({properties:["name:en"],textTransform:"uppercase"})
+    t = new TextAttr({label_props:["name:en"],textTransform:"uppercase"})
     assert.equal(t.get(0,{props:{'name:en':"Taipei"},geomType:GeomType.Point}),"TAIPEI")
-    t = new TextAttr({properties:["name:en"],textTransform:"uppercase"})
+    t = new TextAttr({label_props:["name:en"],textTransform:"uppercase"})
     assert.equal(t.get(0,{props:{}}),undefined)
 })
 

@@ -79,7 +79,7 @@
                   {
                     dataLayer:"places",
                     symbolizer:new protomaps.CenteredTextSymbolizer({
-                        properties:["name:en"],
+                        name_props:["name:en"],
                         font: (z,f) => {
                             if (f.props.place === 'city') return "100 24px " + font
                             else if (f.props.place === 'state') return "400 28px " + font
@@ -92,7 +92,7 @@
                   {
                     dataLayer:"water",
                     symbolizer:new protomaps.PolygonLabelSymbolizer({
-                        properties:["name:en"],
+                        name_props:["name:en"],
                         font:"900 20px " + font,
                         fill:"#00449E"
                     })

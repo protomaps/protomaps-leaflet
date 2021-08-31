@@ -233,7 +233,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 symbolizer,
                 new OffsetTextSymbolizer({
                     fill:fill,
-                    properties:language2
+                    label_props:language2
                 })
             ],{})
         } else {
@@ -241,7 +241,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 symbolizer,
                 new CenteredTextSymbolizer({
                     fill:fill,
-                    properties:language2
+                    label_props:language2
                 })
             ],{})
         }
@@ -251,7 +251,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
         {
             dataLayer: "places",
             symbolizer: languageStack(new CenteredTextSymbolizer({
-                properties:nametags,
+                label_props:nametags,
                 fill:params.countryLabel,
                 font:(z:number,f:Feature) => {
                     if (z < 6) return "200 14px sans-serif"
@@ -264,7 +264,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
         {
             dataLayer: "places",
             symbolizer: languageStack(new CenteredTextSymbolizer({
-                properties:nametags,
+                label_props:nametags,
                 fill:params.stateLabel,
                 font:"300 16px sans-serif"
             }),params.stateLabel),
@@ -276,7 +276,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
             filter: (z:number,f:Feature) => { return f.props["pmap:kind"] == "city" },
             minzoom:7,
             symbolizer: languageStack(new CenteredTextSymbolizer({
-                properties:nametags,
+                label_props:nametags,
                 fill:params.cityLabel,
                 font:(z:number,f:Feature) => {
                     if (f.props["pmap:rank"] == 1) {
@@ -301,7 +301,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                     fill:params.cityLabel
                 }),
                 languageStack(new OffsetTextSymbolizer({
-                    properties:nametags,
+                    label_props:nametags,
                     fill:params.cityLabel,
                     offset:2,
                     font:(z:number,f:Feature) => {
@@ -321,7 +321,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
             id:"neighbourhood",
             dataLayer: "places",
             symbolizer: languageStack(new CenteredTextSymbolizer({
-                properties:nametags,
+                label_props:nametags,
                 fill:params.neighbourhoodLabel,
                 font:"500 10px sans-serif",
                 textTransform:"uppercase"
@@ -331,7 +331,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
         {
             dataLayer: "landuse",
             symbolizer: languageStack(new PolygonLabelSymbolizer({
-                properties:nametags,
+                label_props:nametags,
                 fill:params.landuseLabel,
                 font:"300 12px sans-serif"
             }),params.landuseLabel)
@@ -339,7 +339,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
         {
             dataLayer: "water",
             symbolizer: languageStack(new PolygonLabelSymbolizer({
-                properties:nametags,
+                label_props:nametags,
                 fill:params.waterLabel,
                 font:"italic 600 12px sans-serif"
             }),params.waterLabel)
@@ -347,7 +347,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
         {
             dataLayer: "natural",
             symbolizer: languageStack(new PolygonLabelSymbolizer({
-                properties:nametags,
+                label_props:nametags,
                 fill:params.naturalLabel,
                 font:"italic 300 12px sans-serif"
             }),params.naturalLabel)
@@ -355,7 +355,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
         {
             dataLayer: "roads",
             symbolizer: languageStack(new LineLabelSymbolizer({
-                properties:nametags,
+                label_props:nametags,
                 fill: params.roadsLabel,
                 font:"500 12px sans-serif"
             }),params.roadsLabel),
@@ -364,7 +364,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
         {
             dataLayer: "roads",
             symbolizer: new ShieldSymbolizer({
-                properties:["ref"],
+                label_props:["ref"],
                 font:"600 9px sans-serif",
                 background:params.highway,
                 padding:2,
@@ -380,7 +380,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                     fill:params.poisLabel
                 }),
                 languageStack(new OffsetTextSymbolizer({
-                    properties:nametags,
+                    label_props:nametags,
                     fill:params.poisLabel,
                     offset:2,
                     font:"300 10px sans-serif"
