@@ -1,4 +1,7 @@
 import { createPattern, PolygonSymbolizer, IconSymbolizer, ShieldSymbolizer, LineSymbolizer, CenteredTextSymbolizer, OffsetTextSymbolizer, GroupSymbolizer, FlexSymbolizer, CircleSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp, LabelSymbolizer } from '../symbolizer'
+import { Rule } from '../painter'
+import { LabelRule } from '../labeler'
+import { Feature } from '../tilecache'
 import { hsla, parseToHsla } from 'color2k'
 
 export interface DefaultStyleParams {
@@ -46,7 +49,7 @@ const doShading = (params:DefaultStyleParams,shade:string) => {
     return outParams
 }
 
-export const paintRules = (params:DefaultStyleParams,shade:string) => {
+export const paintRules = (params:DefaultStyleParams,shade:string):Rule[] => {
     if (shade) params = doShading(params,shade)
     return [
         {
@@ -60,63 +63,63 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
             symbolizer: new PolygonSymbolizer({
                 fill:params.glacier
             }),
-            filter: (f:any) => { return f.natural == "glacier" }
+            filter: (z:number,f:Feature) => { return f.properties.natural == "glacier" }
         },
         {
             dataLayer: "landuse",
             symbolizer: new PolygonSymbolizer({
                 fill:params.residential
             }),
-            filter:(f:any) => { return f.landuse == "residential" || f.place == "neighbourhood" }
+            filter:(z:number,f:Feature) => { return f.properties.anduse == "residential" || f.properties.place == "neighbourhood" }
         },
         {
             dataLayer: "landuse",
             symbolizer: new PolygonSymbolizer({
                 fill:params.hospital,
             }),
-            filter:(f:any) => { return f.amenity == "hospital" }
+            filter:(z:number,f:Feature) => { return f.properties.amenity == "hospital" }
         },
         {
             dataLayer: "landuse",
             symbolizer: new PolygonSymbolizer({
                 fill:params.cemetery
             }),
-            filter:(f:any) => { return f.landuse == "cemetery" }
+            filter:(z:number,f:Feature) => { return f.properties.landuse == "cemetery" }
         },
         {
             dataLayer: "landuse",
             symbolizer: new PolygonSymbolizer({
                 fill:params.school
             }),
-            filter:(f:any) => { return f.amenity == "school" || f.amenity == "kindergarten" || f.amenity == "university" || f.amenity == "college" }
+            filter:(z:number,f:Feature) => { return f.properties.amenity == "school" || f.properties.amenity == "kindergarten" || f.properties.amenity == "university" || f.properties.amenity == "college" }
         },
         {
             dataLayer: "landuse",
             symbolizer: new PolygonSymbolizer({
                 fill:params.industrial
             }),
-            filter:(f:any) => { return f.landuse == "industrial" }
+            filter:(z:number,f:Feature) => { return f.properties.landuse == "industrial" }
         },
         {
             dataLayer: "natural",
             symbolizer: new PolygonSymbolizer({
                 fill:params.wood
             }),
-            filter:(f:any) => { return f.natural == "wood" }
+            filter:(z:number,f:Feature) => { return f.properties.natural == "wood" }
         },
         {
             dataLayer: "landuse",
             symbolizer: new PolygonSymbolizer({
                 fill:params.grass
             }),
-            filter: (f:any) => { return f.landuse == "grass" }
+            filter: (z:number,f:Feature) => { return f.properties.landuse == "grass" }
         },
         {
             dataLayer: "landuse",
             symbolizer: new PolygonSymbolizer({
                 fill:params.park
             }),
-            filter: (f:any) => { return f.leisure == "park" }
+            filter: (z:number,f:Feature) => { return f.properties.leisure == "park" }
         },
         {
             dataLayer: "water",
@@ -129,7 +132,7 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
             symbolizer: new PolygonSymbolizer({
                 fill:params.sand
             }),
-            filter: (f:any) => { return f.natural == "sand" }
+            filter: (z:number,f:Feature) => { return f.properties.natural == "sand" }
         },
         {
             dataLayer: "buildings",
@@ -143,7 +146,7 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
                 color:params.highwayCasing,
                 width: exp(1.4,[[5,1.5],[11,4],[16,9],[20,40]])
             }),
-            filter: (f:any) => { return f["pmap:kind"] == "highway" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "highway" }
         },
         {
             dataLayer: "roads",
@@ -151,7 +154,7 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
                 color:params.majorRoadCasing,
                 width: exp(1.4,[[9,3],[12,4],[17,8],[20,22]])
             }) ,
-            filter: (f:any) => { return f["pmap:kind"] == "major_road" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "major_road" }
         },
         {
             dataLayer: "roads",
@@ -159,7 +162,7 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
                 color:params.mediumRoadCasing,
                 width: exp(1.4,[[13,3],[17,6],[20,18]])
             }),
-            filter: (f:any) => { return f["pmap:kind"] == "medium_road" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "medium_road" }
         },
         {
             dataLayer: "roads",
@@ -167,7 +170,7 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
                 color:params.minorRoadCasing,
                 width: exp(1.4,[[14,2],[17,5],[20,15]])
             }),
-            filter: (f:any) => { return f["pmap:kind"] == "minor_road" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "minor_road" }
         },
         {
             dataLayer: "roads",
@@ -175,7 +178,7 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
                 color:params.minorRoad,
                 width: exp(1.4,[[14,1],[17,3],[20,13]])
             }),
-            filter: (f:any) => { return f["pmap:kind"] == "minor_road" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "minor_road" }
         },
         {
             dataLayer: "roads",
@@ -183,7 +186,7 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
                 color:params.mediumRoad,
                 width: exp(1.4,[[13,2],[17,4],[20,15]])
             }),
-            filter: (f:any) => { return f["pmap:kind"] == "medium_road" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "medium_road" }
         },
         {
             dataLayer: "roads",
@@ -191,7 +194,7 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
                 color:params.majorRoad,
                 width: exp(1.4,[[9,2],[12,3],[17,6],[20,20]])
             }),
-            filter: (f:any) => { return f["pmap:kind"] == "major_road" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "major_road" }
         },
         {
             dataLayer: "roads",
@@ -199,7 +202,7 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
                 color:params.highway,
                 width: exp(1.4,[[5,0.5],[11,2.5],[16,7],[20,30]])
             }),
-            filter: (f:any) => { return f["pmap:kind"] == "highway" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "highway" }
         },
         {
             dataLayer: "boundaries",
@@ -218,7 +221,7 @@ export const paintRules = (params:DefaultStyleParams,shade:string) => {
     ]
 }
 
-export const labelRules = (params:DefaultStyleParams,shade:string,language1:string[],language2:string[]) => {
+export const labelRules = (params:DefaultStyleParams,shade:string,language1:string[],language2:string[]):LabelRule[] => {
     if (shade) params = doShading(params,shade)
     var nametags = ["name"]
     if (language1) nametags = language1
@@ -256,7 +259,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 },
                 textTransform:"uppercase"
             }),params.countryLabel),
-            filter: (f:any) => { return f["pmap:kind"] == "country" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "country" }
         },
         {
             dataLayer: "places",
@@ -265,12 +268,12 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 fill:params.stateLabel,
                 font:"300 16px sans-serif"
             }),params.stateLabel),
-            filter: (f:any) => { return f["pmap:kind"] == "state" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "state" }
         },
         {
             id:"cities_high",
             dataLayer: "places",
-            filter: (f:any) => { return f["pmap:kind"] == "city" },
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "city" },
             minzoom:7,
             symbolizer: languageStack(new CenteredTextSymbolizer({
                 properties:nametags,
@@ -290,7 +293,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
         {
             id:"cities_low",
             dataLayer: "places",
-            filter: (f:any) => { return f["pmap:kind"] == "city" },
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "city" },
             maxzoom:6,
             symbolizer: new GroupSymbolizer([
                 new CircleSymbolizer({
@@ -323,7 +326,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 font:"500 10px sans-serif",
                 textTransform:"uppercase"
             }),params.neighbourhoodLabel),
-            filter: (f:any) => { return f["pmap:kind"] == "neighbourhood" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "neighbourhood" }
         },
         {
             dataLayer: "landuse",
@@ -367,7 +370,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
                 padding:2,
                 fill:params.neighbourhoodLabel
             }),
-            filter: (f:any) => { return f["pmap:kind"] == "highway" }
+            filter: (z:number,f:Feature) => { return f.properties["pmap:kind"] == "highway" }
         },
         {
             dataLayer: "pois",

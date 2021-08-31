@@ -5,12 +5,12 @@ import { PreparedTile, transformGeom } from './view'
 import { PaintSymbolizer } from './symbolizer'
 import { Index } from './labeler'
 
-export type Filter = (properties: any, feature?: Feature) => boolean
+export type Filter = (zoom: number, feature: Feature) => boolean
 
 export interface Rule {
     id?:string
-    minzoom:number
-    maxzoom:number
+    minzoom?:number
+    maxzoom?:number
     dataLayer: string
     symbolizer: PaintSymbolizer
     filter?:Filter
@@ -56,7 +56,7 @@ export function painter(ctx:any,prepared_tiles:PreparedTile[],label_data:Index,r
                     continue
                 }
                 let properties = feature.properties
-                if (rule.filter && !rule.filter(properties, feature)) continue
+                if (rule.filter && !rule.filter(prepared_tile.z, feature)) continue
                 if (ps != 1) {
                     geom = transformGeom(geom,ps, new Point(0,0))
                 }
