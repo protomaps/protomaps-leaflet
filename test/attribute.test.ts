@@ -1,4 +1,5 @@
 import { FontSpec, TextSpec } from '../src/attribute'
+import { GeomType } from '../src/tilecache'
 import assert from 'assert'
 import baretest from 'baretest'
 
@@ -37,13 +38,13 @@ test('fontspec', async () => {
 
 test ('textspec', async () => {
     let t = new TextSpec()
-    assert.equal(t.str(0,{name:"臺北"}),"臺北")
+    assert.equal(t.str(0,{props:{name:"臺北"},geomType:GeomType.Point}),"臺北")
     t = new TextSpec({properties:["name:en"]})
-    assert.equal(t.str(0,{'name:en':"Taipei",'name':"臺北"}),"Taipei")
+    assert.equal(t.str(0,{props:{'name:en':"Taipei",'name':"臺北"},geomType:GeomType.Point}),"Taipei")
     t = new TextSpec({properties:["name:en"],textTransform:"uppercase"})
-    assert.equal(t.str(0,{'name:en':"Taipei"}),"TAIPEI")
+    assert.equal(t.str(0,{props:{'name:en':"Taipei"},geomType:GeomType.Point}),"TAIPEI")
     t = new TextSpec({properties:["name:en"],textTransform:"uppercase"})
-    assert.equal(t.str(0,{}),undefined)
+    assert.equal(t.str(0,{props:{}}),undefined)
 })
 
 export default test
