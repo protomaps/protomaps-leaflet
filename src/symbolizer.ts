@@ -3,7 +3,7 @@ import Point from '@mapbox/point-geometry'
 import { GeomType, Feature, Bbox } from './tilecache'
 // @ts-ignore
 import polylabel from 'polylabel'
-import { TextSpec, FontSpec } from './attribute'
+import { TextAttr, FontAttr } from './attribute'
 import { linebreak, isCjk } from './text'
 import { lineCells, simpleLabel } from './line'
 import { Index, Label, Layout } from './labeler'
@@ -226,16 +226,16 @@ export class CircleSymbolizer implements LabelSymbolizer, PaintSymbolizer {
 }
 
 export class ShieldSymbolizer implements LabelSymbolizer {
-    font: FontSpec
-    text: TextSpec
+    font: FontAttr
+    text: TextAttr
     background:string
     fill: string
     stroke: string
     padding: number
 
     constructor(options:any) {
-        this.font = new FontSpec(options)
-        this.text = new TextSpec(options)
+        this.font = new FontAttr(options)
+        this.text = new TextAttr(options)
         this.fill = options.fill || "black"
         this.stroke = options.stroke || "white"
         this.background = options.background || "white"
@@ -243,9 +243,9 @@ export class ShieldSymbolizer implements LabelSymbolizer {
     } 
 
     public place(layout:Layout,geom:Point[][],feature:Feature) {
-        let property = this.text.str(layout.zoom,feature)
+        let property = this.text.get(layout.zoom,feature)
         if (!property) return undefined
-        let font = this.font.str(layout.zoom,feature)
+        let font = this.font.get(layout.zoom,feature)
         layout.scratch.font = font
         let metrics = layout.scratch.measureText(property)
 
@@ -357,15 +357,15 @@ export class GroupSymbolizer implements LabelSymbolizer {
 }
 
 export class CenteredTextSymbolizer implements LabelSymbolizer {
-    font: FontSpec
-    text: TextSpec
+    font: FontAttr
+    text: TextAttr
     fill: string
     stroke: number
     width: number
 
     constructor(options:any) {
-        this.font = new FontSpec(options)
-        this.text = new TextSpec(options)
+        this.font = new FontAttr(options)
+        this.text = new TextAttr(options)
 
         this.fill = options.fill 
         this.stroke = options.stroke || "black"
@@ -374,9 +374,9 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
 
     public place(layout:Layout,geom:Point[][],feature:Feature) {
         if (feature.geomType !== GeomType.Point) return undefined
-        let property = this.text.str(layout.zoom,feature)
+        let property = this.text.get(layout.zoom,feature)
         if (!property) return undefined
-        let font = this.font.str(layout.zoom,feature)
+        let font = this.font.get(layout.zoom,feature)
         layout.scratch.font = font
         let metrics = layout.scratch.measureText(property)
 
@@ -413,16 +413,16 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
 }
 
 export class OffsetTextSymbolizer implements LabelSymbolizer {
-    font: FontSpec
-    text: TextSpec
+    font: FontAttr
+    text: TextAttr
     fill: string
     stroke: number
     width: number
     offset: number
 
     constructor(options:any) {
-        this.font = new FontSpec(options)
-        this.text = new TextSpec(options)
+        this.font = new FontAttr(options)
+        this.text = new TextAttr(options)
 
         this.fill = options.fill 
         this.stroke = options.stroke || "black"
@@ -432,9 +432,9 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
 
     public place(layout:Layout,geom:Point[][],feature:Feature) {
         if (feature.geomType !== GeomType.Point) return undefined
-        let property = this.text.str(layout.zoom,feature)
+        let property = this.text.get(layout.zoom,feature)
         if (!property) return undefined
-        let font = this.font.str(layout.zoom,feature)
+        let font = this.font.get(layout.zoom,feature)
         layout.scratch.font = font
         let metrics = layout.scratch.measureText(property)
 
@@ -482,8 +482,8 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
 }
 
 export class LineLabelSymbolizer implements LabelSymbolizer {
-    font: FontSpec
-    text: TextSpec
+    font: FontAttr
+    text: TextAttr
 
     fill: string
     stroke: string
@@ -491,8 +491,8 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     offset: number
 
     constructor(options:any) {
-        this.font = new FontSpec(options)
-        this.text = new TextSpec(options)
+        this.font = new FontAttr(options)
+        this.text = new TextAttr(options)
 
         this.fill = options.fill || "black"
         this.stroke = options.stroke || "black"
@@ -501,7 +501,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     } 
 
     public place(layout:Layout,geom:Point[][],feature:Feature) {
-        let name = this.text.str(layout.zoom,feature)
+        let name = this.text.get(layout.zoom,feature)
         if (!name) return undefined
         if (name.length > 20) return undefined
 
@@ -509,7 +509,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level
         if (area < 400) return undefined
 
-        let font = this.font.str(layout.zoom,feature)
+        let font = this.font.get(layout.zoom,feature)
         layout.scratch.font = font
         let metrics = layout.scratch.measureText(name)
         let width = metrics.width
@@ -557,15 +557,15 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
 }
 
 export class PolygonLabelSymbolizer implements LabelSymbolizer {
-    font:FontSpec
-    text:TextSpec
+    font:FontAttr
+    text:TextAttr
     fill:string
     stroke: string
     width: number
 
     constructor(options:any) {
-        this.font = new FontSpec(options)
-        this.text = new TextSpec(options)
+        this.font = new FontAttr(options)
+        this.text = new TextAttr(options)
 
         this.fill = options.fill || "black"
         this.stroke = options.stroke || "black"
@@ -577,13 +577,13 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
         let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level/overzooming
         if (area < 20000) return undefined
 
-        let property = this.text.str(layout.zoom,feature)
+        let property = this.text.get(layout.zoom,feature)
         if (!property) return undefined
 
         let first_poly = geom[0]
         let found = polylabel([first_poly.map(c => [c.x,c.y])])
         let a = new Point(found[0],found[1])
-        let font = this.font.str(layout.zoom,feature)
+        let font = this.font.get(layout.zoom,feature)
 
         layout.scratch.font = font
 

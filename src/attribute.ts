@@ -1,6 +1,6 @@
 import { Feature } from './tilecache'
 
-export class TextSpec {
+export class TextAttr {
     properties:string[]
     textTransform:string
 
@@ -9,7 +9,7 @@ export class TextSpec {
         this.textTransform = options.textTransform
     }
 
-    public str(z:number,f:Feature):string {
+    public get(z:number,f:Feature):string {
         var retval
         for (let property of this.properties) {
             if (f.props.hasOwnProperty(property)) {
@@ -22,7 +22,7 @@ export class TextSpec {
     }
 }
 
-export class FontSpec {
+export class FontAttr {
     family?: string | ((z:number,f:Feature) => string)
     size?: number | ((z:number,f:Feature) => number)
     weight?: number | ((z:number,f:Feature) => number)
@@ -40,7 +40,7 @@ export class FontSpec {
         }
     }
 
-    public str(z:number,f:Feature) {
+    public get(z:number,f:Feature) {
         if (this.font) {
             if (typeof this.font === 'function') {
                 return this.font(z,f)
