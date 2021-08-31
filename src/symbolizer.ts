@@ -3,7 +3,8 @@ import Point from '@mapbox/point-geometry'
 import { GeomType, Feature, Bbox } from './tilecache'
 // @ts-ignore
 import polylabel from 'polylabel'
-import { TextSpec, FontSpec, linebreak, isCjk } from './text'
+import { TextSpec, FontSpec } from './attribute'
+import { linebreak, isCjk } from './text'
 import { lineCells, simpleLabel } from './line'
 import { Index, Label, Layout } from './labeler'
 

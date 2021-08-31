@@ -6,6 +6,7 @@ import tilecache from './tilecache.test'
 import view from './view.test'
 import labeler from './labeler.test'
 import static_render from './static.test'
+import attribute from './attribute.test'
 
 (async function() {
     let r = []
@@ -17,5 +18,6 @@ import static_render from './static.test'
     r.push(await view.run())
     r.push(await labeler.run())
     r.push(await static_render.run())
+    r.push(await attribute.run())
     if (process.env.CI && !r.every(Boolean)) process.exit(1)
 })()
