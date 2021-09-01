@@ -206,7 +206,10 @@ let project = (latlng:number[]) => {
     return new Point(R*latlng[1]*d,R*Math.log((1+sin)/(1-sin))/2)
 }
 
-export type PickedFeature = Feature & {layerName:string}
+export interface PickedFeature {
+    feature: Feature
+    layerName: string
+}
 
 export class TileCache {
     source: TileSource
@@ -221,7 +224,7 @@ export class TileCache {
         this.tileSize = tileSize
     }
 
-    public queryFeatures(lng:number,lat:number,zoom:number):Feature[] {
+    public queryFeatures(lng:number,lat:number,zoom:number):PickedFeature[] {
         let projected = project([lat,lng])
         var normalized = new Point((projected.x+MAXCOORD)/(MAXCOORD*2),1-(projected.y+MAXCOORD)/(MAXCOORD*2))
         if (normalized.x > 1) normalized.x = normalized.x - Math.floor(normalized.x)
@@ -239,7 +242,7 @@ export class TileCache {
                 for (let feature of layer_arr) {
                     if ((query_bbox.maxX >= feature.bbox.minX && feature.bbox.maxX >= query_bbox.minX) &&
                         (query_bbox.maxY >= feature.bbox.minY && feature.bbox.maxY >= query_bbox.minY)) {
-                        retval.push({...feature, layerName: layer_name})
+                        retval.push({feature, layerName: layer_name})
                     }
                 }
             }
