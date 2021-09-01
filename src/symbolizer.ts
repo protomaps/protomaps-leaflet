@@ -34,26 +34,31 @@ export class PolygonSymbolizer implements PaintSymbolizer {
     pattern: any // FIXME
     fill: ColorAttr
     opacity: NumberAttr
+    per_feature: boolean
 
     constructor(options:any) {
         this.pattern = options.pattern
         this.fill = new ColorAttr(options.fill)
         this.opacity = new NumberAttr(options.opacity,1)
+        this.per_feature = (this.fill.per_feature || this.opacity.per_feature)
     }
 
     public before(ctx:any,z:number) {
-        // if (this.pattern) {
-        //     ctx.fillStyle = ctx.createPattern(this.pattern, 'repeat')
-        // } else {
-        //     ctx.fillStyle = this.fill
-        // }
-        // ctx.globalAlpha = this.opacity
+        if (!this.per_feature) {
+            ctx.globalAlpha = this.opacity.get(z)
+            ctx.fillStyle = this.fill.get(z)
+        }
+        if (this.pattern) {
+            ctx.fillStyle = ctx.createPattern(this.pattern, 'repeat')
+        }
         // ctx.imageSmoothingEnabled = false // broken on safari
     }
 
     public draw(ctx:any,geom:Point[][],z:number,f:Feature) {
-        ctx.fillStyle = this.fill.get(z,f)
-        ctx.globalAlpha = this.opacity.get(z,f)
+        if (this.per_feature) {
+            ctx.fillStyle = this.fill.get(z,f)
+            ctx.globalAlpha = this.opacity.get(z,f)
+        }
 
         ctx.beginPath()
         for (var poly of geom) {
@@ -105,6 +110,7 @@ export class LineSymbolizer implements PaintSymbolizer {
     dashColor: ColorAttr
     dashWidth: NumberAttr
     skip: boolean
+    per_feature: boolean
 
     constructor(options:any) {
         this.color = new ColorAttr(options.color)
@@ -114,19 +120,15 @@ export class LineSymbolizer implements PaintSymbolizer {
         this.dashColor = new ColorAttr(options.dashColor)
         this.dashWidth = new NumberAttr(options.dashWidth)
         this.skip = false
+        this.per_feature = (this.dash || this.color.per_feature || this.opacity.per_feature || this.width.per_feature)
     } 
 
     public before(ctx:any,z:number) {
-        // ctx.strokeStyle = this.color
-        // ctx.globalAlpha = this.opacity
-
-        // if (isFunction(this.width) && this.width.length == 1) {
-        //     let width = this.width(z)
-        //     this.skip = (width === 0)
-        //     ctx.lineWidth = width
-        // } else {
-        //     ctx.lineWidth = this.width
-        // }
+        if (!this.per_feature) {
+            ctx.strokeStyle = this.color.get(z)
+            ctx.lineWidth = this.width.get(z)
+            ctx.globalAlpha = this.opacity.get(z)
+        }
     }
 
     public draw(ctx:any,geom:Point[][],z:number,f:Feature) {
@@ -140,17 +142,23 @@ export class LineSymbolizer implements PaintSymbolizer {
             }
         }
 
-        ctx.globalAlpha = this.opacity.get(z,f)
+        if (this.per_feature) {
+            ctx.globalAlpha = this.opacity.get(z,f)
+        }
         if (this.dash) {
             ctx.save()
-            ctx.lineWidth = this.dashWidth.get(z,f)
-            ctx.strokeStyle = this.dashColor.get(z,f)
+            if (this.per_feature) {
+                ctx.lineWidth = this.dashWidth.get(z,f)
+                ctx.strokeStyle = this.dashColor.get(z,f)
+            }
             ctx.setLineDash(this.dash)
             ctx.stroke()
             ctx.restore()
         } else {
-            ctx.lineWidth = this.width.get(z,f)
-            ctx.strokeStyle = this.color.get(z,f)
+            if (this.per_feature) {
+                ctx.lineWidth = this.width.get(z,f)
+                ctx.strokeStyle = this.color.get(z,f)
+            }
             ctx.stroke()
         }
     }

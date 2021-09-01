@@ -21,6 +21,13 @@ test('numberattr', async () => {
     n = new NumberAttr((z,f) => { return z },0)
     assert.equal(n.get(2),2)
     assert.equal(n.get(3),3)
+
+    n = new NumberAttr(1)
+    assert.equal(n.per_feature,false)
+    n = new NumberAttr(z => { return z })
+    assert.equal(n.per_feature,false)
+    n = new NumberAttr((z,f) => { return z })
+    assert.equal(n.per_feature,true)
 })
 
 test('colorattr', async () => {
@@ -39,6 +46,8 @@ test('colorattr', async () => {
     })
     assert.equal(c.get(3),"green")
     assert.equal(c.get(5),"aquamarine")
+    assert.equal(c.per_feature,true)
+
 })
 
 test('fontattr', async () => {

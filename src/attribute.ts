@@ -1,13 +1,15 @@
 import { Feature } from './tilecache'
 
 export class ColorAttr {
-    color: string | ((z:number,f:Feature) => string)
+    color: string | ((z:number,f?:Feature) => string)
+    per_feature: boolean
 
     constructor(c:any,defaultValue:string = "black") {
         this.color = c || defaultValue
+        this.per_feature = (typeof this.color == 'function' && this.color.length == 2)
     }
 
-    public get(z:number,f:Feature):string {
+    public get(z:number,f?:Feature):string {
         if (typeof this.color == 'function') {
             return this.color(z,f)
         } else {
@@ -17,13 +19,15 @@ export class ColorAttr {
 }
 
 export class NumberAttr {
-    value: number | ((z:number,f:Feature) => number)
+    value: number | ((z:number,f?:Feature) => number)
+    per_feature: boolean
 
     constructor(c:any,defaultValue:number = 1) {
         this.value = c || defaultValue
+        this.per_feature = (typeof this.value == 'function' && this.value.length == 2)
     }
 
-    public get(z:number,f:Feature):number {
+    public get(z:number,f?:Feature):number {
         if (typeof this.value == 'function') {
             return this.value(z,f)
         } else {
