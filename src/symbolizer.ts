@@ -210,17 +210,18 @@ export class CircleSymbolizer implements LabelSymbolizer, PaintSymbolizer {
     public draw(ctx:any,geom:Point[][],z:number,f:Feature) {
         ctx.globalAlpha = this.opacity.get(z,f)
 
+        let radius = this.radius.get(z,f)
         let width = this.width.get(z,f)
         if (width > 0) {
             ctx.fillStyle = this.stroke.get(z,f)
             ctx.beginPath()
-            ctx.arc(geom[0][0].x,geom[0][0].y, this.radius.get(z,f) + this.width.get(z,f), 0, 2* Math.PI)
+            ctx.arc(geom[0][0].x,geom[0][0].y, radius + width, 0, 2* Math.PI)
             ctx.fill()
         }
 
         ctx.fillStyle = this.fill.get(z,f)
         ctx.beginPath()
-        ctx.arc(geom[0][0].x,geom[0][0].y, this.radius, 0, 2* Math.PI)
+        ctx.arc(geom[0][0].x,geom[0][0].y, radius, 0, 2* Math.PI)
         ctx.fill()
     }
 
