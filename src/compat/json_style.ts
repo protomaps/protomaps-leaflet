@@ -1,59 +1,61 @@
-import { PolygonSymbolizer, LineSymbolizer, LineLabelSymbolizer, CenteredTextSymbolizer, exp } from './../symbolizer'
+import { PolygonSymbolizer, LineSymbolizer, LineLabelSymbolizer, CenteredTextSymbolizer, exp, CircleSymbolizer } from './../symbolizer'
+import { Filter } from '../painter'
+import { Feature } from '../tilecache'
 
-export function filterFn(arr:any[]):((f:any)=>boolean) {
+export function filterFn(arr:any[]):Filter {
     // hack around "$type"
     if (arr.includes("$type")) {
-        return f => true 
+        return z => true 
     } else if (arr[0] == "==") {
-        return f => f[arr[1]] === arr[2]
+        return (z,f) => f.props[arr[1]] === arr[2]
     } else if (arr[0] == "!=") {
-        return f => f[arr[1]] !== arr[2]
+        return (z,f) => f.props[arr[1]] !== arr[2]
     } else if (arr[0] == "!") {
         let sub = filterFn(arr[1])
-        return f => !sub(f)
+        return (z,f) => !sub(z,f)
     } else if (arr[0] === "<") {
-        return f => f[arr[1]] < arr[2]
+        return (z,f) => f.props[arr[1]] < arr[2]
     } else if (arr[0] === "<=") {
-        return f => f[arr[1]] <= arr[2]
+        return (z,f) => f.props[arr[1]] <= arr[2]
     } else if (arr[0] === ">") {
-        return f => f[arr[1]] > arr[2]
+        return (z,f) => f.props[arr[1]] > arr[2]
     } else if (arr[0] === ">=") {
-        return f => f[arr[1]] >= arr[2]
+        return (z,f) => f.props[arr[1]] >= arr[2]
     } else if (arr[0] === "in") {
-        return f => arr.slice(2,arr.length).includes(f[arr[1]])
+        return (z,f) => arr.slice(2,arr.length).includes(f.props[arr[1]])
     } else if (arr[0] === "!in") {
-        return f => !arr.slice(2,arr.length).includes(f[arr[1]])
+        return (z,f) => !arr.slice(2,arr.length).includes(f.props[arr[1]])
     } else if (arr[0] === "has") {
-        return f => f.hasOwnProperty(arr[1])
+        return (z,f) => f.props.hasOwnProperty(arr[1])
     } else if (arr[0] === "!has") {
-        return f => !f.hasOwnProperty(arr[1])
+        return (z,f) => !f.props.hasOwnProperty(arr[1])
     } else if (arr[0] === "all") {
         let parts = arr.slice(1,arr.length).map(e => filterFn(e))
-        return f => parts.every(p => { return p(f)})
+        return (z,f) => parts.every(p => { return p(z,f)})
     } else if (arr[0] === "any") {
         let parts = arr.slice(1,arr.length).map(e => filterFn(e))
-        return f => parts.some(p => { return p(f) })
+        return (z,f) => parts.some(p => { return p(z,f) })
     } else {
         console.log("Unimplemented filter: ",arr[0])
         return f => false
     }
 }
 
-export function numberFn(obj:any):((z:number,f:any)=>number) {
+export function numberFn(obj:any):((z:number,f:Feature)=>number) {
     if (obj.base && obj.stops) {
-        return (z,f) => { return exp(obj.base,obj.stops)(z-1) }
+        return (z:number) => { return exp(obj.base,obj.stops)(z-1) }
     } else if (obj[0] == 'interpolate' && obj[1][0] == "exponential" && obj[2] == "zoom") {
         let slice = obj.slice(3)
         let stops:number[][] = []
         for (var i = 0; i < slice.length; i+=2) {
             stops.push([slice[i],slice[i+1]])
         }
-        return (z) => { return exp(obj[1][1],stops)(z-1) }
+        return (z:number) => { return exp(obj[1][1],stops)(z-1) }
     } else if (obj[0] == 'step' && obj[1][0] == 'get') {
         let slice = obj.slice(2)
         let prop = obj[1][1]
-        return (z,props) => {
-            let val = props[prop]
+        return (z:number,f:Feature) => {
+            let val = f.props[prop]
             if (val < slice[1]) return slice[0]
             for (i = 1; i < slice.length; i+=2) {
                 if (val <= slice[i]) return slice[i+1]
@@ -66,7 +68,7 @@ export function numberFn(obj:any):((z:number,f:any)=>number) {
     }
 }
 
-export function numberOrFn(obj:any,defaultValue = 0):(number|((z:number,f:any)=>number)) {
+export function numberOrFn(obj:any,defaultValue = 0):(number|((z:number,f:Feature)=>number)) {
     if (!obj) return defaultValue
     if (typeof obj == "number") {
         return obj
@@ -77,10 +79,10 @@ export function numberOrFn(obj:any,defaultValue = 0):(number|((z:number,f:any)=>
 export function widthFn(width_obj:any,gap_obj:any) {
     let w = numberOrFn(width_obj,1)
     let g = numberOrFn(gap_obj)
-    return (z:number) => {
-        let tmp = (typeof(w) == "number" ? w : w(z,{}))
+    return (z:number,f:Feature) => {
+        let tmp = (typeof(w) == "number" ? w : w(z,f))
         if (g) {
-            return tmp + (typeof(g) == "number" ? g : g(z,{}))
+            return tmp + (typeof(g) == "number" ? g : g(z,f))
         }
         return tmp
     }
@@ -114,17 +116,17 @@ export function getFont(obj:any,fontsubmap:any) {
         var base = 1.4
         if(text_size.base) base = text_size.base
         let t = numberFn(text_size)
-        return (z:number) => {
-            return `${style}${weight}${t(z,{})}px ${fontfaces.map(f => f.face).join(', ')}`
+        return (z:number,feature:Feature) => {
+            return `${style}${weight}${t(z,feature)}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else if (text_size[0] == 'step') {
         let t = numberFn(text_size)
-        return (z:number,p:any) => {
-            return `${style}${weight}${t(z,p)}px ${fontfaces.map(f => f.face).join(', ')}`
+        return (z:number,feature:Feature) => {
+            return `${style}${weight}${t(z,feature)}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else {
         console.log("Can't parse font: ", obj)
-        return (z:number,p:any) => "12px sans-serif"
+        return (z:number) => "12px sans-serif"
     }
 }
 
@@ -209,7 +211,8 @@ export function json_style(obj:any,fontsubmap:Map<string,FontSub>) {
                         fill:layer.paint['text-color'],
                         width:layer.paint['text-halo-width'],
                         stroke:layer.paint['text-halo-color'],
-                        textTransform:layer.layout["text-transform"]
+                        textTransform:layer.layout["text-transform"],
+                        label_props:layer.layout["text-field"] ? [layer.layout["text-field"]] : undefined
                     })
                 })
             } else {
@@ -221,11 +224,23 @@ export function json_style(obj:any,fontsubmap:Map<string,FontSub>) {
                         fill: layer.paint['text-color'],
                         stroke: layer.paint['text-halo-color'],
                         width:layer.paint['text-halo-width'],
-                        textTransform:layer.layout["text-transform"]
+                        textTransform:layer.layout["text-transform"],
+                        label_props:layer.layout["text-field"] ? [layer.layout["text-field"]] : undefined
                     })
                 })
             }
-        }
+        } else if (layer.type == "circle") {
+            paint_rules.push({
+                dataLayer: layer['source-layer'],
+                filter:filter,
+                symbolizer: new CircleSymbolizer({
+                    radius:layer.paint['circle-radius'],
+                    fill:layer.paint['circle-color'],
+                    stroke:layer.paint['circle-stroke-color'],
+                    width:layer.paint['circle-stroke-width']
+                })
+            })
+        } 
     }
 
     label_rules.reverse()

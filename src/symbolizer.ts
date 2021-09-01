@@ -3,13 +3,14 @@ import Point from '@mapbox/point-geometry'
 import { GeomType, Feature, Bbox } from './tilecache'
 // @ts-ignore
 import polylabel from 'polylabel'
-import { TextSpec, FontSpec, linebreak, isCjk } from './text'
+import { NumberAttr, ColorAttr, TextAttr, FontAttr } from './attribute'
+import { linebreak, isCjk } from './text'
 import { lineCells, simpleLabel } from './line'
 import { Index, Label, Layout } from './labeler'
 
 export interface PaintSymbolizer {
     before?(ctx:any,z:number):void
-    draw(ctx:any,geom:Point[][],properties:any):void
+    draw(ctx:any,geom:Point[][],z:number,feature:Feature):void
 }
 
 export interface LabelSymbolizer {
@@ -30,28 +31,35 @@ export const createPattern = (width:number,height:number, fn:((canvas:any,ctx:an
 }
 
 export class PolygonSymbolizer implements PaintSymbolizer {
-    fill: string
-    opacity: number
     pattern: any // FIXME
+    fill: ColorAttr
+    opacity: NumberAttr
+    per_feature: boolean
 
     constructor(options:any) {
-        this.fill = options.fill || "#000000"
-        this.opacity = options.opacity || 1
         this.pattern = options.pattern
-
+        this.fill = new ColorAttr(options.fill)
+        this.opacity = new NumberAttr(options.opacity,1)
+        this.per_feature = (this.fill.per_feature || this.opacity.per_feature)
     }
 
-    public before(ctx:any) {
+    public before(ctx:any,z:number) {
+        if (!this.per_feature) {
+            ctx.globalAlpha = this.opacity.get(z)
+            ctx.fillStyle = this.fill.get(z)
+        }
         if (this.pattern) {
             ctx.fillStyle = ctx.createPattern(this.pattern, 'repeat')
-        } else {
-            ctx.fillStyle = this.fill
         }
-        ctx.globalAlpha = this.opacity
         // ctx.imageSmoothingEnabled = false // broken on safari
     }
 
-    public draw(ctx:any,geom:Point[][],properties:any) {
+    public draw(ctx:any,geom:Point[][],z:number,f:Feature) {
+        if (this.per_feature) {
+            ctx.fillStyle = this.fill.get(z,f)
+            ctx.globalAlpha = this.opacity.get(z,f)
+        }
+
         ctx.beginPath()
         for (var poly of geom) {
             for (var p = 0; p < poly.length-1; p++) {
@@ -95,38 +103,35 @@ function isFunction(obj:any) {
 }
 
 export class LineSymbolizer implements PaintSymbolizer {
-    color:string
-    width:any
-    opacity:number
-    skip:boolean
-    dash:any
-    dashColor:string
-    dashWidth:number
+    color: ColorAttr
+    width: NumberAttr
+    opacity: NumberAttr
+    dash: any
+    dashColor: ColorAttr
+    dashWidth: NumberAttr
+    skip: boolean
+    per_feature: boolean
 
     constructor(options:any) {
-        this.color = options.color || "#000000"
-        this.width = options.width || 1
-        this.opacity = options.opacity || 1
-        this.skip = false
+        this.color = new ColorAttr(options.color)
+        this.width = new NumberAttr(options.width)
+        this.opacity = new NumberAttr(options.opacity)
         this.dash = options.dash
-        this.dashColor = options.dashColor || "black"
-        this.dashWidth = options.dashWidth || 1
+        this.dashColor = new ColorAttr(options.dashColor)
+        this.dashWidth = new NumberAttr(options.dashWidth)
+        this.skip = false
+        this.per_feature = (this.dash || this.color.per_feature || this.opacity.per_feature || this.width.per_feature)
     } 
 
     public before(ctx:any,z:number) {
-        ctx.strokeStyle = this.color
-        ctx.globalAlpha = this.opacity
-
-        if (isFunction(this.width) && this.width.length == 1) {
-            let width = this.width(z)
-            this.skip = (width === 0)
-            ctx.lineWidth = width
-        } else {
-            ctx.lineWidth = this.width
+        if (!this.per_feature) {
+            ctx.strokeStyle = this.color.get(z)
+            ctx.lineWidth = this.width.get(z)
+            ctx.globalAlpha = this.opacity.get(z)
         }
     }
 
-    public draw(ctx:any,geom:Point[][],properties:any) {
+    public draw(ctx:any,geom:Point[][],z:number,f:Feature) {
         if (this.skip) return
         ctx.beginPath()
         for (var ls of geom) {
@@ -137,14 +142,23 @@ export class LineSymbolizer implements PaintSymbolizer {
             }
         }
 
+        if (this.per_feature) {
+            ctx.globalAlpha = this.opacity.get(z,f)
+        }
         if (this.dash) {
             ctx.save()
-            ctx.lineWidth = this.dashWidth
-            ctx.strokeStyle = this.dashColor
+            if (this.per_feature) {
+                ctx.lineWidth = this.dashWidth.get(z,f)
+                ctx.strokeStyle = this.dashColor.get(z,f)
+            }
             ctx.setLineDash(this.dash)
             ctx.stroke()
             ctx.restore()
         } else {
+            if (this.per_feature) {
+                ctx.lineWidth = this.width.get(z,f)
+                ctx.strokeStyle = this.color.get(z,f)
+            }
             ctx.stroke()
         }
     }
@@ -159,7 +173,7 @@ export class IconSymbolizer implements LabelSymbolizer {
         this.name = options.name
     } 
 
-    public place(layout:Layout,geom:Point[][],feature:any) {
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
         let pt = geom[0]
         let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
@@ -178,69 +192,75 @@ export class IconSymbolizer implements LabelSymbolizer {
     }
 }
 
-export class CircleSymbolizer implements LabelSymbolizer {
-    radius: number
-    fill: string
-    stroke: string
-    width: number
+export class CircleSymbolizer implements LabelSymbolizer, PaintSymbolizer {
+    radius: NumberAttr
+    fill: ColorAttr
+    stroke: ColorAttr
+    width: NumberAttr
+    opacity: NumberAttr
 
     constructor(options:any) {
-        this.radius = options.radius || 3
-        this.fill = options.fill || "black"
-        this.stroke = options.stroke || "white"
-        this.width = options.width || 0
+        this.radius = new NumberAttr(options.radius,3)
+        this.fill = new ColorAttr(options.fill)
+        this.stroke = new ColorAttr(options.stroke,"white")
+        this.width = new NumberAttr(options.width,0) // TODO 0 is falsy
+        this.opacity = new NumberAttr(options.opacity)
     } 
+    
+    public draw(ctx:any,geom:Point[][],z:number,f:Feature) {
+        ctx.globalAlpha = this.opacity.get(z,f)
 
-    public place(layout:Layout,geom:Point[][],feature:any) {
+        let width = this.width.get(z,f)
+        if (width > 0) {
+            ctx.fillStyle = this.stroke.get(z,f)
+            ctx.beginPath()
+            ctx.arc(geom[0][0].x,geom[0][0].y, this.radius.get(z,f) + this.width.get(z,f), 0, 2* Math.PI)
+            ctx.fill()
+        }
+
+        ctx.fillStyle = this.fill.get(z,f)
+        ctx.beginPath()
+        ctx.arc(geom[0][0].x,geom[0][0].y, this.radius, 0, 2* Math.PI)
+        ctx.fill()
+    }
+
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
         let pt = geom[0]
         let a = new Point(geom[0][0].x,geom[0][0].y)
+        let radius = this.radius.get(layout.zoom,feature)
         let bbox = {
-            minX:a.x-this.radius, 
-            minY:a.y-this.radius,
-            maxX:a.x+this.radius,
-            maxY:a.y+this.radius
+            minX:a.x-radius, 
+            minY:a.y-radius,
+            maxX:a.x+radius,
+            maxY:a.y+radius
         }
 
         let draw = (ctx:any) => {
-            ctx.globalAlpha = 1
-
-            if (this.width > 0) {
-                ctx.fillStyle = this.stroke
-                ctx.beginPath()
-                ctx.arc(0,0, this.radius + this.width, 0, 2* Math.PI)
-                ctx.fill()
-            }
-
-            ctx.fillStyle = this.fill
-            ctx.beginPath()
-            ctx.arc(0,0, this.radius, 0, 2* Math.PI)
-            ctx.fill()
+            this.draw(ctx, [[new Point(0,0)]],layout.zoom, feature)
         }
-        return [{anchor:a,bboxes:[bbox],draw:draw}]
+        return [{anchor:a,bboxes:[bbox],draw}]
     }
 }
 
 export class ShieldSymbolizer implements LabelSymbolizer {
-    font: FontSpec
-    text: TextSpec
-    background:string
-    fill: string
-    stroke: string
-    padding: number
+    font: FontAttr
+    text: TextAttr
+    background: ColorAttr
+    fill: ColorAttr
+    padding: NumberAttr
 
     constructor(options:any) {
-        this.font = new FontSpec(options)
-        this.text = new TextSpec(options)
-        this.fill = options.fill || "black"
-        this.stroke = options.stroke || "white"
-        this.background = options.background || "white"
-        this.padding = options.padding || 0
+        this.font = new FontAttr(options)
+        this.text = new TextAttr(options)
+        this.fill = new ColorAttr(options.fill)
+        this.background = new ColorAttr(options.background,"white")
+        this.padding = new NumberAttr(options.padding,0) // TODO check falsy
     } 
 
-    public place(layout:Layout,geom:Point[][],feature:any) {
-        let property = this.text.str(layout.zoom,feature.properties)
+    public place(layout:Layout,geom:Point[][],f:Feature) {
+        let property = this.text.get(layout.zoom,f)
         if (!property) return undefined
-        let font = this.font.str(layout.zoom,feature.properties)
+        let font = this.font.get(layout.zoom,f)
         layout.scratch.font = font
         let metrics = layout.scratch.measureText(property)
 
@@ -250,7 +270,7 @@ export class ShieldSymbolizer implements LabelSymbolizer {
 
         let pt = geom[0]
         let a = new Point(geom[0][0].x,geom[0][0].y)
-        let p = this.padding
+        let p = this.padding.get(layout.zoom,f)
         let bbox = {
             minX:a.x-width/2-p, 
             minY:a.y-ascent-p,
@@ -260,9 +280,9 @@ export class ShieldSymbolizer implements LabelSymbolizer {
 
         let draw = (ctx:any) => {
             ctx.globalAlpha = 1
-            ctx.fillStyle = this.background
+            ctx.fillStyle = this.background.get(layout.zoom,f)
             ctx.fillRect(-width/2-p,-ascent-p,width+2*p,ascent+descent+2*p)
-            ctx.fillStyle = this.fill
+            ctx.fillStyle = this.fill.get(layout.zoom,f)
             ctx.font = font
             ctx.fillText(property,-width/2,0)
         }
@@ -278,7 +298,7 @@ export class FlexSymbolizer implements LabelSymbolizer {
         this.list = list
     }
 
-    public place(layout:Layout,geom:Point[][],feature:any) {
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
         var labels = this.list[0].place(layout,geom,feature)
         if (!labels) return undefined
         var label = labels[0]
@@ -326,7 +346,7 @@ export class GroupSymbolizer implements LabelSymbolizer {
         this.list = list
     }
 
-    public place(layout:Layout,geom:Point[][],feature:any) {
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
         let first = this.list[0]
         if (!first) return undefined
         var labels = first.place(layout,geom,feature)
@@ -352,26 +372,26 @@ export class GroupSymbolizer implements LabelSymbolizer {
 }
 
 export class CenteredTextSymbolizer implements LabelSymbolizer {
-    font: FontSpec
-    text: TextSpec
-    fill: string
-    stroke: number
-    width: number
+    font: FontAttr
+    text: TextAttr
+    fill: ColorAttr
+    stroke:ColorAttr 
+    width: NumberAttr
 
     constructor(options:any) {
-        this.font = new FontSpec(options)
-        this.text = new TextSpec(options)
+        this.font = new FontAttr(options)
+        this.text = new TextAttr(options)
 
-        this.fill = options.fill 
-        this.stroke = options.stroke || "black"
-        this.width = options.width || 0
+        this.fill = new ColorAttr(options.fill)
+        this.stroke = new ColorAttr(options.stroke)
+        this.width = new NumberAttr(options.width,0)
     }
 
-    public place(layout:Layout,geom:Point[][],feature:any) {
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
         if (feature.geomType !== GeomType.Point) return undefined
-        let property = this.text.str(layout.zoom,feature.properties)
+        let property = this.text.get(layout.zoom,feature)
         if (!property) return undefined
-        let font = this.font.str(layout.zoom,feature.properties)
+        let font = this.font.get(layout.zoom,feature)
         layout.scratch.font = font
         let metrics = layout.scratch.measureText(property)
 
@@ -393,13 +413,14 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
             ctx.globalAlpha = 1
             ctx.font = font
 
-            if (this.width) {
-                ctx.lineWidth = this.width * 2 // centered stroke
-                ctx.strokeStyle = this.stroke
+            let lineWidth = this.width.get(layout.zoom,feature)
+            if (lineWidth) {
+                ctx.lineWidth = lineWidth * 2 // centered stroke
+                ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
                 ctx.strokeText(property,textX,0)
             }
 
-            ctx.fillStyle = this.fill
+            ctx.fillStyle = this.fill.get(layout.zoom,feature)
             ctx.fillText(property,textX,0)
 
         }
@@ -408,28 +429,28 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
 }
 
 export class OffsetTextSymbolizer implements LabelSymbolizer {
-    font: FontSpec
-    text: TextSpec
-    fill: string
-    stroke: number
-    width: number
-    offset: number
+    font: FontAttr
+    text: TextAttr
+    fill: ColorAttr
+    stroke: ColorAttr
+    width: NumberAttr
+    offset: NumberAttr
 
     constructor(options:any) {
-        this.font = new FontSpec(options)
-        this.text = new TextSpec(options)
+        this.font = new FontAttr(options)
+        this.text = new TextAttr(options)
 
-        this.fill = options.fill 
-        this.stroke = options.stroke || "black"
-        this.width = options.width || 0
-        this.offset = options.offset || 0
+        this.fill = new ColorAttr(options.fill)
+        this.stroke = new ColorAttr(options.stroke)
+        this.width = new NumberAttr(options.width,0)
+        this.offset = new NumberAttr(options.offset,0)
     }
 
-    public place(layout:Layout,geom:Point[][],feature:any) {
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
         if (feature.geomType !== GeomType.Point) return undefined
-        let property = this.text.str(layout.zoom,feature.properties)
+        let property = this.text.get(layout.zoom,feature)
         if (!property) return undefined
-        let font = this.font.str(layout.zoom,feature.properties)
+        let font = this.font.get(layout.zoom,feature)
         layout.scratch.font = font
         let metrics = layout.scratch.measureText(property)
 
@@ -438,19 +459,20 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
         let descent = metrics.actualBoundingBoxDescent
 
         let a = new Point(geom[0][0].x,geom[0][0].y)
-        let offset = this.offset
+        let offset = this.offset.get(layout.zoom,feature)
 
         var text_origin = new Point(offset,-offset)
 
         let draw = (ctx:any) => {
             ctx.globalAlpha = 1
             ctx.font = font
-            if (this.width) {
-                ctx.lineWidth = this.width * 2 // centered stroke
-                ctx.strokeStyle = this.stroke
+            let width = this.width.get(layout.zoom,feature)
+            if (width) {
+                ctx.lineWidth = width * 2 // centered stroke
+                ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
                 ctx.strokeText(property,text_origin.x,text_origin.y)
             }
-            ctx.fillStyle = this.fill
+            ctx.fillStyle = this.fill.get(layout.zoom,feature)
             ctx.fillText(property,text_origin.x,text_origin.y)
         }
 
@@ -477,26 +499,26 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
 }
 
 export class LineLabelSymbolizer implements LabelSymbolizer {
-    font: FontSpec
-    text: TextSpec
+    font: FontAttr
+    text: TextAttr
 
-    fill: string
-    stroke: string
-    width: number
-    offset: number
+    fill: ColorAttr
+    stroke: ColorAttr
+    width: NumberAttr
+    offset: NumberAttr
 
     constructor(options:any) {
-        this.font = new FontSpec(options)
-        this.text = new TextSpec(options)
+        this.font = new FontAttr(options)
+        this.text = new TextAttr(options)
 
-        this.fill = options.fill || "black"
-        this.stroke = options.stroke || "black"
-        this.width = options.width || 0
-        this.offset = options.offset || 0
+        this.fill = new ColorAttr(options.fill)
+        this.stroke = new ColorAttr(options.stroke)
+        this.width = new NumberAttr(options.width,0)
+        this.offset = new NumberAttr(options.offset,0)
     } 
 
-    public place(layout:Layout,geom:Point[][],feature:any) {
-        let name = this.text.str(layout.zoom,feature.properties)
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
+        let name = this.text.get(layout.zoom,feature)
         if (!name) return undefined
         if (name.length > 20) return undefined
 
@@ -504,7 +526,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level
         if (area < 400) return undefined
 
-        let font = this.font.str(layout.zoom,feature.properties)
+        let font = this.font.get(layout.zoom,feature)
         layout.scratch.font = font
         let metrics = layout.scratch.measureText(name)
         let width = metrics.width
@@ -536,14 +558,15 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
                 ctx.scale(-1,-1)
                 ctx.translate(-width,0)
             }
-            ctx.translate(0,-this.offset)
+            ctx.translate(0,-this.offset.get(layout.zoom,feature))
             ctx.font = font
-            if (this.width) {
-                ctx.lineWidth = this.width
-                ctx.strokeStyle = this.stroke
+            let lineWidth = this.width.get(layout.zoom,feature)
+            if (lineWidth) {
+                ctx.lineWidth = lineWidth
+                ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
                 ctx.strokeText(name,0,0)
             }
-            ctx.fillStyle = this.fill
+            ctx.fillStyle = this.fill.get(layout.zoom,feature)
             ctx.fillText(name,0,0)
         }
 
@@ -552,33 +575,33 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
 }
 
 export class PolygonLabelSymbolizer implements LabelSymbolizer {
-    font:FontSpec
-    text:TextSpec
-    fill:string
-    stroke: string
-    width: number
+    font:FontAttr
+    text:TextAttr
+    fill:ColorAttr
+    stroke: ColorAttr
+    width: NumberAttr
 
     constructor(options:any) {
-        this.font = new FontSpec(options)
-        this.text = new TextSpec(options)
+        this.font = new FontAttr(options)
+        this.text = new TextAttr(options)
 
-        this.fill = options.fill || "black"
-        this.stroke = options.stroke || "black"
-        this.width = options.width || 0
+        this.fill = new ColorAttr(options.fill)
+        this.stroke = new ColorAttr(options.stroke)
+        this.width = new NumberAttr(options.width,0)
     }
 
-    public place(layout:Layout,geom:Point[][],feature:any) {
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
         let fbbox = feature.bbox
         let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level/overzooming
         if (area < 20000) return undefined
 
-        let property = this.text.str(layout.zoom,feature.properties)
+        let property = this.text.get(layout.zoom,feature)
         if (!property) return undefined
 
         let first_poly = geom[0]
         let found = polylabel([first_poly.map(c => [c.x,c.y])])
         let a = new Point(found[0],found[1])
-        let font = this.font.str(layout.zoom,feature.properties)
+        let font = this.font.get(layout.zoom,feature)
 
         layout.scratch.font = font
 
@@ -604,7 +627,7 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
             maxY:a.y+(lineHeight*lines.length-metrics.actualBoundingBoxAscent)
         }
 
-        let fill = this.fill
+        let fill = this.fill.get(layout.zoom,feature)
 
         let draw = (ctx:any) => {
             ctx.globalAlpha = 1
@@ -612,10 +635,11 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
             ctx.font = font
 
             var y = 0
+            let lineWidth = this.width.get(layout.zoom,feature)
             for (let line of lines) {
-                if (this.width) {
-                    ctx.lineWidth = this.width
-                    ctx.strokeStyle = this.stroke
+                if (lineWidth) {
+                    ctx.lineWidth = lineWidth
+                    ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
                     ctx.strokeText(line,-width/2,y)
                 }
                 ctx.fillStyle = fill

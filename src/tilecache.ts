@@ -21,7 +21,7 @@ export interface Bbox {
 }
 
 export interface Feature {
-    readonly properties: any
+    readonly props: any
     readonly bbox: Bbox
     readonly geomType: GeomType
     readonly geom: Point[][]
@@ -101,7 +101,7 @@ function parseTile(buffer:ArrayBuffer,tileSize:number):Map<string,Feature[]> {
                 geom:result.geom,
                 numVertices:numVertices,
                 bbox:result.bbox,
-                properties:layer.feature(i).properties
+                props:layer.feature(i).properties
             })
         }
         result.set(key,features)

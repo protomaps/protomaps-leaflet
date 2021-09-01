@@ -6,71 +6,71 @@ test = baretest("Json Style")
 
 test("==",async () => {
     let f = filterFn(['==','building','yes'])
-    assert(f({"building":"yes"}))
+    assert(f(0,{props:{"building":"yes"}}))
 })
 test("!=",async () => {
     let f = filterFn(['!=','building','yes'])
-    assert(!f({"building":"yes"}))
-    assert(f({"building":"no"}))
+    assert(!f(0,{props:{"building":"yes"}}))
+    assert(f(0,{props:{"building":"no"}}))
 })
 test("<",async () => {
     let f = filterFn(['<','level',3])
-    assert(f({"level":2}))
-    assert(!f({"level":3}))
+    assert(f(0,{props:{"level":2}}))
+    assert(!f(0,{props:{"level":3}}))
 })
 test("<=",async () => {
     let f = filterFn(['<=','level',3])
-    assert(f({"level":2}))
-    assert(f({"level":3}))
+    assert(f(0,{props:{"level":2}}))
+    assert(f(0,{props:{"level":3}}))
 })
 test(">",async () => {
     let f = filterFn(['>','level',3])
-    assert(f({"level":4}))
-    assert(!f({"level":3}))
+    assert(f(0,{props:{"level":4}}))
+    assert(!f(0,{props:{"level":3}}))
 })
 test(">=",async () => {
     let f = filterFn(['>=','level',3])
-    assert(f({"level":4}))
-    assert(f({"level":3}))
+    assert(f(0,{props:{"level":4}}))
+    assert(f(0,{props:{"level":3}}))
 })
 test("in",async () => {
     let f = filterFn(['in','type','foo','bar'])
-    assert(f({"type":"foo"}))
-    assert(f({"type":"bar"}))
-    assert(!f({"type":"baz"}))
+    assert(f(0,{props:{"type":"foo"}}))
+    assert(f(0,{props:{"type":"bar"}}))
+    assert(!f(0,{props:{"type":"baz"}}))
 })
 test("!in",async () => {
     let f = filterFn(['!in','type','foo','bar'])
-    assert(!f({"type":"bar"}))
-    assert(f({"type":"baz"}))
+    assert(!f(0,{props:{"type":"bar"}}))
+    assert(f(0,{props:{"type":"baz"}}))
 })
 test("has",async () => {
     let f = filterFn(['has','type'])
-    assert(f({"type":"foo"}))
-    assert(!f({}))
+    assert(f(0,{props:{"type":"foo"}}))
+    assert(!f(0,{props:{}}))
 })
 test("!has",async () => {
     let f = filterFn(['!has','type'])
-    assert(!f({"type":"foo"}))
-    assert(f({}))
+    assert(!f(0,{props:{"type":"foo"}}))
+    assert(f(0,{props:{}}))
 })
 test("!",async () => {
     let f = filterFn(["!",['has','type']])
-    assert(!f({"type":"foo"}))
-    assert(f({}))
+    assert(!f(0,{props:{"type":"foo"}}))
+    assert(f(0,{props:{}}))
 })
 test("all",async () => {
     let f = filterFn(['all',["==","building","yes"],["==","type","foo"]])
-    assert(!f({"building":"yes"}))
-    assert(!f({"type":"foo"}))
-    assert(f({"building":"yes","type":"foo"}))
+    assert(!f(0,{props:{"building":"yes"}}))
+    assert(!f(0,{props:{"type":"foo"}}))
+    assert(f(0,{props:{"building":"yes","type":"foo"}}))
 })
 test("any",async () => {
     let f = filterFn(['any',["==","building","yes"],["==","type","foo"]])
-    assert(!f({}))
-    assert(f({"building":"yes"}))
-    assert(f({"type":"foo"}))
-    assert(f({"building":"yes","type":"foo"}))
+    assert(!f(0,{props:{}}))
+    assert(f(0,{props:{"building":"yes"}}))
+    assert(f(0,{props:{"type":"foo"}}))
+    assert(f(0,{props:{"building":"yes","type":"foo"}}))
 })
 
 test("numberFn constant", async () => {
@@ -82,7 +82,7 @@ test("numberFn constant", async () => {
 
 test("numberFn function", async () => {
     let n = numberFn({base:1,stops:[[14,0],[16,2]]})
-    assert.equal(n.length,2)
+    assert.equal(n.length,1)
     assert.equal(n(15),0)
     assert.equal(n(16),1)
     assert.equal(n(17),2)
@@ -99,10 +99,10 @@ test("numberFn interpolate", async () => {
 test("numberFn properties", async () => {
     let n = numberFn(["step",["get","scalerank"],0,1,2,3,4])
     assert.equal(n.length,2)
-    assert.equal(n(14,{scalerank:0}),0)
-    assert.equal(n(14,{scalerank:1}),2)
-    assert.equal(n(14,{scalerank:3}),4)
-    assert.equal(n(14,{scalerank:4}),4)
+    assert.equal(n(14,{props:{scalerank:0}}),0)
+    assert.equal(n(14,{props:{scalerank:1}}),2)
+    assert.equal(n(14,{props:{scalerank:3}}),4)
+    assert.equal(n(14,{props:{scalerank:4}}),4)
 })
 
 test("font", async () => {
@@ -135,9 +135,9 @@ test("font size fn zoom", async () => {
 
 test("font size fn zoom props", async () => {
    let n = getFont({'text-font':['Noto'],'text-size':["step",["get","scalerank"],0,1,12,2,10]},{})
-   assert.equal(n(14,{scalerank:0}),'0px sans-serif')
-   assert.equal(n(14,{scalerank:1}),'12px sans-serif')
-   assert.equal(n(14,{scalerank:2}),'10px sans-serif')
+   assert.equal(n(14,{props:{scalerank:0}}),'0px sans-serif')
+   assert.equal(n(14,{props:{scalerank:1}}),'12px sans-serif')
+   assert.equal(n(14,{props:{scalerank:2}}),'10px sans-serif')
 })
 
 export default test

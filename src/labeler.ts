@@ -5,6 +5,7 @@ import { Zxy, toIndex, Bbox } from './tilecache'
 // @ts-ignore
 import RBush from 'rbush'
 import { LabelSymbolizer } from './symbolizer'
+import { Filter } from './painter'
 
 type TileInvalidationCallback = (tiles:Set<string>)=>void
 
@@ -35,7 +36,7 @@ export interface LabelRule {
     maxzoom?:number
     dataLayer:string 
     symbolizer: LabelSymbolizer
-    filter?:(properties:any)=>boolean
+    filter?:Filter
     visible?:boolean
     sort?:(a:any,b:any)=>number
 }
@@ -206,7 +207,7 @@ export class Labeler {
             let feats = layer
             if (rule.sort) feats.sort((a,b) => {
                 if (rule.sort) { // TODO ugly hack for type checking
-                    return rule.sort(a.properties,b.properties)
+                    return rule.sort(a.props,b.props)
                 }
                 return 0
             })
@@ -218,7 +219,7 @@ export class Labeler {
                 order:order
             }
             for (let feature of feats) {
-                if (rule.filter && !rule.filter(feature.properties)) continue
+                if (rule.filter && !rule.filter(this.z, feature)) continue
                 let transformed = transformGeom(feature.geom,pt.scale,pt.origin)
                 let labels = rule.symbolizer.place(layout, transformed,feature)
                 if (!labels) continue

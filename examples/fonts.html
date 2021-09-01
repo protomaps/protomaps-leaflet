@@ -79,11 +79,11 @@
                   {
                     dataLayer:"places",
                     symbolizer:new protomaps.CenteredTextSymbolizer({
-                        properties:["name:en"],
+                        name_props:["name:en"],
                         font: (z,f) => {
-                            if (f.place === 'city') return "100 24px " + font
-                            else if (f.place === 'state') return "400 28px " + font
-                            else if (f.place === 'country') return "900 32px " + font
+                            if (f.props.place === 'city') return "100 24px " + font
+                            else if (f.props.place === 'state') return "400 28px " + font
+                            else if (f.props.place === 'country') return "900 32px " + font
                             return "400 12px " + font
                         },
                         fill:"#19A974"
@@ -92,7 +92,7 @@
                   {
                     dataLayer:"water",
                     symbolizer:new protomaps.PolygonLabelSymbolizer({
-                        properties:["name:en"],
+                        name_props:["name:en"],
                         font:"900 20px " + font,
                         fill:"#00449E"
                     })
