@@ -188,7 +188,7 @@
             layer.addTo(map)
             map.on('click',ev => {
                 for (let result of layer.queryFeatures(ev.latlng.lng,ev.latlng.lat)) {
-                    console.log(result.properties)
+                    console.log(result.feature.props)
                 }
             })
 
