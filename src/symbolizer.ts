@@ -440,6 +440,7 @@ export class TextSymbolizer implements LabelSymbolizer {
         }
 
         // inside draw, the origin is the anchor
+        // and the anchor is the typographic baseline of the first line
         let draw = (ctx:any) => {
             ctx.globalAlpha = 1
             ctx.font = font
@@ -472,73 +473,71 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
     }
 }
 
-export class OffsetTextSymbolizer implements LabelSymbolizer {
-    font: FontAttr
-    text: TextAttr
-    fill: ColorAttr
-    stroke: ColorAttr
-    width: NumberAttr
+export class OffsetSymbolizer implements LabelSymbolizer {
     offset: NumberAttr
+    symbolizer: LabelSymbolizer
 
-    constructor(options:any) {
-        this.font = new FontAttr(options)
-        this.text = new TextAttr(options)
-
-        this.fill = new ColorAttr(options.fill)
-        this.stroke = new ColorAttr(options.stroke)
-        this.width = new NumberAttr(options.width,0)
+    constructor(symbolizer:LabelSymbolizer, options:any) {
+        this.symbolizer = symbolizer
         this.offset = new NumberAttr(options.offset,0)
     }
 
     public place(layout:Layout,geom:Point[][],feature:Feature) {
         if (feature.geomType !== GeomType.Point) return undefined
-        let property = this.text.get(layout.zoom,feature)
-        if (!property) return undefined
-        let font = this.font.get(layout.zoom,feature)
-        layout.scratch.font = font
-        let metrics = layout.scratch.measureText(property)
-
-        let width = metrics.width
-        let ascent = metrics.actualBoundingBoxAscent
-        let descent = metrics.actualBoundingBoxDescent
-
-        let a = new Point(geom[0][0].x,geom[0][0].y)
+        let anchor = geom[0][0]
+        let placed = this.symbolizer.place(layout,[[new Point(0,0)]],feature)
+        if (!placed || placed.length == 0) return undefined
+        let first_label = placed[0]
+        let fb = first_label.bboxes[0]
         let offset = this.offset.get(layout.zoom,feature)
 
-        var text_origin = new Point(offset,-offset)
-
-        let draw = (ctx:any) => {
-            ctx.globalAlpha = 1
-            ctx.font = font
-            let width = this.width.get(layout.zoom,feature)
-            if (width) {
-                ctx.lineWidth = width * 2 // centered stroke
-                ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
-                ctx.strokeText(property,text_origin.x,text_origin.y)
+        let getBbox = (a,o) => {
+            return {
+                minX:a.x+o.x+fb.minX, 
+                minY:a.y+o.y+fb.minY,
+                maxX:a.x+o.x+fb.maxX,
+                maxY:a.y+o.y+fb.maxY
             }
-            ctx.fillStyle = this.fill.get(layout.zoom,feature)
-            ctx.fillText(property,text_origin.x,text_origin.y)
         }
 
-        // test candidates
-        var bbox = {
-            minX:a.x+text_origin.x, 
-            minY:a.y-ascent+text_origin.y,
-            maxX:a.x+width+text_origin.x,
-            maxY:a.y+descent+text_origin.y
+        var origin = new Point(offset,-offset)
+        let draw = (ctx:any) => {
+            ctx.translate(origin.x,origin.y)
+            first_label.draw(ctx)
         }
-        if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:a,bboxes:[bbox],draw:draw}]
 
-        text_origin = new Point(-width-offset,-offset)
-        bbox = {
-            minX:a.x+text_origin.x, 
-            minY:a.y-ascent+text_origin.y,
-            maxX:a.x+width+text_origin.x,
-            maxY:a.y+descent+text_origin.y
-        }
-        if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:a,bboxes:[bbox],draw:draw}]
+        // NE
+        var bbox = getBbox(anchor,origin)
+        if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:anchor,bboxes:[bbox],draw:draw}]
+
+        // SW
+        origin = new Point(-offset-fb.maxX,offset-fb.minY)
+        bbox = getBbox(anchor,origin)
+        if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:anchor,bboxes:[bbox],draw:draw}]
+
+        // NW
+        origin = new Point(-offset-fb.maxX,-offset)
+        bbox = getBbox(anchor,origin)
+        if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:anchor,bboxes:[bbox],draw:draw}]
+
+        // SE
+        origin = new Point(-offset-fb.maxX,offset-fb.minY)
+        bbox = getBbox(anchor,origin)
+        if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:anchor,bboxes:[bbox],draw:draw}]
 
         return undefined
+    }
+}
+
+export class OffsetTextSymbolizer implements LabelSymbolizer {
+    symbolizer: LabelSymbolizer
+
+    constructor(options:any) {
+        this.symbolizer = new OffsetSymbolizer(new TextSymbolizer(options),options)
+    }
+
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
+        return this.symbolizer.place(layout,geom,feature)
     }
 }
 
