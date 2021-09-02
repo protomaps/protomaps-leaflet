@@ -372,7 +372,38 @@ export class GroupSymbolizer implements LabelSymbolizer {
     }
 }
 
-export class CenteredTextSymbolizer implements LabelSymbolizer {
+export class CenteredSymbolizer implements LabelSymbolizer {
+    symbolizer: LabelSymbolizer
+    
+    constructor(symbolizer:LabelSymbolizer) {
+        this.symbolizer = symbolizer
+    }
+
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
+        let a = geom[0][0]
+        let placed = this.symbolizer.place(layout,[[new Point(0,0)]],feature)
+        if (!placed || placed.length == 0) return undefined
+        let first_label = placed[0]
+        let bbox = first_label.bboxes[0]
+        let width = bbox.maxX - bbox.minX
+        let height = bbox.maxY - bbox.minY
+        let centered = {
+            minX:a.x-width/2,
+            maxX:a.x+width/2,
+            minY:a.y-height/2,
+            maxY:a.y+height/2
+        }
+
+        let draw = (ctx:any) => {
+            ctx.translate(-width/2,height/2-bbox.maxY)
+            first_label.draw(ctx)
+        }
+
+        return [{anchor:a,bboxes:[centered],draw:draw}]
+    }
+}
+
+export class TextSymbolizer implements LabelSymbolizer {
     font: FontAttr
     text: TextAttr
     fill: ColorAttr
@@ -402,12 +433,11 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
 
         let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
-            minX:a.x-width/2, 
+            minX:a.x, 
             minY:a.y-ascent,
-            maxX:a.x+width/2,
+            maxX:a.x+width,
             maxY:a.y+descent
         }
-        let textX = -width/2
 
         // inside draw, the origin is the anchor
         let draw = (ctx:any) => {
@@ -418,14 +448,27 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
             if (lineWidth) {
                 ctx.lineWidth = lineWidth * 2 // centered stroke
                 ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
-                ctx.strokeText(property,textX,0)
+                ctx.strokeText(property,0,0)
             }
 
             ctx.fillStyle = this.fill.get(layout.zoom,feature)
-            ctx.fillText(property,textX,0)
+            ctx.fillText(property,0,0)
 
         }
         return [{anchor:a,bboxes:[bbox],draw:draw}]
+    }
+}
+
+
+export class CenteredTextSymbolizer implements LabelSymbolizer {
+    centered: LabelSymbolizer
+
+    constructor(options:any) {
+        this.centered = new CenteredSymbolizer(new TextSymbolizer(options))
+    }
+
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
+        return this.centered.place(layout,geom,feature)
     }
 }
 
