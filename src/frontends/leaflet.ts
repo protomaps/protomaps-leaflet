@@ -227,6 +227,25 @@ const leafletLayer = (options:any):any => {
         public queryFeatures(lng:number,lat:number) {
             return this.view.queryFeatures(lng,lat,this._map.getZoom())
         }
+
+        public addInspector(map:any) {
+            let typeNames = ['Point','Line','Polygon']
+            map.on('click',(ev:any) => {
+                let wrapped = map.wrapLatLng(ev.latlng)
+                let results = this.queryFeatures(wrapped.lng,wrapped.lat)
+                var content = ""
+                for (var i = 0; i < results.length; i++) {
+                    let result = results[i]
+                    content = content + `<div><b>${result.layerName}</b> ${typeNames[result.feature.geomType-1]} ${result.feature.id}</div>`
+                    for (const prop in result.feature.props) {
+                        content = content + `<div>${prop}=${result.feature.props[prop]}</div>`
+                    }
+                    if (i < results.length - 1) content = content + '<hr/>'
+                }
+                L.popup().setLatLng(ev.latlng).setContent(content).openOn(map)
+            })
+            return this
+        }
     }
     return new LeafletLayer(options)
 }
