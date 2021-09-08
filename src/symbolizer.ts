@@ -417,6 +417,7 @@ export class TextSymbolizer implements LabelSymbolizer {
         this.fill = new ColorAttr(options.fill)
         this.stroke = new ColorAttr(options.stroke)
         this.width = new NumberAttr(options.width,0)
+        this.maxLineCodeUnits = options.maxLineChars || 15
     }
 
     public place(layout:Layout,geom:Point[][],feature:Feature) {
@@ -426,7 +427,7 @@ export class TextSymbolizer implements LabelSymbolizer {
         layout.scratch.font = font
 
         // line breaking
-        let lines = linebreak(property)
+        let lines = linebreak(property,this.maxLineCodeUnits)
         var longestLine
         var longestLineLen = 0
         for (let line of lines) {
