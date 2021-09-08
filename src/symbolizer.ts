@@ -409,6 +409,7 @@ export class TextSymbolizer implements LabelSymbolizer {
     fill: ColorAttr
     stroke:ColorAttr 
     width: NumberAttr
+    maxLineCodeUnits: number
 
     constructor(options:any) {
         this.font = new FontAttr(options)
