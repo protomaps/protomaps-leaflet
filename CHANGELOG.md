@@ -1,3 +1,11 @@
+
+# 1.2.0
+* Label symbolizers for point and polygon features take the same set of attributes for text display.
+* Add maxLineChars to define line breaking by maximum [code units](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/length)
+
+# 1.1.0
+PickedFeature in queryFeatures returns object with LayerName and feature.
+
 # 1.0.0
 
 * Most color and numerical Symbolizer attributes can now be treated as evaluated properties, with parameters (zoom:number,feature:Feature)
