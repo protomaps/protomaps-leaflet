@@ -420,23 +420,35 @@ export class TextSymbolizer implements LabelSymbolizer {
     }
 
     public place(layout:Layout,geom:Point[][],feature:Feature) {
-        if (feature.geomType !== GeomType.Point) return undefined
         let property = this.text.get(layout.zoom,feature)
         if (!property) return undefined
         let font = this.font.get(layout.zoom,feature)
         layout.scratch.font = font
-        let metrics = layout.scratch.measureText(property)
 
+        // line breaking
+        let lines = linebreak(property)
+        var longestLine
+        var longestLineLen = 0
+        for (let line of lines) {
+            if (line.length > longestLineLen) {
+                longestLineLen = line.length
+                longestLine = line
+            }
+        }
+
+        let metrics = layout.scratch.measureText(longestLine)
         let width = metrics.width
+
         let ascent = metrics.actualBoundingBoxAscent
         let descent = metrics.actualBoundingBoxDescent
+        let lineHeight = ascent + descent
 
         let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
             minX:a.x, 
             minY:a.y-ascent,
             maxX:a.x+width,
-            maxY:a.y+descent
+            maxY:a.y+descent+(lines.length-1)*lineHeight
         }
 
         // inside draw, the origin is the anchor
@@ -444,17 +456,19 @@ export class TextSymbolizer implements LabelSymbolizer {
         let draw = (ctx:any) => {
             ctx.globalAlpha = 1
             ctx.font = font
-
-            let lineWidth = this.width.get(layout.zoom,feature)
-            if (lineWidth) {
-                ctx.lineWidth = lineWidth * 2 // centered stroke
-                ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
-                ctx.strokeText(property,0,0)
-            }
-
             ctx.fillStyle = this.fill.get(layout.zoom,feature)
-            ctx.fillText(property,0,0)
+            let textStrokeWidth = this.width.get(layout.zoom,feature)
 
+            var y = 0
+            for (let line of lines) {
+                if (textStrokeWidth) {
+                    ctx.lineWidth = textStrokeWidth * 2 // centered stroke
+                    ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
+                    ctx.strokeText(line,0,0)
+                }
+                ctx.fillText(line,0,y)
+                y += lineHeight
+            }
         }
         return [{anchor:a,bboxes:[bbox],draw:draw}]
     }
@@ -491,7 +505,7 @@ export class OffsetSymbolizer implements LabelSymbolizer {
         let fb = first_label.bboxes[0]
         let offset = this.offset.get(layout.zoom,feature)
 
-        let getBbox = (a,o) => {
+        let getBbox = (a:Point,o:Point) => {
             return {
                 minX:a.x+o.x+fb.minX, 
                 minY:a.y+o.y+fb.minY,
@@ -618,19 +632,10 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
 }
 
 export class PolygonLabelSymbolizer implements LabelSymbolizer {
-    font:FontAttr
-    text:TextAttr
-    fill:ColorAttr
-    stroke: ColorAttr
-    width: NumberAttr
+    symbolizer: LabelSymbolizer
 
     constructor(options:any) {
-        this.font = new FontAttr(options)
-        this.text = new TextAttr(options)
-
-        this.fill = new ColorAttr(options.fill)
-        this.stroke = new ColorAttr(options.stroke)
-        this.width = new NumberAttr(options.width,0)
+        this.symbolizer = new TextSymbolizer(options)
     }
 
     public place(layout:Layout,geom:Point[][],feature:Feature) {
@@ -638,57 +643,25 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
         let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX-fbbox.minX) // TODO needs to be based on zoom level/overzooming
         if (area < 20000) return undefined
 
-        let property = this.text.get(layout.zoom,feature)
-        if (!property) return undefined
+        let placed = this.symbolizer.place(layout,[[new Point(0,0)]],feature)
+        if (!placed || placed.length == 0) return undefined
+        let first_label = placed[0]
+        let fb = first_label.bboxes[0]
 
         let first_poly = geom[0]
         let found = polylabel([first_poly.map(c => [c.x,c.y])])
         let a = new Point(found[0],found[1])
-        let font = this.font.get(layout.zoom,feature)
 
-        layout.scratch.font = font
-
-        let lines = linebreak(property)
-
-        let lineHeight = 14
-
-        var longestLine
-        var longestLineLen = 0 
-        for (let line of lines) {
-            if (line.length > longestLineLen) {
-                longestLineLen = line.length
-                longestLine = line
-            }
-        }
-
-        let metrics = layout.scratch.measureText(longestLine)
-        let width = metrics.width
         let bbox = {
-            minX:a.x-width/2, 
-            minY:a.y-metrics.actualBoundingBoxAscent,
-            maxX:a.x+width/2,
-            maxY:a.y+(lineHeight*lines.length-metrics.actualBoundingBoxAscent)
+            minX:a.x - (fb.maxX - fb.minX)/2,
+            minY:a.y - (fb.maxY - fb.minY)/2,
+            maxX:a.x + (fb.maxX - fb.minX)/2,
+            maxY:a.y + (fb.maxY - fb.minY)/2
         }
-
-        let fill = this.fill.get(layout.zoom,feature)
 
         let draw = (ctx:any) => {
-            ctx.globalAlpha = 1
-
-            ctx.font = font
-
-            var y = 0
-            let lineWidth = this.width.get(layout.zoom,feature)
-            for (let line of lines) {
-                if (lineWidth) {
-                    ctx.lineWidth = lineWidth
-                    ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
-                    ctx.strokeText(line,-width/2,y)
-                }
-                ctx.fillStyle = fill
-                ctx.fillText(line,-width/2,y)
-                y += lineHeight
-            }
+            ctx.translate(first_label.anchor.x-(fb.maxX-fb.minX)/2,first_label.anchor.y)
+            first_label.draw(ctx)
         }
         return [{anchor:a,bboxes:[bbox],draw:draw}]
     }
