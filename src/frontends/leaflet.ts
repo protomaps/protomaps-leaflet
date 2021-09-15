@@ -242,6 +242,9 @@ const leafletLayer = (options:any):any => {
                     }
                     if (i < results.length - 1) content = content + '<hr/>'
                 }
+                if (results.length == 0) {
+                    content = "No features."
+                }
                 L.popup().setLatLng(ev.latlng).setContent(content).openOn(map)
             })
             return this
