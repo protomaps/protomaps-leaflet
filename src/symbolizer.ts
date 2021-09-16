@@ -40,7 +40,7 @@ export class PolygonSymbolizer implements PaintSymbolizer {
         this.pattern = options.pattern
         this.fill = new ColorAttr(options.fill)
         this.opacity = new NumberAttr(options.opacity,1)
-        this.per_feature = (this.fill.per_feature || this.opacity.per_feature)
+        this.per_feature = (this.fill.per_feature || this.opacity.per_feature || options.per_feature)
     }
 
     public before(ctx:any,z:number) {
@@ -120,7 +120,7 @@ export class LineSymbolizer implements PaintSymbolizer {
         this.dashColor = new ColorAttr(options.dashColor)
         this.dashWidth = new NumberAttr(options.dashWidth)
         this.skip = false
-        this.per_feature = (this.dash || this.color.per_feature || this.opacity.per_feature || this.width.per_feature)
+        this.per_feature = (this.dash || this.color.per_feature || this.opacity.per_feature || this.width.per_feature || options.per_feature)
     } 
 
     public before(ctx:any,z:number) {
