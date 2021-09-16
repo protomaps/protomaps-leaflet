@@ -360,7 +360,10 @@ export class TileCache {
                             let min_used = +Infinity
                             let min_key = undefined
                             this.cache.forEach((value,key) => {
-                                if (value.used < min_used) min_key = key
+                                if (value.used < min_used) {
+                                    min_used = value.used
+                                    min_key = key
+                                }
                             })
                             if (min_key) this.cache.delete(min_key)
                         }
