@@ -160,13 +160,13 @@ const leafletLayer = (options:any):any => {
                 }
                 ctx.strokeStyle = this.debug
 
-                ctx.lineWidth = (coords.x/4 === data_tile.x) ? 1.5 : 0.5
+                ctx.lineWidth = (coords.x/4 === data_tile.x) ? 2.5 : 0.5
                 ctx.beginPath()
                 ctx.moveTo(0,0)
                 ctx.lineTo(0,256)
                 ctx.stroke()
 
-                ctx.lineWidth = (coords.y/4 === data_tile.y) ? 1.5 : 0.5
+                ctx.lineWidth = (coords.y/4 === data_tile.y) ? 2.5 : 0.5
                 ctx.beginPath()
                 ctx.moveTo(0,0)
                 ctx.lineTo(256,0)
