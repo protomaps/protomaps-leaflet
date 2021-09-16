@@ -297,8 +297,7 @@ export class TileCache {
         this.tileSize = tileSize
     }
 
-    public queryFeatures(lng:number,lat:number,zoom:number):PickedFeature[] {
-        let BRUSH_SIZE = 16
+    public queryFeatures(lng:number,lat:number,zoom:number,brushSize:number):PickedFeature[] {
         let projected = project([lat,lng])
         var normalized = new Point((projected.x+MAXCOORD)/(MAXCOORD*2),1-(projected.y+MAXCOORD)/(MAXCOORD*2))
         if (normalized.x > 1) normalized.x = normalized.x - Math.floor(normalized.x)
@@ -318,11 +317,11 @@ export class TileCache {
                     //  }
 
                     if (feature.geomType == GeomType.Point) {
-                        if (pointMinDistToPoints(center,feature.geom) < BRUSH_SIZE) {
+                        if (pointMinDistToPoints(center,feature.geom) < brushSize) {
                             retval.push({feature, layerName:layer_name})
                         }
                     } else if (feature.geomType == GeomType.Line) {
-                        if (pointMinDistToLines(center,feature.geom) < BRUSH_SIZE) {
+                        if (pointMinDistToLines(center,feature.geom) < brushSize) {
                             retval.push({feature, layerName:layer_name})
                         }
                     } else {

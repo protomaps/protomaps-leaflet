@@ -182,7 +182,9 @@ export class View {
     }
 
     public queryFeatures(lng:number,lat:number,display_zoom:number) {
-        return this.tileCache.queryFeatures(lng,lat,Math.min(display_zoom-this.levelDiff,this.maxDataLevel))
+        let data_zoom = Math.min(display_zoom-this.levelDiff,this.maxDataLevel)
+        let brush_size = 16 / (1 << (display_zoom - data_zoom))
+        return this.tileCache.queryFeatures(lng,lat,data_zoom,brush_size)
     }
 }
 
