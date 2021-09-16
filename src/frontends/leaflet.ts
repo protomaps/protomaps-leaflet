@@ -5,7 +5,7 @@ import Point from '@mapbox/point-geometry'
 
 import { ZxySource, Zxy, PmtilesSource, TileCache } from '../tilecache'
 import { View } from '../view'
-import { painter } from '../painter'
+import { painter, xray } from '../painter'
 import { Labelers } from '../labeler'
 import { light } from '../default_style/light'
 import { dark } from '../default_style/dark'
@@ -58,6 +58,7 @@ const leafletLayer = (options:any):any => {
             this.paint_rules = options.paint_rules || paintRules(theme,options.shade)
             this.label_rules = options.label_rules || labelRules(theme,options.shade,options.language1,options.language2)
             this.lastRequestedZ = undefined
+            this.xray = options.xray
 
             let source
             if (options.url.url) {
@@ -141,7 +142,12 @@ const leafletLayer = (options:any):any => {
             ctx.setTransform(this.tile_size/256,0,0,this.tile_size/256,0,0)
             ctx.clearRect(0,0,256,256)
 
-            let painting_time = painter(ctx,[prepared_tile],label_data,this.paint_rules,bbox,origin,false,this.debug)
+            var painting_time = 0
+            if (this.xray) {
+                painting_time = xray(ctx,[prepared_tile],bbox,origin,false,this.debug)
+            } else {
+                painting_time = painter(ctx,[prepared_tile],label_data,this.paint_rules,bbox,origin,false,this.debug)
+            }
 
             if (this.debug) {
                 let data_tile = prepared_tile.data_tile
