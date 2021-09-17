@@ -74,9 +74,11 @@ const leafletLayer = (options:any):any => {
               maxDataZoom = options.maxDataZoom;
             }
 
+            this.levelDiff = options.levelDiff === undefined ? 2 : options.levelDiff
+
             this.tasks = options.tasks || []
-            let cache = new TileCache(source,1024)
-            this.view = new View(cache,maxDataZoom,2)
+            let cache = new TileCache(source,256 * 1 << this.levelDiff)
+            this.view = new View(cache,maxDataZoom,this.levelDiff)
             this.debug = options.debug
             let scratch = document.createElement('canvas').getContext('2d')
             this.scratch = scratch
@@ -166,13 +168,13 @@ const leafletLayer = (options:any):any => {
                 }
                 ctx.strokeStyle = this.debug
 
-                ctx.lineWidth = (coords.x/4 === data_tile.x) ? 2.5 : 0.5
+                ctx.lineWidth = (coords.x/(1 << this.levelDiff) === data_tile.x) ? 2.5 : 0.5
                 ctx.beginPath()
                 ctx.moveTo(0,0)
                 ctx.lineTo(0,256)
                 ctx.stroke()
 
-                ctx.lineWidth = (coords.y/4 === data_tile.y) ? 2.5 : 0.5
+                ctx.lineWidth = (coords.y/(1 << this.levelDiff) === data_tile.y) ? 2.5 : 0.5
                 ctx.beginPath()
                 ctx.moveTo(0,0)
                 ctx.lineTo(256,0)
