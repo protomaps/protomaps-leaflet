@@ -1,3 +1,12 @@
+# 1.5.0
+* `levelDiff` option to set ratio of display tiles to data tiles.
+
+# 1.4.0
+* Feature picking more accurate; uses distance-to-line and point-in-polygon.
+* `xray` option to show all layers.
+
+# 1.3.0
+* `addInspector` to click on features and show an information popup.
 
 # 1.2.0
 * Label symbolizers for point and polygon features take the same set of attributes for text display.
