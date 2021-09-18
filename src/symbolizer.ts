@@ -466,7 +466,7 @@ export class TextSymbolizer implements LabelSymbolizer {
                 if (textStrokeWidth) {
                     ctx.lineWidth = textStrokeWidth * 2 // centered stroke
                     ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
-                    ctx.strokeText(line,0,0)
+                    ctx.strokeText(line,0,y)
                 }
                 ctx.fillText(line,0,y)
                 y += lineHeight
