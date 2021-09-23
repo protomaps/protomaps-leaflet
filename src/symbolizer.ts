@@ -3,7 +3,7 @@ import Point from '@mapbox/point-geometry'
 import { GeomType, Feature, Bbox } from './tilecache'
 // @ts-ignore
 import polylabel from 'polylabel'
-import { NumberAttr, ColorAttr, TextAttr, FontAttr } from './attribute'
+import { NumberAttr, StringAttr, TextAttr, FontAttr } from './attribute'
 import { linebreak, isCjk } from './text'
 import { lineCells, simpleLabel } from './line'
 import { Index, Label, Layout } from './labeler'
@@ -32,13 +32,13 @@ export const createPattern = (width:number,height:number, fn:((canvas:any,ctx:an
 
 export class PolygonSymbolizer implements PaintSymbolizer {
     pattern: any // FIXME
-    fill: ColorAttr
+    fill: StringAttr
     opacity: NumberAttr
     per_feature: boolean
 
     constructor(options:any) {
         this.pattern = options.pattern
-        this.fill = new ColorAttr(options.fill)
+        this.fill = new StringAttr(options.fill,"black")
         this.opacity = new NumberAttr(options.opacity,1)
         this.per_feature = (this.fill.per_feature || this.opacity.per_feature || options.per_feature)
     }
@@ -119,21 +119,21 @@ function isFunction(obj:any) {
 }
 
 export class LineSymbolizer implements PaintSymbolizer {
-    color: ColorAttr
+    color: StringAttr
     width: NumberAttr
     opacity: NumberAttr
     dash: any
-    dashColor: ColorAttr
+    dashColor: StringAttr
     dashWidth: NumberAttr
     skip: boolean
     per_feature: boolean
 
     constructor(options:any) {
-        this.color = new ColorAttr(options.color)
+        this.color = new StringAttr(options.color,"black")
         this.width = new NumberAttr(options.width)
         this.opacity = new NumberAttr(options.opacity)
         this.dash = options.dash
-        this.dashColor = new ColorAttr(options.dashColor)
+        this.dashColor = new StringAttr(options.dashColor,"black")
         this.dashWidth = new NumberAttr(options.dashWidth)
         this.skip = false
         this.per_feature = (this.dash || this.color.per_feature || this.opacity.per_feature || this.width.per_feature || options.per_feature)
@@ -210,15 +210,15 @@ export class IconSymbolizer implements LabelSymbolizer {
 
 export class CircleSymbolizer implements LabelSymbolizer, PaintSymbolizer {
     radius: NumberAttr
-    fill: ColorAttr
-    stroke: ColorAttr
+    fill: StringAttr
+    stroke: StringAttr
     width: NumberAttr
     opacity: NumberAttr
 
     constructor(options:any) {
         this.radius = new NumberAttr(options.radius,3)
-        this.fill = new ColorAttr(options.fill)
-        this.stroke = new ColorAttr(options.stroke,"white")
+        this.fill = new StringAttr(options.fill,"black")
+        this.stroke = new StringAttr(options.stroke,"white")
         this.width = new NumberAttr(options.width,0) // TODO 0 is falsy
         this.opacity = new NumberAttr(options.opacity)
     } 
@@ -262,15 +262,15 @@ export class CircleSymbolizer implements LabelSymbolizer, PaintSymbolizer {
 export class ShieldSymbolizer implements LabelSymbolizer {
     font: FontAttr
     text: TextAttr
-    background: ColorAttr
-    fill: ColorAttr
+    background: StringAttr
+    fill: StringAttr
     padding: NumberAttr
 
     constructor(options:any) {
         this.font = new FontAttr(options)
         this.text = new TextAttr(options)
-        this.fill = new ColorAttr(options.fill)
-        this.background = new ColorAttr(options.background,"white")
+        this.fill = new StringAttr(options.fill,"black")
+        this.background = new StringAttr(options.background,"white")
         this.padding = new NumberAttr(options.padding,0) // TODO check falsy
     } 
 
@@ -447,8 +447,8 @@ export class Padding implements LabelSymbolizer {
 export class TextSymbolizer implements LabelSymbolizer {
     font: FontAttr
     text: TextAttr
-    fill: ColorAttr
-    stroke:ColorAttr 
+    fill: StringAttr
+    stroke: StringAttr
     width: NumberAttr
     lineHeight: NumberAttr // in ems
     letterSpacing: NumberAttr // in px
@@ -458,8 +458,8 @@ export class TextSymbolizer implements LabelSymbolizer {
         this.font = new FontAttr(options)
         this.text = new TextAttr(options)
 
-        this.fill = new ColorAttr(options.fill)
-        this.stroke = new ColorAttr(options.stroke)
+        this.fill = new StringAttr(options.fill,"black")
+        this.stroke = new StringAttr(options.stroke,"black")
         this.width = new NumberAttr(options.width,0)
         this.lineHeight = new NumberAttr(options.lineHeight,1)
         this.letterSpacing = new NumberAttr(options.letterSpacing,0)
@@ -624,8 +624,8 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     font: FontAttr
     text: TextAttr
 
-    fill: ColorAttr
-    stroke: ColorAttr
+    fill: StringAttr
+    stroke: StringAttr
     width: NumberAttr
     offset: NumberAttr
 
@@ -633,8 +633,8 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         this.font = new FontAttr(options)
         this.text = new TextAttr(options)
 
-        this.fill = new ColorAttr(options.fill)
-        this.stroke = new ColorAttr(options.stroke)
+        this.fill = new StringAttr(options.fill,"black")
+        this.stroke = new StringAttr(options.stroke,"black")
         this.width = new NumberAttr(options.width,0)
         this.offset = new NumberAttr(options.offset,0)
     } 

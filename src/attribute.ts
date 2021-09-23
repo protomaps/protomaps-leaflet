@@ -1,19 +1,19 @@
 import { Feature } from './tilecache'
 
-export class ColorAttr {
-    color: string | ((z:number,f?:Feature) => string)
+export class StringAttr {
+    str: string | ((z:number,f?:Feature) => string)
     per_feature: boolean
 
-    constructor(c:any,defaultValue:string = "black") {
-        this.color = c || defaultValue
-        this.per_feature = (typeof this.color == 'function' && this.color.length == 2)
+    constructor(c:any,defaultValue:string = "") {
+        this.str = c || defaultValue
+        this.per_feature = (typeof this.str == 'function' && this.str.length == 2)
     }
 
     public get(z:number,f?:Feature):string {
-        if (typeof this.color == 'function') {
-            return this.color(z,f)
+        if (typeof this.str == 'function') {
+            return this.str(z,f)
         } else {
-            return this.color
+            return this.str
         }
     }
 }
