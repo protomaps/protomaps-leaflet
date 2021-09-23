@@ -253,6 +253,7 @@ export const labelRules = (params:DefaultStyleParams,shade:string,language1:stri
             symbolizer: languageStack(new CenteredTextSymbolizer({
                 label_props:nametags,
                 fill:params.countryLabel,
+                lineHeight:1.5,
                 font:(z:number,f:Feature) => {
                     if (z < 6) return "200 14px sans-serif"
                     return "200 20px sans-serif"

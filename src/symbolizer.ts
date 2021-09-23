@@ -425,6 +425,8 @@ export class TextSymbolizer implements LabelSymbolizer {
     fill: ColorAttr
     stroke:ColorAttr 
     width: NumberAttr
+    lineHeight: NumberAttr // in ems
+    letterSpacing: NumberAttr // in px
     maxLineCodeUnits: number
 
     constructor(options:any) {
@@ -434,6 +436,8 @@ export class TextSymbolizer implements LabelSymbolizer {
         this.fill = new ColorAttr(options.fill)
         this.stroke = new ColorAttr(options.stroke)
         this.width = new NumberAttr(options.width,0)
+        this.lineHeight = new NumberAttr(options.lineHeight,1)
+        this.letterSpacing = new NumberAttr(options.letterSpacing,0)
         this.maxLineCodeUnits = options.maxLineChars || 15
     }
 
@@ -442,6 +446,8 @@ export class TextSymbolizer implements LabelSymbolizer {
         if (!property) return undefined
         let font = this.font.get(layout.zoom,feature)
         layout.scratch.font = font
+
+        let letterSpacing = this.letterSpacing.get(layout.zoom,feature)
 
         // line breaking
         let lines = linebreak(property,this.maxLineCodeUnits)
@@ -455,11 +461,11 @@ export class TextSymbolizer implements LabelSymbolizer {
         }
 
         let metrics = layout.scratch.measureText(longestLine)
-        let width = metrics.width
+        let width = metrics.width + (letterSpacing * (longestLineLen-1))
 
         let ascent = metrics.actualBoundingBoxAscent
         let descent = metrics.actualBoundingBoxDescent
-        let lineHeight = ascent + descent
+        let lineHeight = (ascent + descent) * this.lineHeight.get(layout.zoom,feature)
 
         let a = new Point(geom[0][0].x,geom[0][0].y)
         let bbox = {
@@ -482,9 +488,25 @@ export class TextSymbolizer implements LabelSymbolizer {
                 if (textStrokeWidth) {
                     ctx.lineWidth = textStrokeWidth * 2 // centered stroke
                     ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
-                    ctx.strokeText(line,0,y)
+                    if (letterSpacing > 0) {
+                        var xPos = 0
+                        for (var letter of line) {
+                            ctx.strokeText(letter,xPos,y)
+                            xPos += ctx.measureText(letter).width + letterSpacing
+                        }
+                    } else {
+                        ctx.strokeText(line,0,y)
+                    }
                 }
-                ctx.fillText(line,0,y)
+                if (letterSpacing > 0) {
+                    var xPos = 0
+                    for (var letter of line) {
+                        ctx.fillText(letter,xPos,y)
+                        xPos += ctx.measureText(letter).width + letterSpacing
+                    }
+                } else {
+                    ctx.fillText(line,0,y)
+                }
                 y += lineHeight
             }
         }
