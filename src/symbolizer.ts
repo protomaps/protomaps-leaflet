@@ -102,7 +102,7 @@ export function exp(base:number,stops:number[][]) : ((z:number) => number) {
 export function step(stops:number[][]) : ((z:number) => number) {
     return z => {
         if (stops.length < 1) return 0
-        retval = 0
+        let retval = 0
         for (var i=0; i < stops.length; i++) {
             if (z >= stops[i][0]) retval = stops[i][1]
         }
