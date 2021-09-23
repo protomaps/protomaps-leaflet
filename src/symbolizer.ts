@@ -84,6 +84,7 @@ export function arr(base:number,a:number[]):((z:number)=>number) {
 
 export function exp(base:number,stops:number[][]) : ((z:number) => number) {
     return z => {
+        if (stops.length < 1) return 0
         if (z <= stops[0][0]) return stops[0][1]
         if (z >= stops[stops.length-1][0]) return stops[stops.length-1][1]
         let idx = 0
@@ -96,6 +97,21 @@ export function exp(base:number,stops:number[][]) : ((z:number) => number) {
         else factor = (Math.pow(base,progress)-1)/(Math.pow(base,difference)-1)
         return factor * (stops[idx+1][1] - stops[idx][1]) + stops[idx][1]
     }
+}
+
+export function step(stops:number[][]) : ((z:number) => number) {
+    return z => {
+        if (stops.length < 1) return 0
+        retval = 0
+        for (var i=0; i < stops.length; i++) {
+            if (z >= stops[i][0]) retval = stops[i][1]
+        }
+        return retval
+    }
+}
+
+export function linear(stops:number[][]) : ((z:number) => number) {
+    return exp(1,stops)
 }
 
 function isFunction(obj:any) {
