@@ -1,3 +1,13 @@
+# 1.8.0
+* add `Padding` generic label symbolizer
+
+# 1.7.0
+* `TextSymbolizer` attributes: `lineHeight` in `em`, `letterSpacing` in `px`
+* add `linear` and `step` shortcut functions for zoom-based styling
+
+# 1.6.0
+* add `removeInspector`
+
 # 1.5.0
 * `levelDiff` option to set ratio of display tiles to data tiles.
 
