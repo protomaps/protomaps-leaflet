@@ -89,6 +89,16 @@ test ('textattr', async () => {
     assert.equal(t.get(0,{props:{'name:en':"Taipei"},geomType:GeomType.Point}),"TAIPEI")
     t = new TextAttr({label_props:["name:en"],textTransform:"uppercase"})
     assert.equal(t.get(0,{props:{}}),undefined)
+
+    t = new TextAttr({
+        label_props:(z,f) => {
+            if (z < 8) return ["abbr","name"]
+            return ["name"]
+        },
+        textTransform:"uppercase"
+    })
+    assert.equal(t.get(0,{props:{name:"台北",abbr:"TPE"}}),"TPE")
+    assert.equal(t.get(9,{props:{name:"台北",abbr:"TPE"}}),"台北")
 })
 
 export default test

@@ -37,7 +37,7 @@ export class NumberAttr {
  }
 
 export class TextAttr {
-    label_props:string[]
+    label_props:string[] | ((z:number,f?:Feature) => string[])
     textTransform:string
 
     constructor(options:any = {}) {
@@ -47,7 +47,14 @@ export class TextAttr {
 
     public get(z:number,f:Feature):string {
         var retval
-        for (let property of this.label_props) {
+
+        var label_props:string[]
+        if (typeof this.label_props == 'function') {
+            label_props = this.label_props(z,f)
+        } else {
+            label_props = this.label_props
+        }
+        for (let property of label_props) {
             if (f.props.hasOwnProperty(property)) {
                 retval = f.props[property]
                 break
