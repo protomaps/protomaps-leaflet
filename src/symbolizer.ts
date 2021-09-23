@@ -127,6 +127,8 @@ export class LineSymbolizer implements PaintSymbolizer {
     dashWidth: NumberAttr
     skip: boolean
     per_feature: boolean
+    lineCap: StringAttr
+    lineJoin: StringAttr
 
     constructor(options:any) {
         this.color = new StringAttr(options.color,"black")
@@ -135,8 +137,13 @@ export class LineSymbolizer implements PaintSymbolizer {
         this.dash = options.dash
         this.dashColor = new StringAttr(options.dashColor,"black")
         this.dashWidth = new NumberAttr(options.dashWidth)
+        this.lineCap = new StringAttr(options.lineCap,"butt")
+        this.lineJoin = new StringAttr(options.lineJoin,"miter")
         this.skip = false
-        this.per_feature = (this.dash || this.color.per_feature || this.opacity.per_feature || this.width.per_feature || options.per_feature)
+        this.per_feature = (this.dash || this.color.per_feature ||
+                            this.opacity.per_feature || this.width.per_feature ||
+                            this.lineCap.per_feature || this.lineJoin.per_feature ||
+                            options.per_feature)
     } 
 
     public before(ctx:any,z:number) {
@@ -144,6 +151,8 @@ export class LineSymbolizer implements PaintSymbolizer {
             ctx.strokeStyle = this.color.get(z)
             ctx.lineWidth = this.width.get(z)
             ctx.globalAlpha = this.opacity.get(z)
+            ctx.lineCap = this.lineCap.get(z)
+            ctx.lineJoin = this.lineJoin.get(z)
         }
     }
 
@@ -160,6 +169,8 @@ export class LineSymbolizer implements PaintSymbolizer {
 
         if (this.per_feature) {
             ctx.globalAlpha = this.opacity.get(z,f)
+            ctx.lineCap = this.lineCap.get(z,f)
+            ctx.lineJoin = this.lineJoin.get(z,f)
         }
         if (this.dash) {
             ctx.save()
