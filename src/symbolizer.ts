@@ -13,6 +13,16 @@ export interface PaintSymbolizer {
     draw(ctx:any,geom:Point[][],z:number,feature:Feature):void
 }
 
+export enum Justify {
+   Left = 1,
+   Center = 2,
+   Right = 3
+}
+
+export interface DrawExtra {
+    justify: Justify
+}
+
 export interface LabelSymbolizer {
     /* the symbolizer can, but does not need to, inspect index to determine the right position
      * if return undefined, no label is added
@@ -423,7 +433,7 @@ export class CenteredSymbolizer implements LabelSymbolizer {
 
         let draw = (ctx:any) => {
             ctx.translate(-width/2,height/2-bbox.maxY)
-            first_label.draw(ctx)
+            first_label.draw(ctx,{justify:Justify.Center})
         }
 
         return [{anchor:a,bboxes:[centered],draw:draw}]
@@ -513,7 +523,7 @@ export class TextSymbolizer implements LabelSymbolizer {
 
         // inside draw, the origin is the anchor
         // and the anchor is the typographic baseline of the first line
-        let draw = (ctx:any) => {
+        let draw = (ctx:any,extra?:DrawExtra) => {
             ctx.globalAlpha = 1
             ctx.font = font
             ctx.fillStyle = this.fill.get(layout.zoom,feature)
@@ -521,27 +531,31 @@ export class TextSymbolizer implements LabelSymbolizer {
 
             var y = 0
             for (let line of lines) {
+                var startX = 0
+                if (extra && extra.justify == Justify.Center) {
+                    startX = (width - ctx.measureText(line).width) / 2
+                }
                 if (textStrokeWidth) {
                     ctx.lineWidth = textStrokeWidth * 2 // centered stroke
                     ctx.strokeStyle = this.stroke.get(layout.zoom,feature)
                     if (letterSpacing > 0) {
-                        var xPos = 0
+                        var xPos = startX
                         for (var letter of line) {
                             ctx.strokeText(letter,xPos,y)
                             xPos += ctx.measureText(letter).width + letterSpacing
                         }
                     } else {
-                        ctx.strokeText(line,0,y)
+                        ctx.strokeText(line,startX,y)
                     }
                 }
                 if (letterSpacing > 0) {
-                    var xPos = 0
+                    var xPos = startX
                     for (var letter of line) {
                         ctx.fillText(letter,xPos,y)
                         xPos += ctx.measureText(letter).width + letterSpacing
                     }
                 } else {
-                    ctx.fillText(line,0,y)
+                    ctx.fillText(line,startX,y)
                 }
                 y += lineHeight
             }

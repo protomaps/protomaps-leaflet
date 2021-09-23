@@ -4,7 +4,7 @@ import { PreparedTile, transformGeom } from './view'
 import { Zxy, toIndex, Bbox } from './tilecache'
 // @ts-ignore
 import RBush from 'rbush'
-import { LabelSymbolizer } from './symbolizer'
+import { LabelSymbolizer, DrawExtra } from './symbolizer'
 import { Filter } from './painter'
 
 type TileInvalidationCallback = (tiles:Set<string>)=>void
@@ -12,7 +12,7 @@ type TileInvalidationCallback = (tiles:Set<string>)=>void
 export interface Label {
     anchor:Point
     bboxes:Bbox[]
-    draw:(ctx:any)=>void
+    draw:(ctx:any,drawExtra?:DrawExtra)=>void
 }
 
 export interface IndexedLabel {
