@@ -62,7 +62,7 @@ export class FontAttr {
     family?: string | ((z:number,f:Feature) => string)
     size?: number | ((z:number,f:Feature) => number)
     weight?: number | ((z:number,f:Feature) => number)
-    style?: number | ((z:number,f:Feature) => number)
+    style?: number | ((z:number,f:Feature) => string)
     font?: string | ((z:number,f:Feature) => string)
 
     constructor(options:any) {
