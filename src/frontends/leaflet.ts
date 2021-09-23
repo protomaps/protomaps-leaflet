@@ -90,6 +90,9 @@ const leafletLayer = (options:any):any => {
             this.labelers = new Labelers(this.scratch, this.label_rules, this.onTilesInvalidated)
             this.tile_size = 256 *window.devicePixelRatio
             this.pool = new CanvasPool(options.lang)
+
+            // bound instance of function
+            this.inspector = this.inspect(this)
         }
 
         public setDefaultStyle(darkOption:boolean,shade:string,language1:string[],language2:string[]) {
@@ -236,11 +239,11 @@ const leafletLayer = (options:any):any => {
             return this.view.queryFeatures(lng,lat,this._map.getZoom())
         }
 
-        public addInspector(map:any) {
-            let typeNames = ['Point','Line','Polygon']
-            map.on('click',(ev:any) => {
-                let wrapped = map.wrapLatLng(ev.latlng)
-                let results = this.queryFeatures(wrapped.lng,wrapped.lat)
+        public inspect(layer:LeafletLayer) {
+            return (ev:any) => {
+                let typeNames = ['Point','Line','Polygon']
+                let wrapped = layer._map.wrapLatLng(ev.latlng)
+                let results = layer.queryFeatures(wrapped.lng,wrapped.lat)
                 var content = ""
                 for (var i = 0; i < results.length; i++) {
                     let result = results[i]
@@ -253,9 +256,16 @@ const leafletLayer = (options:any):any => {
                 if (results.length == 0) {
                     content = "No features."
                 }
-                L.popup().setLatLng(ev.latlng).setContent(content).openOn(map)
-            })
-            return this
+                L.popup().setLatLng(ev.latlng).setContent(content).openOn(layer._map)
+            }
+        }
+
+        public addInspector(map:any) {
+            return map.on('click',this.inspector)
+        }
+
+        public removeInspector(map:any) {
+            return map.off('click',this.inspector)
         }
     }
     return new LeafletLayer(options)
