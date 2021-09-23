@@ -1,3 +1,8 @@
+# 1.9.0
+* Center text justification only in the case of `CenterdSymbolizer`
+* `TextSymbolizer` `label_props` can be a function
+* `LineSymbolizer` `lineJoin` and `lineCap` attributes
+
 # 1.8.0
 * add `Padding` generic label symbolizer
 
