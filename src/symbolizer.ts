@@ -419,6 +419,31 @@ export class CenteredSymbolizer implements LabelSymbolizer {
     }
 }
 
+export class Padding implements LabelSymbolizer {
+    symbolizer: LabelSymbolizer
+    padding: NumberAttr
+
+    constructor(padding: number, symbolizer:LabelSymbolizer) {
+        this.padding = new NumberAttr(padding,0)
+        this.symbolizer = symbolizer
+    }
+
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
+        let placed = this.symbolizer.place(layout,geom,feature)
+        if (!placed || placed.length == 0) return undefined
+        let padding = this.padding.get(layout.zoom,feature)
+        for (var label of placed) {
+            for (var bbox of label.bboxes) {
+                bbox.minX-=padding
+                bbox.minY-=padding
+                bbox.maxX+=padding
+                bbox.maxY+=padding
+            }
+        }
+        return placed
+    }
+}
+
 export class TextSymbolizer implements LabelSymbolizer {
     font: FontAttr
     text: TextAttr

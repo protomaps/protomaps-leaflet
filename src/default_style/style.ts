@@ -1,4 +1,4 @@
-import { createPattern, PolygonSymbolizer, IconSymbolizer, ShieldSymbolizer, LineSymbolizer, CenteredTextSymbolizer, OffsetTextSymbolizer, GroupSymbolizer, FlexSymbolizer, CircleSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp, LabelSymbolizer } from '../symbolizer'
+import { createPattern, PolygonSymbolizer, IconSymbolizer, ShieldSymbolizer, LineSymbolizer, CenteredTextSymbolizer, OffsetTextSymbolizer, GroupSymbolizer, FlexSymbolizer, CircleSymbolizer, PolygonLabelSymbolizer, LineLabelSymbolizer, exp, LabelSymbolizer, Padding } from '../symbolizer'
 import { Rule } from '../painter'
 import { LabelRule } from '../labeler'
 import { Feature } from '../tilecache'
