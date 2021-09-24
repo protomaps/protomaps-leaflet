@@ -67,10 +67,12 @@ export const covering = (display_zoom:number,tile_width:number,bbox:Bbox) => {
 export class Index {
     tree: RBush 
     current:Map<string,Set<IndexedLabel>>
+    dim:number
 
-    constructor() {
+    constructor(dim:number) {
         this.tree = new RBush()
         this.current = new Map()
+        this.dim = dim
     }
 
     public has(tileKey:string):boolean {
@@ -186,7 +188,7 @@ export class Labeler {
     callback?: TileInvalidationCallback
 
     constructor(z:number,scratch:any,labelRules:LabelRule[],callback?:TileInvalidationCallback) {
-        this.index = new Index()
+        this.index = new Index(256 * 1 << z)
         this.z = z
         this.scratch = scratch
         this.labelRules = labelRules
