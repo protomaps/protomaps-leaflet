@@ -609,28 +609,33 @@ export class OffsetSymbolizer implements LabelSymbolizer {
         }
 
         var origin = new Point(offset,-offset)
+        var justify:Justify
         let draw = (ctx:any) => {
             ctx.translate(origin.x,origin.y)
-            first_label.draw(ctx)
+            first_label.draw(ctx,{justify:justify})
         }
 
         // NE
         var bbox = getBbox(anchor,origin)
+        justify = Justify.Left
         if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:anchor,bboxes:[bbox],draw:draw}]
 
         // SW
         origin = new Point(-offset-fb.maxX,offset-fb.minY)
         bbox = getBbox(anchor,origin)
+        justify = Justify.Right
         if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:anchor,bboxes:[bbox],draw:draw}]
 
         // NW
         origin = new Point(-offset-fb.maxX,-offset)
         bbox = getBbox(anchor,origin)
+        justify = Justify.Right
         if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:anchor,bboxes:[bbox],draw:draw}]
 
         // SE
         origin = new Point(-offset-fb.maxX,offset-fb.minY)
         bbox = getBbox(anchor,origin)
+        justify = Justify.Left
         if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:anchor,bboxes:[bbox],draw:draw}]
 
         return undefined
