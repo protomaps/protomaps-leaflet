@@ -125,6 +125,7 @@ export class Index {
         return false
     }
 
+    // can put in multiple due to antimeridian wrapping
     public insert(label:Label,order:number,tileKey:string):void {
         let indexed_label = {
             anchor:label.anchor,
@@ -142,10 +143,43 @@ export class Index {
             this.current.set(tileKey,newSet)
         }
 
+        var wrapsLeft = false
+        var wrapsRight = false
         for (let bbox of label.bboxes) {
             var b:any = bbox
             b.indexed_label = indexed_label
             this.tree.insert(b)
+
+            if (bbox.minX < 0) wrapsLeft = true
+            if (bbox.maxX > this.dim) wrapsRight = true
+        }
+
+        if (wrapsLeft || wrapsRight) {
+            var shift = wrapsLeft ? this.dim : -this.dim
+
+            var new_bboxes = []
+            for (let bbox of label.bboxes) {
+                new_bboxes.push({
+                    minX:bbox.minX + shift,
+                    minY:bbox.minY,
+                    maxX:bbox.maxX + shift,
+                    maxY:bbox.maxY
+                })
+            }
+            let duplicate_label = {
+                anchor:new Point(label.anchor.x + shift,label.anchor.y),
+                bboxes:new_bboxes,
+                draw:label.draw,
+                order:order,
+                tileKey:tileKey
+            }
+            let entry = this.current.get(tileKey)
+            if (entry) entry.add(duplicate_label)
+            for (let bbox of new_bboxes) {
+                var b:any = bbox
+                b.indexed_label = duplicate_label
+                this.tree.insert(b)
+            }
         }
     }
 
@@ -164,6 +198,10 @@ export class Index {
         this.current.delete(keyToRemove)
     }
 
+    // NOTE: technically this is incorrect
+    // with antimeridian wrapping, since we should also remove
+    // the duplicate label; but i am having a hard time
+    // imagining where this will happen in practical usage
     public removeLabel(labelToRemove:IndexedLabel):void {
         let entries_to_delete = []
         for (let entry of this.tree.all()) {

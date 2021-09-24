@@ -16,21 +16,33 @@ test('covering with antimeridian crossing', async () => {
 })
 
 test('inserting label into index', async () => {
-   let index = new Index()
+   let index = new Index(1024)
    index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:200,maxY:200}],draw:c=>{}},1,"abcd")
    let result = index.searchBbox({minX:90,maxX:110,minY:90,maxY:110},Infinity)
    assert.equal(result.size,1)
 })
 
+test('inserting label with antimeridian wrapping', async () => {
+   let index = new Index(1024)
+   index.insert({anchor:new Point(1000,100),bboxes:[{minX:1000,minY:100,maxX:1050,maxY:200}],draw:c=>{}},1,"abcd")
+   let result = index.searchBbox({minX:0,maxX:100,minY:90,maxY:110},Infinity)
+   assert.equal(result.size,1)
+
+   index = new Index(1024)
+   index.insert({anchor:new Point(-100,100),bboxes:[{minX:-100,minY:100,maxX:100,maxY:200}],draw:c=>{}},1,"abcd")
+   result = index.searchBbox({minX:1000,maxX:1024,minY:90,maxY:110},Infinity)
+   assert.equal(result.size,1)
+})
+
 test('label with multiple bboxes', async () => {
-   let index = new Index()
+   let index = new Index(1024)
    index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:110,maxY:200},{minX:110,minY:100,maxX:120,maxY:200}],draw:c=>{}},1,"abcd")
    let result = index.searchBbox({minX:90,maxX:130,minY:90,maxY:110},Infinity)
    assert.equal(result.size,1)
 })
 
 test('label order', async () => {
-   let index = new Index()
+   let index = new Index(1024)
    index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:200,maxY:200}],draw:c=>{}},2,"abcd")
    let result = index.searchBbox({minX:90,maxX:110,minY:90,maxY:110},1)
    assert.equal(result.size,0)
@@ -39,7 +51,7 @@ test('label order', async () => {
 })
 
 test('pruning', async () => {
-   let index = new Index()
+   let index = new Index(1024)
    index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:200,maxY:200}],draw:c=>{}},1,"abcd")
    assert.equal(index.tree.all().length,1)
    assert.equal(index.current.has("abcd"),true)
@@ -49,7 +61,7 @@ test('pruning', async () => {
 })
 
 test('remove an individual label', async () => {
-   let index = new Index()
+   let index = new Index(1024)
    index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:200,maxY:200}],draw:c=>{}},1,"abcd")
    assert.equal(index.tree.all().length,1)
    assert.equal(index.current.get("abcd").size,1)
