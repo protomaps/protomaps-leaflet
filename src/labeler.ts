@@ -53,10 +53,11 @@ export const covering = (display_zoom:number,tile_width:number,bbox:Bbox) => {
 
     let retval = []
     for (let x = minx; x <= maxx; x++) {
+        let wrapped_x = x % (1 << display_zoom)
         for (let y = miny; y <= maxy; y++) {
             retval.push({
-                display:toIndex({z:display_zoom,x:x,y:y}),
-                key:toIndex({z:display_zoom-leveldiff,x:Math.floor(x/f),y:Math.floor(y/f)})
+                display:toIndex({z:display_zoom,x:wrapped_x,y:y}),
+                key:toIndex({z:display_zoom-leveldiff,x:Math.floor(wrapped_x/f),y:Math.floor(y/f)})
             })
         }
     }

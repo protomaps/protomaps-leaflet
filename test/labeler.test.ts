@@ -10,6 +10,11 @@ test('covering', async () => {
     assert.deepEqual(result,[{display:"1:2:3",key:"0:0:1"}])
 })
 
+test('covering with antimeridian crossing', async () => {
+    let result = covering(3,1024,{minX:2000,minY:256*2,maxX:2050,maxY:256*2+1})
+    assert.deepEqual(result,[{display:"7:2:3",key:"1:0:1"},{display:"0:2:3",key:"0:0:1"}])
+})
+
 test('inserting label into index', async () => {
    let index = new Index()
    index.insert({anchor:new Point(100,100),bboxes:[{minX:100,minY:100,maxX:200,maxY:200}],draw:c=>{}},1,"abcd")
