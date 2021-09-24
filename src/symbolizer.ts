@@ -474,6 +474,7 @@ export class TextSymbolizer implements LabelSymbolizer {
     lineHeight: NumberAttr // in ems
     letterSpacing: NumberAttr // in px
     maxLineCodeUnits: number
+    justify: Justify
 
     constructor(options:any) {
         this.font = new FontAttr(options)
@@ -485,6 +486,7 @@ export class TextSymbolizer implements LabelSymbolizer {
         this.lineHeight = new NumberAttr(options.lineHeight,1)
         this.letterSpacing = new NumberAttr(options.letterSpacing,0)
         this.maxLineCodeUnits = options.maxLineChars || 15
+        this.justify = options.justify
     }
 
     public place(layout:Layout,geom:Point[][],feature:Feature) {
@@ -532,8 +534,10 @@ export class TextSymbolizer implements LabelSymbolizer {
             var y = 0
             for (let line of lines) {
                 var startX = 0
-                if (extra && extra.justify == Justify.Center) {
+                if (this.justify == Justify.Center || (extra && extra.justify == Justify.Center)) {
                     startX = (width - ctx.measureText(line).width) / 2
+                } else if (this.justify == Justify.Right || (extra && extra.justify == Justify.Right)) {
+                    startX = (width - ctx.measureText(line).width)
                 }
                 if (textStrokeWidth) {
                     ctx.lineWidth = textStrokeWidth * 2 // centered stroke
