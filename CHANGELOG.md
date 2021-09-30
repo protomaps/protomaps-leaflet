@@ -1,3 +1,9 @@
+# 1.11.0
+* Improve type checking for symbolizer options.
+
+# 1.10.0
+* `backgroundColor` option for leaflet or static map.
+
 # 1.9.0
 * Center text justification only in the case of `CenterdSymbolizer`
 * `TextSymbolizer` `label_props` can be a function
