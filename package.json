@@ -33,7 +33,7 @@
     "build": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps.js --global-name=protomaps",
     "build-min": "esbuild src/index.ts --bundle --target=es2015 --minify --outfile=dist/protomaps.min.js --global-name=protomaps",
     "build-module": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps.module.js --format=esm",
-    "build-tsc": "tsc --noEmit --declaration --outdir dist",
+    "build-tsc": "tsc --declaration --outdir dist",
     "tsc": "tsc --noEmit --watch",
     "test": "node -r esbuild-runner/register test/index.ts",
     "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc"
