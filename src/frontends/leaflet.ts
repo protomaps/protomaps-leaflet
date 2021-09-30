@@ -57,6 +57,7 @@ const leafletLayer = (options:any):any => {
             let theme = options.dark ? dark : light
             this.paint_rules = options.paint_rules || paintRules(theme,options.shade)
             this.label_rules = options.label_rules || labelRules(theme,options.shade,options.language1,options.language2)
+            this.backgroundColor = options.backgroundColor
             this.lastRequestedZ = undefined
             this.xray = options.xray
 
@@ -146,6 +147,13 @@ const leafletLayer = (options:any):any => {
             let ctx = element.getContext("2d")
             ctx.setTransform(this.tile_size/256,0,0,this.tile_size/256,0,0)
             ctx.clearRect(0,0,256,256)
+
+            if (this.backgroundColor) {
+                ctx.save()
+                ctx.fillStyle = this.backgroundColor
+                ctx.fillRect(0,0,256,256)
+                ctx.restore()
+            }
 
             var painting_time = 0
             if (this.xray) {

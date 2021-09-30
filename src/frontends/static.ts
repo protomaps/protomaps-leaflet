@@ -56,11 +56,13 @@ export class Static {
     view:View
     debug:string
     scratch:any
+    backgroundColor: string
 
     constructor(options:any) {
         let theme = options.dark ? dark : light
         this.paint_rules = options.paint_rules || paintRules(theme,options.shade)
         this.label_rules = options.label_rules || labelRules(theme,options.shade,options.language1,options.language2)
+        this.backgroundColor = options.backgroundColor
 
         let source
         if (options.url.url) {
@@ -91,6 +93,13 @@ export class Static {
         let labeler = new Labeler(display_zoom,ctx,this.label_rules,undefined) // because need ctx to measure
         for (var prepared_tile of prepared_tiles) {
             await labeler.add(prepared_tile)
+        }
+
+        if (this.backgroundColor) {
+            ctx.save()
+            ctx.fillStyle = this.backgroundColor
+            ctx.fillRect(0,0,width,height)
+            ctx.restore()
         }
 
         let p = painter(ctx,prepared_tiles,labeler.index,this.paint_rules,bbox,origin,true,this.debug)
