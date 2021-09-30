@@ -72,8 +72,15 @@ export class Static {
         } else {
             source = new ZxySource(options.url,false)
         }
-        let cache = new TileCache(source,1024)
-        this.view = new View(cache,14,2)
+
+        let maxDataZoom = 14;
+        if (options.maxDataZoom) {
+          maxDataZoom = options.maxDataZoom;
+        }
+
+        let levelDiff = options.levelDiff === undefined ? 2 : options.levelDiff
+        let cache = new TileCache(source,256 * 1 << levelDiff)
+        this.view = new View(cache,maxDataZoom,levelDiff)
         this.debug = options.debug || false
     }
 
