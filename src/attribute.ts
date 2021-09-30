@@ -1,7 +1,11 @@
 import { Feature } from './tilecache'
 
+export type StringOption = string | ((z:number,f?:Feature) => string)
+export type StringListOption = string[] | ((z:number,f?:Feature) => string[])
+export type NumberOption = number | ((z:number,f?:Feature) => number)
+
 export class StringAttr {
-    str: string | ((z:number,f?:Feature) => string)
+    str: StringOption
     per_feature: boolean
 
     constructor(c:any,defaultValue:string = "") {
@@ -19,7 +23,7 @@ export class StringAttr {
 }
 
 export class NumberAttr {
-    value: number | ((z:number,f?:Feature) => number)
+    value: NumberOption
     per_feature: boolean
 
     constructor(c:any,defaultValue:number = 1) {
@@ -36,11 +40,16 @@ export class NumberAttr {
     }
  }
 
-export class TextAttr {
-    label_props:string[] | ((z:number,f?:Feature) => string[])
-    textTransform:string
+ export interface TextAttrOptions {
+    label_props?: StringListOption
+    textTransform?: string
+ }
 
-    constructor(options:any = {}) {
+export class TextAttr {
+    label_props:StringListOption
+    textTransform?: string
+
+    constructor(options:TextAttrOptions = {}) {
         this.label_props = options.label_props || ["name"]
         this.textTransform = options.textTransform
     }
@@ -65,14 +74,23 @@ export class TextAttr {
     }
 }
 
-export class FontAttr {
-    family?: string | ((z:number,f:Feature) => string)
-    size?: number | ((z:number,f:Feature) => number)
-    weight?: number | ((z:number,f:Feature) => number)
-    style?: number | ((z:number,f:Feature) => string)
-    font?: string | ((z:number,f:Feature) => string)
+export interface FontAttrOptions {
+    family?: StringOption
+    size?: NumberOption
+    weight?: NumberOption
+    style?: NumberOption
+    font?: StringOption
+    [x: string]: any
+}
 
-    constructor(options:any) {
+export class FontAttr {
+    family?: StringOption
+    size?: NumberOption
+    weight?: NumberOption
+    style?: NumberOption
+    font?: StringOption
+
+    constructor(options:FontAttrOptions) {
         if (options.font) {
             this.font = options.font
         } else {

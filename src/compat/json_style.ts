@@ -41,7 +41,7 @@ export function filterFn(arr:any[]):Filter {
     }
 }
 
-export function numberFn(obj:any):((z:number,f:Feature)=>number) {
+export function numberFn(obj:any):((z:number,f?:Feature)=>number) {
     if (obj.base && obj.stops) {
         return (z:number) => { return exp(obj.base,obj.stops)(z-1) }
     } else if (obj[0] == 'interpolate' && obj[1][0] == "exponential" && obj[2] == "zoom") {
@@ -54,13 +54,16 @@ export function numberFn(obj:any):((z:number,f:Feature)=>number) {
     } else if (obj[0] == 'step' && obj[1][0] == 'get') {
         let slice = obj.slice(2)
         let prop = obj[1][1]
-        return (z:number,f:Feature) => {
-            let val = f.props[prop]
-            if (val < slice[1]) return slice[0]
-            for (i = 1; i < slice.length; i+=2) {
-                if (val <= slice[i]) return slice[i+1]
+        return (z:number,f?:Feature) => {
+            if (f) {
+                let val = f.props[prop]
+                if (val < slice[1]) return slice[0]
+                for (i = 1; i < slice.length; i+=2) {
+                    if (val <= slice[i]) return slice[i+1]
+                }
+                return slice[slice.length-1]
             }
-            return slice[slice.length-1]
+            return 0
         }
     } else {
         console.log("Unimplemented numeric fn: ", obj)
@@ -68,7 +71,7 @@ export function numberFn(obj:any):((z:number,f:Feature)=>number) {
     }
 }
 
-export function numberOrFn(obj:any,defaultValue = 0):(number|((z:number,f:Feature)=>number)) {
+export function numberOrFn(obj:any,defaultValue = 0):(number|((z:number,f?:Feature)=>number)) {
     if (!obj) return defaultValue
     if (typeof obj == "number") {
         return obj
@@ -79,7 +82,7 @@ export function numberOrFn(obj:any,defaultValue = 0):(number|((z:number,f:Featur
 export function widthFn(width_obj:any,gap_obj:any) {
     let w = numberOrFn(width_obj,1)
     let g = numberOrFn(gap_obj)
-    return (z:number,f:Feature) => {
+    return (z:number,f?:Feature) => {
         let tmp = (typeof(w) == "number" ? w : w(z,f))
         if (g) {
             return tmp + (typeof(g) == "number" ? g : g(z,f))
@@ -116,12 +119,12 @@ export function getFont(obj:any,fontsubmap:any) {
         var base = 1.4
         if(text_size.base) base = text_size.base
         let t = numberFn(text_size)
-        return (z:number,feature:Feature) => {
+        return (z:number,feature?:Feature) => {
             return `${style}${weight}${t(z,feature)}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else if (text_size[0] == 'step') {
         let t = numberFn(text_size)
-        return (z:number,feature:Feature) => {
+        return (z:number,feature?:Feature) => {
             return `${style}${weight}${t(z,feature)}px ${fontfaces.map(f => f.face).join(', ')}`
         }
     } else {
