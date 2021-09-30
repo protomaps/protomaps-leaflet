@@ -1,11 +1,7 @@
 import { Feature } from './tilecache'
 
-export type StringOption = string | ((z:number,f?:Feature) => string)
-export type StringListOption = string[] | ((z:number,f?:Feature) => string[])
-export type NumberOption = number | ((z:number,f?:Feature) => number)
-
 export class StringAttr {
-    str: StringOption
+    str: string | ((z:number,f?:Feature) => string)
     per_feature: boolean
 
     constructor(c:any,defaultValue:string = "") {
@@ -23,7 +19,7 @@ export class StringAttr {
 }
 
 export class NumberAttr {
-    value: NumberOption
+    value: number | ((z:number,f?:Feature) => number)
     per_feature: boolean
 
     constructor(c:any,defaultValue:number = 1) {
@@ -40,16 +36,11 @@ export class NumberAttr {
     }
  }
 
- export interface TextAttrOptions {
-    label_props?: StringListOption
-    textTransform?: string
- }
-
 export class TextAttr {
-    label_props:StringListOption
-    textTransform?: string
+    label_props:string[] | ((z:number,f?:Feature) => string[])
+    textTransform:string
 
-    constructor(options:TextAttrOptions = {}) {
+    constructor(options:any = {}) {
         this.label_props = options.label_props || ["name"]
         this.textTransform = options.textTransform
     }
@@ -74,23 +65,14 @@ export class TextAttr {
     }
 }
 
-export interface FontAttrOptions {
-    family?: StringOption
-    size?: NumberOption
-    weight?: NumberOption
-    style?: NumberOption
-    font?: StringOption
-    [x: string]: any
-}
-
 export class FontAttr {
-    family?: StringOption
-    size?: NumberOption
-    weight?: NumberOption
-    style?: NumberOption
-    font?: StringOption
+    family?: string | ((z:number,f:Feature) => string)
+    size?: number | ((z:number,f:Feature) => number)
+    weight?: number | ((z:number,f:Feature) => number)
+    style?: number | ((z:number,f:Feature) => string)
+    font?: string | ((z:number,f:Feature) => string)
 
-    constructor(options:FontAttrOptions) {
+    constructor(options:any) {
         if (options.font) {
             this.font = options.font
         } else {

@@ -3,7 +3,7 @@ import Point from '@mapbox/point-geometry'
 import { GeomType, Feature, Bbox } from './tilecache'
 // @ts-ignore
 import polylabel from 'polylabel'
-import { NumberAttr, StringAttr, TextAttr, FontAttr, StringOption, StringListOption, NumberOption, FontAttrOptions, TextAttrOptions } from './attribute'
+import { NumberAttr, StringAttr, TextAttr, FontAttr } from './attribute'
 import { linebreak, isCjk } from './text'
 import { lineCells, simpleLabel } from './line'
 import { Index, Label, Layout } from './labeler'
@@ -40,19 +40,13 @@ export const createPattern = (width:number,height:number, fn:((canvas:any,ctx:an
     return canvas
 }
 
-interface PolygonSymbolizerOptions {
-    fill?: StringOption
-    opacity?: NumberOption
-    [x: string]: any
-}
-
 export class PolygonSymbolizer implements PaintSymbolizer {
     pattern: any // FIXME
     fill: StringAttr
     opacity: NumberAttr
     per_feature: boolean
 
-    constructor(options:PolygonSymbolizerOptions) {
+    constructor(options:any) {
         this.pattern = options.pattern
         this.fill = new StringAttr(options.fill,"black")
         this.opacity = new NumberAttr(options.opacity,1)
@@ -134,17 +128,6 @@ function isFunction(obj:any) {
   return !!(obj && obj.constructor && obj.call && obj.apply);
 }
 
-interface LineSymbolizerOptions {
-    color?: StringOption
-    width?: NumberOption
-    opacity?: NumberOption
-    dashColor?: StringOption
-    dashWidth?: NumberOption
-    lineCap?: StringOption
-    lineJoin?: StringOption
-    [x: string]: any
-}
-
 export class LineSymbolizer implements PaintSymbolizer {
     color: StringAttr
     width: NumberAttr
@@ -157,7 +140,7 @@ export class LineSymbolizer implements PaintSymbolizer {
     lineCap: StringAttr
     lineJoin: StringAttr
 
-    constructor(options:LineSymbolizerOptions) {
+    constructor(options:any) {
         this.color = new StringAttr(options.color,"black")
         this.width = new NumberAttr(options.width)
         this.opacity = new NumberAttr(options.opacity)
@@ -246,15 +229,6 @@ export class IconSymbolizer implements LabelSymbolizer {
     }
 }
 
-interface CircleSymbolizerOptions {
-    radius?: NumberOption
-    fill?: StringOption
-    stroke?: StringOption
-    width?: NumberOption
-    opacity?: NumberOption
-    [x: string]: any
-}
-
 export class CircleSymbolizer implements LabelSymbolizer, PaintSymbolizer {
     radius: NumberAttr
     fill: StringAttr
@@ -262,7 +236,7 @@ export class CircleSymbolizer implements LabelSymbolizer, PaintSymbolizer {
     width: NumberAttr
     opacity: NumberAttr
 
-    constructor(options:CircleSymbolizerOptions) {
+    constructor(options:any) {
         this.radius = new NumberAttr(options.radius,3)
         this.fill = new StringAttr(options.fill,"black")
         this.stroke = new StringAttr(options.stroke,"white")
@@ -306,15 +280,6 @@ export class CircleSymbolizer implements LabelSymbolizer, PaintSymbolizer {
     }
 }
 
-interface ShieldSymbolizerOptions {
-    font?: StringOption
-    text?: StringListOption
-    fill?: StringOption
-    background?: StringOption
-    padding?: NumberOption
-    [x: string]: any
-}
-
 export class ShieldSymbolizer implements LabelSymbolizer {
     font: FontAttr
     text: TextAttr
@@ -322,7 +287,7 @@ export class ShieldSymbolizer implements LabelSymbolizer {
     fill: StringAttr
     padding: NumberAttr
 
-    constructor(options:ShieldSymbolizerOptions & FontAttrOptions & TextAttrOptions) {
+    constructor(options:any) {
         this.font = new FontAttr(options)
         this.text = new TextAttr(options)
         this.fill = new StringAttr(options.fill,"black")
@@ -500,16 +465,6 @@ export class Padding implements LabelSymbolizer {
     }
 }
 
-interface TextSymbolizerOptions {
-    fill?: StringOption
-    stroke?: StringOption
-    width?: NumberOption
-    lineHeight?: NumberOption
-    letterSpacing?: NumberOption
-    [x: string]: any
-}
-
-
 export class TextSymbolizer implements LabelSymbolizer {
     font: FontAttr
     text: TextAttr
@@ -521,7 +476,7 @@ export class TextSymbolizer implements LabelSymbolizer {
     maxLineCodeUnits: number
     justify: Justify
 
-    constructor(options:TextSymbolizerOptions & FontAttrOptions & TextAttrOptions) {
+    constructor(options:any) {
         this.font = new FontAttr(options)
         this.text = new TextAttr(options)
 
@@ -617,7 +572,7 @@ export class TextSymbolizer implements LabelSymbolizer {
 export class CenteredTextSymbolizer implements LabelSymbolizer {
     centered: LabelSymbolizer
 
-    constructor(options:TextSymbolizerOptions) {
+    constructor(options:any) {
         this.centered = new CenteredSymbolizer(new TextSymbolizer(options))
     }
 
@@ -626,15 +581,11 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
     }
 }
 
-interface OffsetSymbolizerOptions {
-    offset?: NumberOption
-}
-
 export class OffsetSymbolizer implements LabelSymbolizer {
     offset: NumberAttr
     symbolizer: LabelSymbolizer
 
-    constructor(symbolizer:LabelSymbolizer, options:OffsetSymbolizerOptions) {
+    constructor(symbolizer:LabelSymbolizer, options:any) {
         this.symbolizer = symbolizer
         this.offset = new NumberAttr(options.offset,0)
     }
@@ -694,21 +645,13 @@ export class OffsetSymbolizer implements LabelSymbolizer {
 export class OffsetTextSymbolizer implements LabelSymbolizer {
     symbolizer: LabelSymbolizer
 
-    constructor(options:TextSymbolizerOptions & OffsetSymbolizerOptions) {
+    constructor(options:any) {
         this.symbolizer = new OffsetSymbolizer(new TextSymbolizer(options),options)
     }
 
     public place(layout:Layout,geom:Point[][],feature:Feature) {
         return this.symbolizer.place(layout,geom,feature)
     }
-}
-
-interface LineLabelSymbolizerOptions {
-    fill?: StringOption
-    stroke?: StringOption
-    width?: NumberOption
-    offset?: NumberOption
-    [x: string]: any
 }
 
 export class LineLabelSymbolizer implements LabelSymbolizer {
@@ -720,7 +663,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     width: NumberAttr
     offset: NumberAttr
 
-    constructor(options:LineLabelSymbolizerOptions & FontAttrOptions & TextAttrOptions) {
+    constructor(options:any) {
         this.font = new FontAttr(options)
         this.text = new TextAttr(options)
 
@@ -790,7 +733,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
 export class PolygonLabelSymbolizer implements LabelSymbolizer {
     symbolizer: LabelSymbolizer
 
-    constructor(options:TextSymbolizerOptions) {
+    constructor(options:any) {
         this.symbolizer = new TextSymbolizer(options)
     }
 
