@@ -44,19 +44,30 @@ export class PolygonSymbolizer implements PaintSymbolizer {
     pattern: any // FIXME
     fill: StringAttr
     opacity: NumberAttr
+    stroke: StringAttr
+    width: NumberAttr
     per_feature: boolean
+    do_stroke: boolean
 
     constructor(options:any) {
         this.pattern = options.pattern
         this.fill = new StringAttr(options.fill,"black")
         this.opacity = new NumberAttr(options.opacity,1)
-        this.per_feature = (this.fill.per_feature || this.opacity.per_feature || options.per_feature)
+        this.stroke = new StringAttr(options.stroke,"black")
+        this.width = new NumberAttr(options.width,0)
+        this.per_feature = (this.fill.per_feature || this.opacity.per_feature || 
+            this.stroke.per_feature || this.width.per_feature || options.per_feature)
+        this.do_stroke = false
     }
 
     public before(ctx:any,z:number) {
         if (!this.per_feature) {
             ctx.globalAlpha = this.opacity.get(z)
             ctx.fillStyle = this.fill.get(z)
+            ctx.strokeStyle = this.stroke.get(z)
+            let width = this.width.get(z)
+            if (width > 0) this.do_stroke = true
+            ctx.lineWidth = width
         }
         if (this.pattern) {
             ctx.fillStyle = ctx.createPattern(this.pattern, 'repeat')
@@ -65,9 +76,16 @@ export class PolygonSymbolizer implements PaintSymbolizer {
     }
 
     public draw(ctx:any,geom:Point[][],z:number,f:Feature) {
+        var do_stroke = false
         if (this.per_feature) {
-            ctx.fillStyle = this.fill.get(z,f)
             ctx.globalAlpha = this.opacity.get(z,f)
+            ctx.fillStyle = this.fill.get(z,f)
+            var width = this.width.get(z,f)
+            if (width) {
+                do_stroke = true
+                ctx.strokeStyle = this.stroke.get(z,f)
+                ctx.lineWidth = width
+            }
         }
 
         ctx.beginPath()
@@ -79,6 +97,9 @@ export class PolygonSymbolizer implements PaintSymbolizer {
             }
         }
         ctx.fill()
+        if (do_stroke || this.do_stroke) {
+            ctx.stroke()
+        }
     }
 }
 
