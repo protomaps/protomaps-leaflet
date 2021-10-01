@@ -1,5 +1,9 @@
-# 1.11.0
-* Improve type checking for symbolizer options.
+# 1.13.0
+* `PolygonSymbolizer` has `stroke` and `width` for efficient outlines.
+* `maxLineChars` line-breaking can be a function.
+
+# 1.12.0
+* `Static` takes same basic options as leaflet frontend.
 
 # 1.10.0
 * `backgroundColor` option for leaflet or static map.
