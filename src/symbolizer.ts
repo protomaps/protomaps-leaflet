@@ -473,7 +473,7 @@ export class TextSymbolizer implements LabelSymbolizer {
     width: NumberAttr
     lineHeight: NumberAttr // in ems
     letterSpacing: NumberAttr // in px
-    maxLineCodeUnits: number
+    maxLineCodeUnits: NumberAttr
     justify: Justify
 
     constructor(options:any) {
@@ -485,7 +485,7 @@ export class TextSymbolizer implements LabelSymbolizer {
         this.width = new NumberAttr(options.width,0)
         this.lineHeight = new NumberAttr(options.lineHeight,1)
         this.letterSpacing = new NumberAttr(options.letterSpacing,0)
-        this.maxLineCodeUnits = options.maxLineChars || 15
+        this.maxLineCodeUnits = new NumberAttr(options.maxLineChars,15)
         this.justify = options.justify
     }
 
@@ -498,7 +498,7 @@ export class TextSymbolizer implements LabelSymbolizer {
         let letterSpacing = this.letterSpacing.get(layout.zoom,feature)
 
         // line breaking
-        let lines = linebreak(property,this.maxLineCodeUnits)
+        let lines = linebreak(property,this.maxLineCodeUnits.get(layout.zoom,feature))
         var longestLine
         var longestLineLen = 0
         for (let line of lines) {
