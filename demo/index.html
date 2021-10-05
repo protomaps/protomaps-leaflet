@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>protomaps.js / demos</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script type="text/javascript" src="../../dist/protomaps.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="description" content="protomaps.js demos - a lightweight vector map renderer for the web">
+    <link href="./css/style.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript">
+        function qs(name, limit) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            let q = (results === null) ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+            return clean_str( q, limit );
+        }
+
+        function clean_str( str, limit ) {
+            if (limit) str = str.substr(0, limit);
+            return str.replace( /[^a-zA-Z0-9._]/g, "_" );
+        }
+
+        var src = null;
+        var qfile = qs("name", 50);
+        if (!qfile) qfile = "template";
+
+        if (qfile.indexOf("/") >= 0 || qfile.split(".").length > 2 ) qfile="";
+
+        src = document.createElement('script');
+        src.setAttribute("type", "text/javascript");
+        src.setAttribute("id", "src");
+        src.setAttribute("src", "../demo/" + qfile + ".js");
+
+        var link = document.createElement("a");
+        link.setAttribute("class", "source-code");
+        link.setAttribute("href", "./edit/?name=" + qfile);
+        link.textContent = "► view/edit code";
+
+        src.onload = function () {
+            var hint = document.querySelector("#hint");
+            hint.innerHTML = "";
+            hint.appendChild( link );
+
+            var desc = document.querySelector("#description");
+            if (window.demoDescription) {
+                desc.textContent = ": "+window.demoDescription;
+            }
+        };
+
+        function screenshot(w, h) {
+            var demo = document.querySelector( "#map > canvas" );
+            var img = document.createElement( "img" );
+            img.setAttribute( "style", "position: absolute; top: 90vh; left: 0; z-index:1000; width: " + w + "px; height: " + h + "px;" );
+            var page = document.querySelector( "#page" );
+            page.appendChild( img );
+            img.src = demo.toDataURL();
+            var qf = qfile.split( "." );
+            qf.pop();
+            return qf.join( "." ) + ".png";
+        }
+    </script>
+</head>
+<body>
+<div id="header">
+  <div id="pmap_title"><a href="../">protomaps.js</a> demos</div>
+  <div id="topmenu">
+    <a href="../guide/01-Introduction.html">guides</a>
+    <a href="../docs/">docs</a>
+    <a href="https://github.com/protomaps/protomaps.js">github</a>
+  </div>
+</div>
+<div id="board">
+    <div id="map"></div>
+</div>
+<div id="page">
+    <h1><strong>Demo</strong><span id="description"></span></h1>
+    <div id="cover">
+        <p class="section">core demos</p>
+        <p class="demo" data-src="leafletlayer.basemap"><span>LeafletLayer </span><strong>basemap</strong></p>
+        <p class="section">&nbsp;</p>
+        <p class="section">Painting</p>
+        <p class="demo" data-src="polygonsymbolizer.fill"><span>PolygonSymbolizer </span><strong>fill</strong></p>
+        <p class="section">&nbsp;</p>
+        <p class="section">Labeling</p>
+        <p class="section">&nbsp;</p>
+        <p class="section">Others</p>
+        <p class="demo" data-src=""><span>↗ d3.js example</span></p>
+        <p class="demo" data-src=""><span>↗ React example</span></p>
+    </div>
+    <div id="hint"></div>
+</div>
+<script type="text/javascript">
+    if (src) document.querySelector("body").appendChild( src );
+    const map = L.map('map')
+    const DEMO_KEY = "1003762824b9687f"
+    var index = window.location.href.indexOf("?name");
+    if ( index < 0 ) {
+        window.location.href = window.location.origin+window.location.pathname+"?name=leafletlayer.basemap";
+    }
+    var demos = document.querySelectorAll(".demo");
+    for (var i=0; i<demos.length; i++) {
+        var file = demos[i].getAttribute("data-src");
+        demos[i].addEventListener("click", function() {
+            var sel = this.getAttribute("data-src");
+            if (sel.indexOf("https://") === 0) {
+                window.open( sel, "pts_demo" );
+            } else {
+                window.location.href = window.location.origin+window.location.pathname+"?name="+sel;
+            }
+        }.bind( demos[i] ) );
+    }
+</script>
+</body>
+</html>
