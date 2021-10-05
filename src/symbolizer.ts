@@ -8,6 +8,12 @@ import { linebreak, isCjk } from './text'
 import { lineCells, simpleLabel } from './line'
 import { Index, Label, Layout } from './labeler'
 
+let batch_size = Infinity
+if (navigator.userAgent.toLowerCase().indexOf("webkit") >= 0) {
+    // https://bugs.webkit.org/show_bug.cgi?id=230751
+    batch_size = 200
+}
+
 export interface PaintSymbolizer {
     before?(ctx:any,z:number):void
     draw(ctx:any,geom:Point[][],z:number,feature:Feature):void
@@ -72,7 +78,6 @@ export class PolygonSymbolizer implements PaintSymbolizer {
         if (this.pattern) {
             ctx.fillStyle = ctx.createPattern(this.pattern, 'repeat')
         }
-        // ctx.imageSmoothingEnabled = false // broken on safari
     }
 
     public draw(ctx:any,geom:Point[][],z:number,f:Feature) {
@@ -88,17 +93,24 @@ export class PolygonSymbolizer implements PaintSymbolizer {
             }
         }
 
-        ctx.beginPath()
-        for (var poly of geom) {
-            for (var p = 0; p < poly.length-1; p++) {
-                let pt = poly[p]
-                if (p == 0) ctx.moveTo(pt.x,pt.y)
-                else ctx.lineTo(pt.x,pt.y)
+        var i = 0
+        while (i < geom.length) {
+            var j = 0
+            ctx.beginPath()
+            while (i < geom.length && j < batch_size) {
+                var poly = geom[i]
+                for (var p = 0; p < poly.length-1; p++) {
+                    let pt = poly[p]
+                    if (p == 0) ctx.moveTo(pt.x,pt.y)
+                    else ctx.lineTo(pt.x,pt.y)
+                }
+                i++
+                j++
             }
-        }
-        ctx.fill()
-        if (do_stroke || this.do_stroke) {
-            ctx.stroke()
+            ctx.fill()
+            if (do_stroke || this.do_stroke) {
+                ctx.stroke()
+            }
         }
     }
 }
@@ -189,35 +201,43 @@ export class LineSymbolizer implements PaintSymbolizer {
 
     public draw(ctx:any,geom:Point[][],z:number,f:Feature) {
         if (this.skip) return
-        ctx.beginPath()
-        for (var ls of geom) {
-            for (var p = 0; p < ls.length; p++) {
-                let pt = ls[p]
-                if (p == 0) ctx.moveTo(pt.x,pt.y);
-                else ctx.lineTo(pt.x,pt.y);
-            }
-        }
 
-        if (this.per_feature) {
-            ctx.globalAlpha = this.opacity.get(z,f)
-            ctx.lineCap = this.lineCap.get(z,f)
-            ctx.lineJoin = this.lineJoin.get(z,f)
-        }
-        if (this.dash) {
-            ctx.save()
-            if (this.per_feature) {
-                ctx.lineWidth = this.dashWidth.get(z,f)
-                ctx.strokeStyle = this.dashColor.get(z,f)
+        var i = 0
+        while (i < geom.length) {
+            var j = 0
+            ctx.beginPath()
+            while (i < geom.length && j < batch_size) {
+                var ls = geom[i]
+                for (var p = 0; p < ls.length; p++) {
+                    let pt = ls[p]
+                    if (p == 0) ctx.moveTo(pt.x,pt.y);
+                    else ctx.lineTo(pt.x,pt.y);
+                }
+                i++
+                j++
             }
-            ctx.setLineDash(this.dash)
-            ctx.stroke()
-            ctx.restore()
-        } else {
+
             if (this.per_feature) {
-                ctx.lineWidth = this.width.get(z,f)
-                ctx.strokeStyle = this.color.get(z,f)
+                ctx.globalAlpha = this.opacity.get(z,f)
+                ctx.lineCap = this.lineCap.get(z,f)
+                ctx.lineJoin = this.lineJoin.get(z,f)
             }
-            ctx.stroke()
+            if (this.dash) {
+                ctx.save()
+                if (this.per_feature) {
+                    ctx.lineWidth = this.dashWidth.get(z,f)
+                    ctx.strokeStyle = this.dashColor.get(z,f)
+                }
+                ctx.setLineDash(this.dash)
+                ctx.stroke()
+                ctx.restore()
+            } else {
+                if (this.per_feature) {
+                    ctx.lineWidth = this.width.get(z,f)
+                    ctx.strokeStyle = this.color.get(z,f)
+                }
+                ctx.stroke()
+            }
         }
     }
 }
