@@ -9,7 +9,10 @@ import { lineCells, simpleLabel } from "./line";
 import { Index, Label, Layout } from "./labeler";
 
 let batch_size = Infinity;
-if (navigator.userAgent.toLowerCase().indexOf("webkit") >= 0) {
+if (
+  typeof navigator !== "undefined" &&
+  navigator.userAgent.toLowerCase().indexOf("webkit") >= 0
+) {
   // https://bugs.webkit.org/show_bug.cgi?id=230751
   batch_size = 200;
 }

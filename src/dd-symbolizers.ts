@@ -114,7 +114,7 @@ export class DataDrivenOffsetSymbolizer implements LabelSymbolizer {
       maxX: anchor.x + bbOrigin.x + firstLabelBbox.maxX,
       maxY: anchor.y + bbOrigin.y + firstLabelBbox.maxY,
     };
-  }
+  };
 
   private placeLabelInPoint(
     anchor: Point,

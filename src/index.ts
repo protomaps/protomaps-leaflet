@@ -10,7 +10,7 @@ export * from "./painter";
 export * from "./tilecache";
 export * from "./view";
 export * from "./labeler";
-export * from "./dd-symbolizers"
+export * from "./dd-symbolizers";
 
 // @ts-ignore
 export { PMTiles } from "pmtiles";

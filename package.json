@@ -38,6 +38,7 @@
     "tsc": "tsc --noEmit --watch",
     "test": "node -r esbuild-runner/register test/index.ts",
     "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc",
+    "prettier": "npx prettier --write .",
     "serve": "npx serve ."
   },
   "repository": {
