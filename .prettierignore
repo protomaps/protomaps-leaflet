@@ -1,0 +1,11 @@
+benchmark
+demo
+dist
+docs
+examples
+.git
+.github
+guide
+node_modules
+CHANGELOG.md
+README.md

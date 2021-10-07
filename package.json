@@ -1,5 +1,5 @@
 {
-  "name": "protomaps",
+  "name": "@felt/protomaps",
   "version": "1.13.1",
   "files": [
     "dist",
@@ -13,6 +13,7 @@
     "baretest": "^2.0.0",
     "esbuild": "^0.12.15",
     "esbuild-runner": "^2.2.0",
+    "prettier": "2.4.1",
     "tslib": "^2.3.0",
     "typescript": "^4.3.5"
   },
@@ -36,7 +37,8 @@
     "build-tsc": "tsc --declaration --outdir dist",
     "tsc": "tsc --noEmit --watch",
     "test": "node -r esbuild-runner/register test/index.ts",
-    "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc"
+    "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc",
+    "prettier": "npx prettier --write ."
   },
   "repository": {
     "type": "git",
