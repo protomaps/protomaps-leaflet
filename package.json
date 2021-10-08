@@ -1,5 +1,5 @@
 {
-  "name": "@felt/protomaps",
+  "name": "@feltmaps/protomaps",
   "version": "1.13.1",
   "files": [
     "dist",
