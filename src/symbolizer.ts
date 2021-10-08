@@ -28,6 +28,17 @@ export enum Justify {
   Right = 3,
 }
 
+export enum TextPlacements {
+  N = 1,
+  NE = 2,
+  E = 3,
+  SE = 4,
+  S = 5,
+  SW = 6,
+  W = 7,
+  NW = 8
+}
+
 export interface DrawExtra {
   justify: Justify;
 }
@@ -653,69 +664,116 @@ export class CenteredTextSymbolizer implements LabelSymbolizer {
   }
 }
 
+export interface OffsetSymbolizerValues {
+  offsetX?: number
+  offsetY?: number
+  placements?: TextPlacements[]
+  justify?: Justify
+}
+
+export type DataDrivenOffsetSymbolizer = (zoom:number,feature:Feature) => OffsetSymbolizerValues
+
 export class OffsetSymbolizer implements LabelSymbolizer {
-  offset: NumberAttr;
-  symbolizer: LabelSymbolizer;
+    symbolizer: LabelSymbolizer
+    offsetX: NumberAttr
+    offsetY: NumberAttr
+    justify: Justify
+    placements: TextPlacements[]
+    ddValues: DataDrivenOffsetSymbolizer
 
-  constructor(symbolizer: LabelSymbolizer, options: any) {
-    this.symbolizer = symbolizer;
-    this.offset = new NumberAttr(options.offset, 0);
-  }
+    constructor(symbolizer:LabelSymbolizer, options:any) {
+        this.symbolizer = symbolizer
+        this.offsetX = new NumberAttr(options.offsetX,0)
+        this.offsetY = new NumberAttr(options.offsetY,0)
+        this.justify = options.justify || undefined
+        this.placements = options.placements
+          || [TextPlacements.NE, TextPlacements.SW, TextPlacements.NW, TextPlacements.SE,
+            TextPlacements.N, TextPlacements.E, TextPlacements.S, TextPlacements.W]
+        this.ddValues = (options.ddValues as DataDrivenOffsetSymbolizer) || (() => { return {} })
+    }
 
-  public place(layout: Layout, geom: Point[][], feature: Feature) {
-    if (feature.geomType !== GeomType.Point) return undefined;
-    let anchor = geom[0][0];
-    let placed = this.symbolizer.place(layout, [[new Point(0, 0)]], feature);
-    if (!placed || placed.length == 0) return undefined;
-    let first_label = placed[0];
-    let fb = first_label.bboxes[0];
-    let offset = this.offset.get(layout.zoom, feature);
+    public place(layout:Layout,geom:Point[][],feature:Feature) {
+        if (feature.geomType !== GeomType.Point) return undefined
+        let anchor = geom[0][0]
+        let placed = this.symbolizer.place(layout,[[new Point(0,0)]],feature)
+        if (!placed || placed.length == 0) return undefined
+        let first_label = placed[0]
+        let fb = first_label.bboxes[0]
 
-    let getBbox = (a: Point, o: Point) => {
-      return {
-        minX: a.x + o.x + fb.minX,
-        minY: a.y + o.y + fb.minY,
-        maxX: a.x + o.x + fb.maxX,
-        maxY: a.y + o.y + fb.maxY,
-      };
-    };
+        // Overwrite options values via the data driven function if exists
+        let offsetXValue = this.offsetX
+        let offsetYValue = this.offsetY
+        let justifyValue = this.justify
+        let placements = this.placements 
+        const { 
+          offsetX: ddOffsetX,
+          offsetY: ddOffsetY,
+          justify: ddJustify,
+          placements: ddPlacements } = this.ddValues(layout.zoom,feature) || {}
+        if (ddOffsetX) offsetXValue = new NumberAttr(ddOffsetX, 0)
+        if (ddOffsetY) offsetYValue = new NumberAttr(ddOffsetY, 0)
+        if (ddJustify) justifyValue = ddJustify
+        if (ddPlacements) placements = ddPlacements
 
-    var origin = new Point(offset, -offset);
-    var justify: Justify;
-    let draw = (ctx: any) => {
-      ctx.translate(origin.x, origin.y);
-      first_label.draw(ctx, { justify: justify });
-    };
+        const offsetX = offsetXValue.get(layout.zoom,feature)
+        const offsetY = offsetYValue.get(layout.zoom,feature)
 
-    // NE
-    var bbox = getBbox(anchor, origin);
-    justify = Justify.Left;
-    if (!layout.index.bboxCollides(bbox, layout.order))
-      return [{ anchor: anchor, bboxes: [bbox], draw: draw }];
+        let getBbox = (a:Point,o:Point) => {
+            return {
+                minX:a.x+o.x+fb.minX, 
+                minY:a.y+o.y+fb.minY,
+                maxX:a.x+o.x+fb.maxX,
+                maxY:a.y+o.y+fb.maxY
+            }
+        }
 
-    // SW
-    origin = new Point(-offset - fb.maxX, offset - fb.minY);
-    bbox = getBbox(anchor, origin);
-    justify = Justify.Right;
-    if (!layout.index.bboxCollides(bbox, layout.order))
-      return [{ anchor: anchor, bboxes: [bbox], draw: draw }];
+        var origin = new Point(offsetX,offsetY)
+        var justify:Justify
+        let draw = (ctx:any) => {
+          ctx.translate(origin.x,origin.y)
+          first_label.draw(ctx,{justify:justify})
+        }
 
-    // NW
-    origin = new Point(-offset - fb.maxX, -offset);
-    bbox = getBbox(anchor, origin);
-    justify = Justify.Right;
-    if (!layout.index.bboxCollides(bbox, layout.order))
-      return [{ anchor: anchor, bboxes: [bbox], draw: draw }];
+        const placeLabelInPoint = (a:Point, o:Point) => {
+          const bbox = getBbox(a,o)
+          if (!layout.index.bboxCollides(bbox,layout.order)) return [{anchor:anchor,bboxes:[bbox],draw:draw}]
+        }
 
-    // SE
-    origin = new Point(-offset - fb.maxX, offset - fb.minY);
-    bbox = getBbox(anchor, origin);
-    justify = Justify.Left;
-    if (!layout.index.bboxCollides(bbox, layout.order))
-      return [{ anchor: anchor, bboxes: [bbox], draw: draw }];
+        for(let placement of placements) {
+          const xAxisOffset = this.computeXAxisOffset(offsetX, fb, placement)
+          const yAxisOffset = this.computeYAxisOffset(offsetY, fb, placement)
+          justify = this.computeJustify(justifyValue, placement)
+          origin = new Point(xAxisOffset, yAxisOffset)
+          return placeLabelInPoint(anchor, origin)
+        }
 
-    return undefined;
-  }
+        return undefined
+    }
+
+    computeXAxisOffset (offsetX: number, fb: Bbox, placement: TextPlacements) {
+      const labelWidth = fb.maxX
+      const labelHalfWidth = labelWidth / 2
+      if ([TextPlacements.N, TextPlacements.S].includes(placement)) return offsetX - labelHalfWidth
+      if ([TextPlacements.NW, TextPlacements.W, TextPlacements.SW].includes(placement)) return offsetX - labelWidth
+      return offsetX
+    }
+
+    computeYAxisOffset(offsetY: number, fb: Bbox, placement: TextPlacements) {
+      const labelHalfHeight = Math.abs(fb.minY)
+      const labelBottom = fb.maxY
+      const labelCenterHeight = (fb.minY + fb.maxY)/2
+      if ([TextPlacements.E, TextPlacements.W].includes(placement)) return offsetY - labelCenterHeight
+      if ([TextPlacements.NW, TextPlacements.NE, TextPlacements.N].includes(placement)) return offsetY - labelBottom
+      if ([TextPlacements.SW, TextPlacements.SE, TextPlacements.S].includes(placement)) return offsetY + labelHalfHeight
+      return offsetY
+    }
+
+    computeJustify(fixedJustify: Justify, placement: TextPlacements) {
+      if (fixedJustify) return fixedJustify
+      if ([TextPlacements.N, TextPlacements.S].includes(placement)) return Justify.Center
+      if ([TextPlacements.NE, TextPlacements.E, TextPlacements.SE].includes(placement)) return Justify.Left
+      return Justify.Right
+    }
 }
 
 export class OffsetTextSymbolizer implements LabelSymbolizer {
