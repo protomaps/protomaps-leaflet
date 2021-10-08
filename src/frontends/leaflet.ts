@@ -100,6 +100,7 @@ const leafletLayer = (options: any): any => {
       this.labelers = new Labelers(
         this.scratch,
         this.label_rules,
+        16,
         this.onTilesInvalidated
       );
       this.tile_size = 256 * window.devicePixelRatio;
@@ -261,6 +262,7 @@ const leafletLayer = (options: any): any => {
       this.labelers = new Labelers(
         this.scratch,
         this.label_rules,
+        16,
         this.onTilesInvalidated
       );
     }

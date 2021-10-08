@@ -232,11 +232,13 @@ export class Labeler {
   scratch: any;
   labelRules: LabelRule[];
   callback?: TileInvalidationCallback;
+  maxLabeledTiles: number;
 
   constructor(
     z: number,
     scratch: any,
     labelRules: LabelRule[],
+    maxLabeledTiles: number,
     callback?: TileInvalidationCallback
   ) {
     this.index = new Index((256 * 1) << z);
@@ -244,6 +246,7 @@ export class Labeler {
     this.scratch = scratch;
     this.labelRules = labelRules;
     this.callback = callback;
+    this.maxLabeledTiles = maxLabeledTiles;
   }
 
   private layout(pt: PreparedTile): number {
@@ -342,7 +345,7 @@ export class Labeler {
   }
 
   private pruneCache(added: PreparedTile) {
-    if (this.index.size() > 16) {
+    if (this.index.size() > this.maxLabeledTiles) {
       let max_key = undefined;
       let max_dist = 0;
       for (let key of this.index.keys()) {
@@ -376,16 +379,19 @@ export class Labelers {
   labelers: Map<number, Labeler>;
   scratch: any;
   labelRules: LabelRule[];
+  maxLabeledTiles: number;
   callback: TileInvalidationCallback;
 
   constructor(
     scratch: any,
     labelRules: LabelRule[],
+    maxLabeledTiles: number,
     callback: TileInvalidationCallback
   ) {
     this.labelers = new Map<number, Labeler>();
     this.scratch = scratch;
     this.labelRules = labelRules;
+    this.maxLabeledTiles = maxLabeledTiles;
     this.callback = callback;
   }
 
@@ -398,6 +404,7 @@ export class Labelers {
         prepared_tile.z,
         this.scratch,
         this.labelRules,
+        this.maxLabeledTiles,
         this.callback
       );
       this.labelers.set(prepared_tile.z, labeler);
