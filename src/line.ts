@@ -89,7 +89,12 @@ const linelabel = (
   return chunks;
 };
 
-export function simpleLabel(mls: any, minimum: number) {
+export interface LabelCandidate {
+  start: Point;
+  end: Point;
+}
+
+export function simpleLabel(mls: any, minimum: number): LabelCandidate[] {
   let longestStart;
   let longestEnd;
   let longestLength = 0;
@@ -103,11 +108,11 @@ export function simpleLabel(mls: any, minimum: number) {
       }
     }
   }
-  if (!longestStart) return undefined;
+  if (!longestStart) return [];
   if (longestStart.x == longestEnd.x && longestStart.y == longestEnd.y) {
-    return undefined;
+    return [];
   }
-  return { start: longestStart, end: longestEnd };
+  return [{ start: longestStart, end: longestEnd }];
 }
 
 export function lineCells(a: Point, b: Point, length: number, spacing: number) {
