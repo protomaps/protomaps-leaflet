@@ -1,9 +1,9 @@
 {
-    "compilerOptions":{
-        "target":"es6",
-        "lib":["es2020","dom"],
-        "strict":true,
-        "moduleResolution":"node"
-    },
-    "include": ["src/**/*"]
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["es2020", "dom"],
+    "strict": true,
+    "moduleResolution": "node"
+  },
+  "include": ["src/**/*"]
 }

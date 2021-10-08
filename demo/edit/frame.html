@@ -1,0 +1,61 @@
+<html>
+  <head>
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+      <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+      <!-- <script type="text/javascript" src="../../dist/protomaps.min.js"></script> -->
+      <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+      <style>
+        body {
+          background-color: #f1f3f7;
+          font-family: sans-serif;
+          margin: 0;
+        }
+        #map {
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+        }
+        #error {
+          position: absolute; top: 30px; left: 30px; right: 30px;
+          color: #f03; font-size: 14px;
+        }
+      </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="error"></div>
+    <script type="text/javascript">
+      window.addEventListener( "error", function (e){
+        document.getElementById("error").style.display = "block";
+        document.getElementById("error").textContent = e.message + " (line: "+e.lineno+", column: "+e.colno+")";
+      });
+    </script>
+    <script type="text/javascript">
+      const map = L.map('map')
+      const DEMO_KEY = "1003762824b9687f"
+
+      function update( txt ) {
+        map.eachLayer(function (layer) {
+            map.removeLayer(layer);
+        });
+        document.getElementById("error").style.display = "none";
+        var existing = document.getElementById("pmapcode");
+        if (existing) {
+          if (window.space) {
+            window.cancelAnimationFrame( window.space._animID ); // stop immediately
+            window.space.stop();
+            window.space.removeAll();
+            window.space = null;
+          }
+          if (existing.parentNode) existing.parentNode.removeChild(existing);
+        }
+
+        var sc = document.createElement("script");
+        sc.setAttribute("id", "pmapcode")
+        sc.type = "text/javascript";
+
+        sc.innerHTML = txt;
+        document.body.appendChild( sc );
+      }
+    </script>
+  </body>
+</html>
