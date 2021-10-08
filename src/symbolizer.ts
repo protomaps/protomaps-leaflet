@@ -825,47 +825,53 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     let metrics = layout.scratch.measureText(name);
     let width = metrics.width;
 
-    let result = simpleLabel(geom, width);
-    if (!result) return undefined;
-    let dx = result.end.x - result.start.x;
-    let dy = result.end.y - result.start.y;
+    let label_candidates = simpleLabel(geom, width);
 
-    let Q = 8;
-    let cells = lineCells(result.start, result.end, width, 8);
-    let bboxes = cells.map((c) => {
-      return {
-        minX: c.x - Q,
-        minY: c.y - Q,
-        maxX: c.x + Q,
-        maxY: c.y + Q,
+    if (label_candidates.length == 0) return undefined;
+
+    let labels = [];
+    for (let candidate of label_candidates) {
+      let dx = candidate.end.x - candidate.start.x;
+      let dy = candidate.end.y - candidate.start.y;
+
+      let Q = 8;
+      let cells = lineCells(candidate.start, candidate.end, width, 8);
+      let bboxes = cells.map((c) => {
+        return {
+          minX: c.x - Q,
+          minY: c.y - Q,
+          maxX: c.x + Q,
+          maxY: c.y + Q,
+        };
+      });
+
+      let draw = (ctx: any) => {
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(dx, dy);
+        ctx.strokeStyle = "red";
+        ctx.stroke();
+        ctx.rotate(Math.atan2(dy, dx));
+        if (dx < 0) {
+          ctx.scale(-1, -1);
+          ctx.translate(-width, 0);
+        }
+        ctx.translate(0, -this.offset.get(layout.zoom, feature));
+        ctx.font = font;
+        let lineWidth = this.width.get(layout.zoom, feature);
+        if (lineWidth) {
+          ctx.lineWidth = lineWidth;
+          ctx.strokeStyle = this.stroke.get(layout.zoom, feature);
+          ctx.strokeText(name, 0, 0);
+        }
+        ctx.fillStyle = this.fill.get(layout.zoom, feature);
+        ctx.fillText(name, 0, 0);
       };
-    });
+      labels.push({ anchor: candidate.start, bboxes: bboxes, draw: draw });
+    }
 
-    let draw = (ctx: any) => {
-      ctx.globalAlpha = 1;
-      // ctx.beginPath()
-      // ctx.moveTo(0,0)
-      // ctx.lineTo(dx,dy)
-      // ctx.strokeStyle = "red"
-      // ctx.stroke()
-      ctx.rotate(Math.atan2(dy, dx));
-      if (dx < 0) {
-        ctx.scale(-1, -1);
-        ctx.translate(-width, 0);
-      }
-      ctx.translate(0, -this.offset.get(layout.zoom, feature));
-      ctx.font = font;
-      let lineWidth = this.width.get(layout.zoom, feature);
-      if (lineWidth) {
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = this.stroke.get(layout.zoom, feature);
-        ctx.strokeText(name, 0, 0);
-      }
-      ctx.fillStyle = this.fill.get(layout.zoom, feature);
-      ctx.fillText(name, 0, 0);
-    };
-
-    return [{ anchor: result.start, bboxes: bboxes, draw: draw }];
+    return labels;
   }
 }
 
