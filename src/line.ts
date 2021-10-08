@@ -1,7 +1,77 @@
 // @ts-ignore
 import Point from "@mapbox/point-geometry";
-// @ts-ignore
-import linelabel from "linelabel/xy";
+
+// code from https://github.com/naturalatlas/linelabel (Apache2)
+const linelabel = (pts, max_angle_delta) => {
+  var chunks = [];
+  var cur_angles = [null];
+  var a, b, c, i = 0, n = 0, d = 0;
+  var abmag = 0, bcmag = 0;
+  var abx = 0, aby = 0;
+  var bcx = 0, bcy = 0;
+  var dt = 0;
+  var i_start = 0;
+  var d_start = 0;
+
+  if (pts.length < 2) return [];
+  if (pts.length === 2) {
+    d = Math.sqrt(
+      Math.pow(pts[1].x - pts[0].x, 2) +
+      Math.pow(pts[1].y - pts[0].y, 2));
+
+    return [{
+      length: d,
+      beginIndex: 0,
+      beginDistance: 0,
+      endIndex: 2,
+      endDistance: d,
+      angles: [null, null]
+    }];
+  }
+
+  abmag = Math.sqrt(Math.pow(pts[1].x - pts[0].x, 2) + Math.pow(pts[1].y - pts[0].y, 2));
+  for (i = 1, n = pts.length - 1; i < n; i++) {
+    a = pts[i - 1];
+    b = pts[i];
+    c = pts[i + 1];
+    abx = b.x - a.x;
+    aby = b.y - a.y;
+    bcx = c.x - b.x;
+    bcy = c.y - b.y;
+    bcmag = Math.sqrt(bcx * bcx + bcy * bcy);
+    d += abmag;
+
+    dt = Math.acos((abx * bcx + aby * bcy) / (abmag * bcmag));
+    cur_angles.push(dt);
+    if (dt > max_angle_delta) {
+      chunks.push({
+        length: d - d_start,
+        beginDistance: d_start,
+        beginIndex: i_start,
+        endIndex: i + 1,
+        endDistance: d,
+        angles: cur_angles
+      });
+      i_start = i;
+      d_start = d;
+      cur_angles = [dt];
+    }
+    abmag = bcmag;
+  }
+
+  cur_angles.push(null);
+  if (i - i_start > 0) {
+    chunks.push({
+      length: d - d_start + bcmag,
+      beginIndex: i_start,
+      beginDistance: d_start,
+      endIndex: i + 1,
+      endDistance: d + bcmag,
+      angles: cur_angles
+    });
+  }
+  return chunks;
+}
 
 export function simpleLabel(mls: any, minimum: number) {
   let longestStart;
