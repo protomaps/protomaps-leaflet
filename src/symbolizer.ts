@@ -153,11 +153,16 @@ export function exp(base: number, stops: number[][]): (z: number) => number {
   };
 }
 
-export function step(stops: number[][]): (z: number) => number {
+export function step(output0: number, stops: number[][]): (z: number) => number {
+  // Step computes discrete results by evaluating a piecewise-constant
+  // function defined by stops.
+  // Returns the output value of the stop with a stop input value just less than
+  // the input one. If the input value is less than the input of the first stop,
+  // output0 is returned
   return (z) => {
     if (stops.length < 1) return 0;
-    let retval = 0;
-    for (var i = 0; i < stops.length; i++) {
+    let retval = output0;
+    for (let i = 0; i < stops.length; i++) {
       if (z >= stops[i][0]) retval = stops[i][1];
     }
     return retval;
