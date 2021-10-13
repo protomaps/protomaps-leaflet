@@ -34,20 +34,22 @@ test("exp", async () => {
 });
 
 test("step", async () => {
-  let f = step([]);
+  let f = step(0, []);
   assert.equal(0, f(0));
-  f = step([[4, 10]]);
-  assert.equal(0, f(0));
+  f = step(5, [[4, 10]]);
+  assert.equal(5, f(0));
   assert.equal(10, f(4));
   assert.equal(10, f(5));
-  f = step([
-    [4, 10],
-    [5, 12],
-  ]);
-  assert.equal(0, f(0));
+  f = step(5, [[4, 10], [5, 15]]);
+  assert.equal(5, f(0));
+  assert.equal(10, f(4));
+  assert.equal(15, f(5));
+  f = step(5, [[4, 10], [5, 12], [6, 15]]);
+  assert.equal(5, f(0));
   assert.equal(10, f(4));
   assert.equal(12, f(5));
-  assert.equal(12, f(6));
+  assert.equal(15, f(6));
+  assert.equal(15, f(7));
 });
 
 test("linear", async () => {
