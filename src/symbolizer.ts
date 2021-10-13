@@ -809,12 +809,14 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     this.stroke = new StringAttr(options.stroke, "black");
     this.width = new NumberAttr(options.width, 0);
     this.offset = new NumberAttr(options.offset, 0);
+    this.maxLabelCodeUnits = new NumberAttr(options.maxLabelChars, 30);
+    this.repeatDistance = new NumberAttr(options.repeatDistance, 250);
   }
 
   public place(layout: Layout, geom: Point[][], feature: Feature) {
     let name = this.text.get(layout.zoom, feature);
     if (!name) return undefined;
-    if (name.length > 20) return undefined;
+    if (name.length > this.maxLabelCodeUnits.get(layout.zoom,feature)) return undefined;
 
     let fbbox = feature.bbox;
     let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX - fbbox.minX); // TODO needs to be based on zoom level
@@ -825,7 +827,8 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     let metrics = layout.scratch.measureText(name);
     let width = metrics.width;
 
-    let label_candidates = simpleLabel(geom, width);
+    let repeatDistance = this.repeatDistance.get(layout.zoom,feature);
+    let label_candidates = simpleLabel(geom, width, repeatDistance);
 
     if (label_candidates.length == 0) return undefined;
 
@@ -847,11 +850,11 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
 
       let draw = (ctx: any) => {
         ctx.globalAlpha = 1;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(dx, dy);
-        ctx.strokeStyle = "red";
-        ctx.stroke();
+        // ctx.beginPath();
+        // ctx.moveTo(0, 0);
+        // ctx.lineTo(dx, dy);
+        // ctx.strokeStyle = "red";
+        // ctx.stroke();
         ctx.rotate(Math.atan2(dy, dx));
         if (dx < 0) {
           ctx.scale(-1, -1);

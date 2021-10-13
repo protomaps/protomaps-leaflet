@@ -94,25 +94,38 @@ export interface LabelCandidate {
   end: Point;
 }
 
-export function simpleLabel(mls: any, minimum: number): LabelCandidate[] {
+export function simpleLabel(
+  mls: any,
+  minimum: number,
+  repeatDistance: number
+): LabelCandidate[] {
   let longestStart;
   let longestEnd;
   let longestLength = 0;
+
+  let candidates = [];
+
+  var lastLabeledDistance = -Infinity;
+
   for (let ls of mls) {
-    let segments = linelabel(ls, Math.PI / 2 / 18); // 5 degrees
+    let segments = linelabel(ls, Math.PI / 2 / 30); // 3 degrees, a fairly straight line
     for (let segment of segments) {
-      if (segment.length >= minimum && segment.length > longestLength) {
-        longestLength = segment.length;
-        longestStart = ls[segment.beginIndex];
-        longestEnd = ls[segment.endIndex - 1];
+      if (segment.length >= minimum) {
+        let start = new Point(ls[segment.beginIndex].x,ls[segment.beginIndex].y)
+        let end = ls[segment.endIndex-1]
+        let normalized = new Point((end.x-start.x)/segment.length,(end.y-start.y)/segment.length)
+
+        for (var i = 0; i < segment.length - minimum; i += repeatDistance) {
+          candidates.push({
+            start: start.add(normalized.mult(i)),
+            end: start.add(normalized.mult(i+minimum))
+          })
+        }
       }
     }
   }
-  if (!longestStart) return [];
-  if (longestStart.x == longestEnd.x && longestStart.y == longestEnd.y) {
-    return [];
-  }
-  return [{ start: longestStart, end: longestEnd }];
+
+  return candidates;
 }
 
 export function lineCells(a: Point, b: Point, length: number, spacing: number) {
