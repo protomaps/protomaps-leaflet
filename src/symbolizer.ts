@@ -8,14 +8,8 @@ import { linebreak, isCjk } from "./text";
 import { lineCells, simpleLabel } from "./line";
 import { Index, Label, Layout } from "./labeler";
 
-let batch_size = Infinity;
-if (
-  typeof navigator !== "undefined" &&
-  navigator.userAgent.toLowerCase().indexOf("webkit") >= 0
-) {
-  // https://bugs.webkit.org/show_bug.cgi?id=230751
-  batch_size = 200;
-}
+// https://bugs.webkit.org/show_bug.cgi?id=230751
+const MAX_VERTICES_PER_DRAW_CALL = 5400;
 
 export interface PaintSymbolizer {
   before?(ctx: any, z: number): void;
@@ -115,25 +109,29 @@ export class PolygonSymbolizer implements PaintSymbolizer {
       }
     }
 
-    var i = 0;
-    while (i < geom.length) {
-      var j = 0;
-      ctx.beginPath();
-      while (i < geom.length && j < batch_size) {
-        var poly = geom[i];
-        for (var p = 0; p < poly.length - 1; p++) {
-          let pt = poly[p];
-          if (p == 0) ctx.moveTo(pt.x, pt.y);
-          else ctx.lineTo(pt.x, pt.y);
-        }
-        i++;
-        j++;
-      }
+    let drawPath = () => {
       ctx.fill();
       if (do_stroke || this.do_stroke) {
         ctx.stroke();
       }
+    };
+
+    var vertices_in_path = 0;
+    ctx.beginPath();
+    for (var poly of geom) {
+      if (vertices_in_path + poly.length > MAX_VERTICES_PER_DRAW_CALL) {
+        drawPath();
+        vertices_in_path = 0;
+        ctx.beginPath();
+      }
+      for (var p = 0; p < poly.length - 1; p++) {
+        let pt = poly[p];
+        if (p == 0) ctx.moveTo(pt.x, pt.y);
+        else ctx.lineTo(pt.x, pt.y);
+      }
+      vertices_in_path += poly.length;
     }
+    if (vertices_in_path > 0) drawPath();
   }
 }
 
@@ -230,21 +228,7 @@ export class LineSymbolizer implements PaintSymbolizer {
   public draw(ctx: any, geom: Point[][], z: number, f: Feature) {
     if (this.skip) return;
 
-    var i = 0;
-    while (i < geom.length) {
-      var j = 0;
-      ctx.beginPath();
-      while (i < geom.length && j < batch_size) {
-        var ls = geom[i];
-        for (var p = 0; p < ls.length; p++) {
-          let pt = ls[p];
-          if (p == 0) ctx.moveTo(pt.x, pt.y);
-          else ctx.lineTo(pt.x, pt.y);
-        }
-        i++;
-        j++;
-      }
-
+    let strokePath = () => {
       if (this.per_feature) {
         ctx.globalAlpha = this.opacity.get(z, f);
         ctx.lineCap = this.lineCap.get(z, f);
@@ -266,7 +250,24 @@ export class LineSymbolizer implements PaintSymbolizer {
         }
         ctx.stroke();
       }
+    };
+
+    var vertices_in_path = 0;
+    ctx.beginPath();
+    for (var ls of geom) {
+      if (vertices_in_path + ls.length > MAX_VERTICES_PER_DRAW_CALL) {
+        strokePath();
+        vertices_in_path = 0;
+        ctx.beginPath();
+      }
+      for (var p = 0; p < ls.length; p++) {
+        let pt = ls[p];
+        if (p == 0) ctx.moveTo(pt.x, pt.y);
+        else ctx.lineTo(pt.x, pt.y);
+      }
+      vertices_in_path += ls.length;
     }
+    if (vertices_in_path > 0) strokePath();
   }
 }
 
