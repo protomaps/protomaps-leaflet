@@ -97,7 +97,8 @@ export interface LabelCandidate {
 export function simpleLabel(
   mls: any,
   minimum: number,
-  repeatDistance: number
+  repeatDistance: number,
+  cellSize: number
 ): LabelCandidate[] {
   let longestStart;
   let longestEnd;
@@ -108,14 +109,16 @@ export function simpleLabel(
   var lastLabeledDistance = -Infinity;
 
   for (let ls of mls) {
-    let segments = linelabel(ls, Math.PI / 90); // 1 degrees, close to a straight line
+    let segments = linelabel(ls, Math.PI / 90); // 2 degrees, close to a straight line
     for (let segment of segments) {
-      if (segment.length >= minimum) {
+      if (segment.length >= minimum + cellSize) {
         let start = new Point(ls[segment.beginIndex].x,ls[segment.beginIndex].y)
         let end = ls[segment.endIndex-1]
         let normalized = new Point((end.x-start.x)/segment.length,(end.y-start.y)/segment.length)
 
-        for (var i = 0; i < segment.length - minimum; i += repeatDistance) {
+        // offset from the start by cellSize to allow streets that meet at right angles
+        // to both be labeled.
+        for (var i = cellSize; i < segment.length - minimum; i += repeatDistance) {
           candidates.push({
             start: start.add(normalized.mult(i)),
             end: start.add(normalized.mult(i+minimum))
@@ -135,7 +138,9 @@ export function lineCells(a: Point, b: Point, length: number, spacing: number) {
   let dist = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
 
   let retval = [];
-  for (var i = spacing; i < length; i += 2 * spacing) {
+  // starting from the anchor, generate square cells,
+  // guaranteeing to cover the endpoint
+  for (var i = 0; i < length + spacing; i += 2 * spacing) {
     let factor = (i * 1) / dist;
     retval.push({ x: a.x + factor * dx, y: a.y + factor * dy });
   }
