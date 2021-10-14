@@ -153,7 +153,7 @@ export function exp(base: number, stops: number[][]): (z: number) => number {
   };
 }
 
-export function step(output0: number, stops: number[][]): (z: number) => number {
+export function step(output0: number | string | boolean, stops: (number[][] | string[][] | boolean[][])): (z: number) => number | string | boolean {
   // Step computes discrete results by evaluating a piecewise-constant
   // function defined by stops.
   // Returns the output value of the stop with a stop input value just less than
