@@ -50,7 +50,7 @@ Exports of OpenStreetMap data in PMTiles format can be obtained from [https://pr
 
 ## Project Status
 
-The design is still evolving rapidly, so do not expect any kind of stable internal or external-facing API. But please do report bugs and discuss requirements in the Issues.
+The design is still evolving rapidly, so do not expect any kind of stable internal or external-facing API between minor versions. But please do report bugs and discuss requirements in the Issues.
 
 ## See Also
 * [KothicJS](https://github.com/kothic/kothic-js)
