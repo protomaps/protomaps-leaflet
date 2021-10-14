@@ -108,7 +108,7 @@ export function simpleLabel(
   var lastLabeledDistance = -Infinity;
 
   for (let ls of mls) {
-    let segments = linelabel(ls, Math.PI / 2 / 30); // 3 degrees, a fairly straight line
+    let segments = linelabel(ls, Math.PI / 90); // 1 degrees, close to a straight line
     for (let segment of segments) {
       if (segment.length >= minimum) {
         let start = new Point(ls[segment.beginIndex].x,ls[segment.beginIndex].y)

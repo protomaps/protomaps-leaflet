@@ -759,7 +759,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     this.stroke = new StringAttr(options.stroke, "black");
     this.width = new NumberAttr(options.width, 0);
     this.offset = new NumberAttr(options.offset, 0);
-    this.maxLabelCodeUnits = new NumberAttr(options.maxLabelChars, 30);
+    this.maxLabelCodeUnits = new NumberAttr(options.maxLabelChars, 40);
     this.repeatDistance = new NumberAttr(options.repeatDistance, 250);
   }
 
@@ -769,8 +769,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     if (name.length > this.maxLabelCodeUnits.get(layout.zoom,feature)) return undefined;
 
     let fbbox = feature.bbox;
-    let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX - fbbox.minX); // TODO needs to be based on zoom level
-    if (area < 400) return undefined;
+    if ((fbbox.maxY - fbbox.minY < 30) && (fbbox.maxX - fbbox.minX < 30)) return undefined;
 
     let font = this.font.get(layout.zoom, feature);
     layout.scratch.font = font;
