@@ -748,6 +748,9 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
   width: NumberAttr;
   offset: NumberAttr;
 
+  maxLabelCodeUnits: NumberAttr;
+  repeatDistance: NumberAttr;
+
   constructor(options: any) {
     this.font = new FontAttr(options);
     this.text = new TextAttr(options);
