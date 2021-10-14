@@ -829,7 +829,9 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     let metrics = layout.scratch.measureText(name);
     let width = metrics.width;
 
-    let repeatDistance = this.repeatDistance.get(layout.zoom,feature);
+    var repeatDistance = this.repeatDistance.get(layout.zoom,feature);
+    if (layout.overzoom > 4) repeatDistance *= (1 << (layout.overzoom - 4));
+
     let label_candidates = simpleLabel(geom, width, repeatDistance);
 
     if (label_candidates.length == 0) return undefined;
