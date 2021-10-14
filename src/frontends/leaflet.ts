@@ -55,7 +55,7 @@ const leafletLayer = (options: any): any => {
           [-90, -180],
           [90, 180],
         ];
-      if (!options.attribution)
+      if (options.attribution == null)
         options.attribution =
           '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>';
       super(options);
