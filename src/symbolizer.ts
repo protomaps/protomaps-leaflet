@@ -801,6 +801,9 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
   width: NumberAttr;
   offset: NumberAttr;
 
+  maxLabelCodeUnits: NumberAttr;
+  repeatDistance: NumberAttr;
+
   constructor(options: any) {
     this.font = new FontAttr(options);
     this.text = new TextAttr(options);
@@ -809,12 +812,14 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     this.stroke = new StringAttr(options.stroke, "black");
     this.width = new NumberAttr(options.width, 0);
     this.offset = new NumberAttr(options.offset, 0);
+    this.maxLabelCodeUnits = new NumberAttr(options.maxLabelChars, 30);
+    this.repeatDistance = new NumberAttr(options.repeatDistance, 250);
   }
 
   public place(layout: Layout, geom: Point[][], feature: Feature) {
     let name = this.text.get(layout.zoom, feature);
     if (!name) return undefined;
-    if (name.length > 20) return undefined;
+    if (name.length > this.maxLabelCodeUnits.get(layout.zoom,feature)) return undefined;
 
     let fbbox = feature.bbox;
     let area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX - fbbox.minX); // TODO needs to be based on zoom level
@@ -825,47 +830,54 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     let metrics = layout.scratch.measureText(name);
     let width = metrics.width;
 
-    let result = simpleLabel(geom, width);
-    if (!result) return undefined;
-    let dx = result.end.x - result.start.x;
-    let dy = result.end.y - result.start.y;
+    let repeatDistance = this.repeatDistance.get(layout.zoom,feature);
+    let label_candidates = simpleLabel(geom, width, repeatDistance);
 
-    let Q = 8;
-    let cells = lineCells(result.start, result.end, width, 8);
-    let bboxes = cells.map((c) => {
-      return {
-        minX: c.x - Q,
-        minY: c.y - Q,
-        maxX: c.x + Q,
-        maxY: c.y + Q,
+    if (label_candidates.length == 0) return undefined;
+
+    let labels = [];
+    for (let candidate of label_candidates) {
+      let dx = candidate.end.x - candidate.start.x;
+      let dy = candidate.end.y - candidate.start.y;
+
+      let Q = 8;
+      let cells = lineCells(candidate.start, candidate.end, width, 8);
+      let bboxes = cells.map((c) => {
+        return {
+          minX: c.x - Q,
+          minY: c.y - Q,
+          maxX: c.x + Q,
+          maxY: c.y + Q,
+        };
+      });
+
+      let draw = (ctx: any) => {
+        ctx.globalAlpha = 1;
+        // ctx.beginPath();
+        // ctx.moveTo(0, 0);
+        // ctx.lineTo(dx, dy);
+        // ctx.strokeStyle = "red";
+        // ctx.stroke();
+        ctx.rotate(Math.atan2(dy, dx));
+        if (dx < 0) {
+          ctx.scale(-1, -1);
+          ctx.translate(-width, 0);
+        }
+        ctx.translate(0, -this.offset.get(layout.zoom, feature));
+        ctx.font = font;
+        let lineWidth = this.width.get(layout.zoom, feature);
+        if (lineWidth) {
+          ctx.lineWidth = lineWidth;
+          ctx.strokeStyle = this.stroke.get(layout.zoom, feature);
+          ctx.strokeText(name, 0, 0);
+        }
+        ctx.fillStyle = this.fill.get(layout.zoom, feature);
+        ctx.fillText(name, 0, 0);
       };
-    });
+      labels.push({ anchor: candidate.start, bboxes: bboxes, draw: draw });
+    }
 
-    let draw = (ctx: any) => {
-      ctx.globalAlpha = 1;
-      // ctx.beginPath()
-      // ctx.moveTo(0,0)
-      // ctx.lineTo(dx,dy)
-      // ctx.strokeStyle = "red"
-      // ctx.stroke()
-      ctx.rotate(Math.atan2(dy, dx));
-      if (dx < 0) {
-        ctx.scale(-1, -1);
-        ctx.translate(-width, 0);
-      }
-      ctx.translate(0, -this.offset.get(layout.zoom, feature));
-      ctx.font = font;
-      let lineWidth = this.width.get(layout.zoom, feature);
-      if (lineWidth) {
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = this.stroke.get(layout.zoom, feature);
-        ctx.strokeText(name, 0, 0);
-      }
-      ctx.fillStyle = this.fill.get(layout.zoom, feature);
-      ctx.fillText(name, 0, 0);
-    };
-
-    return [{ anchor: result.start, bboxes: bboxes, draw: draw }];
+    return labels;
   }
 }
 
