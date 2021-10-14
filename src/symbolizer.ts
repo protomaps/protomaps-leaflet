@@ -769,7 +769,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     if (name.length > this.maxLabelCodeUnits.get(layout.zoom,feature)) return undefined;
 
 
-    let MIN_LABELABLE_DIM = 30;
+    let MIN_LABELABLE_DIM = 20;
     let fbbox = feature.bbox;
     if ((fbbox.maxY - fbbox.minY < MIN_LABELABLE_DIM) && (fbbox.maxX - fbbox.minX < MIN_LABELABLE_DIM)) return undefined;
 
