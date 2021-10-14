@@ -821,17 +821,23 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     if (!name) return undefined;
     if (name.length > this.maxLabelCodeUnits.get(layout.zoom,feature)) return undefined;
 
+
+    let MIN_LABELABLE_DIM = 20;
     let fbbox = feature.bbox;
-    if ((fbbox.maxY - fbbox.minY < 30) && (fbbox.maxX - fbbox.minX < 30)) return undefined;
+    if ((fbbox.maxY - fbbox.minY < MIN_LABELABLE_DIM) && (fbbox.maxX - fbbox.minX < MIN_LABELABLE_DIM)) return undefined;
 
     let font = this.font.get(layout.zoom, feature);
     layout.scratch.font = font;
     let metrics = layout.scratch.measureText(name);
     let width = metrics.width;
+    let height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 
-    let repeatDistance = this.repeatDistance.get(layout.zoom,feature);
-    let label_candidates = simpleLabel(geom, width, repeatDistance);
+    var repeatDistance = this.repeatDistance.get(layout.zoom,feature);
+    if (layout.overzoom > 4) repeatDistance *= (1 << (layout.overzoom - 4));
 
+    let cell_size = height * 2;
+
+    let label_candidates = simpleLabel(geom, width, repeatDistance, cell_size);
     if (label_candidates.length == 0) return undefined;
 
     let labels = [];
@@ -839,14 +845,13 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
       let dx = candidate.end.x - candidate.start.x;
       let dy = candidate.end.y - candidate.start.y;
 
-      let Q = 8;
-      let cells = lineCells(candidate.start, candidate.end, width, 8);
+      let cells = lineCells(candidate.start, candidate.end, width, cell_size/2);
       let bboxes = cells.map((c) => {
         return {
-          minX: c.x - Q,
-          minY: c.y - Q,
-          maxX: c.x + Q,
-          maxY: c.y + Q,
+          minX: c.x - cell_size/2,
+          minY: c.y - cell_size/2,
+          maxX: c.x + cell_size/2,
+          maxY: c.y + cell_size/2,
         };
       });
 

@@ -28,6 +28,7 @@ export interface Layout {
   order: number;
   scratch: any;
   zoom: number;
+  overzoom: number;
 }
 
 export interface LabelRule {
@@ -276,6 +277,7 @@ export class Labeler {
         zoom: this.z,
         scratch: this.scratch,
         order: order,
+        overzoom: this.z - pt.data_tile.z
       };
       for (let feature of feats) {
         if (rule.filter && !rule.filter(this.z, feature)) continue;
