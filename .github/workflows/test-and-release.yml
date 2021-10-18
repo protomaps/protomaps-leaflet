@@ -4,7 +4,7 @@ name: Test and Release
 on: [push]
 
 jobs:
-test-and-release:
+  test-and-release:
     name: Run tests and release
     runs-on: ubuntu-18.04
     steps:
