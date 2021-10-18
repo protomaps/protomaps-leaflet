@@ -49,5 +49,6 @@
     "gis",
     "map"
   ],
-  "license": "BSD-3-Clause"
+  "license": "BSD-3-Clause",
+  "publishConfig": {"access": "public", "branches": ["master"]}
 }
