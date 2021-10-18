@@ -43,7 +43,8 @@
     "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc",
     "prettier": "npx prettier --write .",
     "serve": "npx serve .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
