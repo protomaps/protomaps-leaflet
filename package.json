@@ -13,6 +13,8 @@
     "baretest": "^2.0.0",
     "esbuild": "^0.12.15",
     "esbuild-runner": "^2.2.0",
+    "husky": "^7.0.2",
+    "lint-staged": "^11.2.3",
     "prettier": "2.4.1",
     "tslib": "^2.3.0",
     "typescript": "^4.3.5"
@@ -39,7 +41,8 @@
     "test": "node -r esbuild-runner/register test/index.ts",
     "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc",
     "prettier": "npx prettier --write .",
-    "serve": "npx serve ."
+    "serve": "npx serve .",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -50,5 +53,13 @@
     "map"
   ],
   "license": "BSD-3-Clause",
-  "publishConfig": {"access": "public", "branches": ["master"]}
+  "publishConfig": {
+    "access": "public",
+    "branches": [
+      "master"
+    ]
+  },
+  "lint-staged": {
+    "*.{ts,js,css,md}": "prettier --write"
+  }
 }
