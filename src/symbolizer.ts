@@ -1,5 +1,6 @@
 // @ts-ignore
 import Point from "@mapbox/point-geometry";
+import UnitBezier from "@mapbox/unitbezier";
 import { GeomType, Feature, Bbox } from "./tilecache";
 // @ts-ignore
 import polylabel from "polylabel";
@@ -145,26 +146,45 @@ export function arr(base: number, a: number[]): (z: number) => number {
   };
 }
 
+function getStopIndex(input: number, stops: number[][]): number {
+  let idx = 0;
+  while (stops[idx + 1][0] < input) idx++;
+  return idx;
+}
+
+function interpolate(factor: number, start: number, end: number): number {
+  return factor * (end - start) + start;
+}
+
+function computeInterpolationFactor(
+  z: number,
+  idx: number,
+  base: number,
+  stops: number[][]
+): number {
+  const difference = stops[idx + 1][0] - stops[idx][0];
+  const progress = z - stops[idx][0];
+  if (difference === 0) return 0;
+  else if (base === 1) return progress / difference;
+  else return (Math.pow(base, progress) - 1) / (Math.pow(base, difference) - 1);
+}
+
 export function exp(base: number, stops: number[][]): (z: number) => number {
   return (z) => {
     if (stops.length < 1) return 0;
     if (z <= stops[0][0]) return stops[0][1];
     if (z >= stops[stops.length - 1][0]) return stops[stops.length - 1][1];
-    let idx = 0;
-    while (stops[idx + 1][0] < z) idx++;
-    let difference = stops[idx + 1][0] - stops[idx][0];
-    let progress = z - stops[idx][0];
-    var factor;
-    if (difference === 0) factor = 0;
-    else if (base === 1) factor = progress / difference;
-    else
-      factor =
-        (Math.pow(base, progress) - 1) / (Math.pow(base, difference) - 1);
-    return factor * (stops[idx + 1][1] - stops[idx][1]) + stops[idx][1];
+    const idx = getStopIndex(z, stops);
+    const factor = computeInterpolationFactor(z, idx, base, stops);
+    return interpolate(factor, stops[idx][1], stops[idx + 1][1]);
   };
 }
 
-export function step(output0: number | string | boolean, stops: (number[][] | string[][] | boolean[][])): (z: number) => number | string | boolean {
+export type Stop = [number, number] | [number, string] | [number, boolean];
+export function step(
+  output0: number | string | boolean,
+  stops: Stop[]
+): (z: number) => number | string | boolean {
   // Step computes discrete results by evaluating a piecewise-constant
   // function defined by stops.
   // Returns the output value of the stop with a stop input value just less than
@@ -182,6 +202,22 @@ export function step(output0: number | string | boolean, stops: (number[][] | st
 
 export function linear(stops: number[][]): (z: number) => number {
   return exp(1, stops);
+}
+
+export function cubicBezier(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  stops: number[][]
+): (z: number) => number {
+  return (z) => {
+    if (stops.length < 1) return 0;
+    const bezier = new UnitBezier(x1, y1, x2, y2);
+    const idx = getStopIndex(z, stops);
+    const factor = bezier.solve(computeInterpolationFactor(z, idx, 1, stops));
+    return interpolate(factor, stops[idx][1], stops[idx + 1][1]);
+  };
 }
 
 function isFunction(obj: any) {
@@ -824,21 +860,26 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
   public place(layout: Layout, geom: Point[][], feature: Feature) {
     let name = this.text.get(layout.zoom, feature);
     if (!name) return undefined;
-    if (name.length > this.maxLabelCodeUnits.get(layout.zoom,feature)) return undefined;
-
+    if (name.length > this.maxLabelCodeUnits.get(layout.zoom, feature))
+      return undefined;
 
     let MIN_LABELABLE_DIM = 20;
     let fbbox = feature.bbox;
-    if ((fbbox.maxY - fbbox.minY < MIN_LABELABLE_DIM) && (fbbox.maxX - fbbox.minX < MIN_LABELABLE_DIM)) return undefined;
+    if (
+      fbbox.maxY - fbbox.minY < MIN_LABELABLE_DIM &&
+      fbbox.maxX - fbbox.minX < MIN_LABELABLE_DIM
+    )
+      return undefined;
 
     let font = this.font.get(layout.zoom, feature);
     layout.scratch.font = font;
     let metrics = layout.scratch.measureText(name);
     let width = metrics.width;
-    let height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+    let height =
+      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 
-    var repeatDistance = this.repeatDistance.get(layout.zoom,feature);
-    if (layout.overzoom > 4) repeatDistance *= (1 << (layout.overzoom - 4));
+    var repeatDistance = this.repeatDistance.get(layout.zoom, feature);
+    if (layout.overzoom > 4) repeatDistance *= 1 << (layout.overzoom - 4);
 
     let cell_size = height * 2;
 
@@ -850,13 +891,18 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
       let dx = candidate.end.x - candidate.start.x;
       let dy = candidate.end.y - candidate.start.y;
 
-      let cells = lineCells(candidate.start, candidate.end, width, cell_size/2);
+      let cells = lineCells(
+        candidate.start,
+        candidate.end,
+        width,
+        cell_size / 2
+      );
       let bboxes = cells.map((c) => {
         return {
-          minX: c.x - cell_size/2,
-          minY: c.y - cell_size/2,
-          maxX: c.x + cell_size/2,
-          maxY: c.y + cell_size/2,
+          minX: c.x - cell_size / 2,
+          minY: c.y - cell_size / 2,
+          maxX: c.x + cell_size / 2,
+          maxY: c.y + cell_size / 2,
         };
       });
 
