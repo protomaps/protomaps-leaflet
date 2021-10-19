@@ -843,6 +843,12 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
   }
 }
 
+export enum LineLabelPlacement {
+  Above = 1,
+  Center = 2,
+  Below = 3,
+}
+
 export class LineLabelSymbolizer implements LabelSymbolizer {
   font: FontAttr;
   text: TextAttr;
@@ -851,7 +857,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
   stroke: StringAttr;
   width: NumberAttr;
   offset: NumberAttr;
-
+  position: LineLabelPlacement;
   maxLabelCodeUnits: NumberAttr;
   repeatDistance: NumberAttr;
 
@@ -863,6 +869,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     this.stroke = new StringAttr(options.stroke, "black");
     this.width = new NumberAttr(options.width, 0);
     this.offset = new NumberAttr(options.offset, 0);
+    this.position = options.position || LineLabelPlacement.Above;
     this.maxLabelCodeUnits = new NumberAttr(options.maxLabelChars, 40);
     this.repeatDistance = new NumberAttr(options.repeatDistance, 250);
   }
@@ -928,7 +935,15 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
           ctx.scale(-1, -1);
           ctx.translate(-width, 0);
         }
-        ctx.translate(0, -this.offset.get(layout.zoom, feature));
+        let heightPlacement = 0;
+        if (this.position === LineLabelPlacement.Below)
+          heightPlacement += height;
+        else if (this.position === LineLabelPlacement.Center)
+          heightPlacement += height / 2;
+        ctx.translate(
+          0,
+          heightPlacement - this.offset.get(layout.zoom, feature)
+        );
         ctx.font = font;
         let lineWidth = this.width.get(layout.zoom, feature);
         if (lineWidth) {
