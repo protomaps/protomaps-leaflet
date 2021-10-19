@@ -775,6 +775,12 @@ export class OffsetTextSymbolizer implements LabelSymbolizer {
   }
 }
 
+export enum LineLabelPlacement {
+  Above = 1,
+  Center = 2,
+  Below = 3,
+}
+
 export class LineLabelSymbolizer implements LabelSymbolizer {
   font: FontAttr;
   text: TextAttr;
@@ -783,7 +789,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
   stroke: StringAttr;
   width: NumberAttr;
   offset: NumberAttr;
-
+  position: LineLabelPlacement;
   maxLabelCodeUnits: NumberAttr;
   repeatDistance: NumberAttr;
 
@@ -795,6 +801,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     this.stroke = new StringAttr(options.stroke, "black");
     this.width = new NumberAttr(options.width, 0);
     this.offset = new NumberAttr(options.offset, 0);
+    this.position = options.position || LineLabelPlacement.Above;
     this.maxLabelCodeUnits = new NumberAttr(options.maxLabelChars, 40);
     this.repeatDistance = new NumberAttr(options.repeatDistance, 250);
   }
@@ -855,10 +862,28 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         // ctx.lineTo(dx, dy);
         // ctx.strokeStyle = "red";
         // ctx.stroke();
-        ctx.rotate(Math.atan2(dy, dx));
+        let heightPlacement = 0;
+        if (this.position === LineLabelPlacement.Below)
+          heightPlacement = height;
+        else if (this.position === LineLabelPlacement.Center)
+          heightPlacement = height / 2;
+        // Compute the angle between the positive X axis and
+        // the point (dx, -dy). Notice that we need to change
+        // dy sign in order to account for the sign change of
+        // the canvas reference system respect to cartesian
+        // coordinate system.
+        // Once we get that angle, we substract PI/2 rad to the
+        // angle to create a perpendicular vector that will be
+        // used for the label placement translation
+        const angle = Math.atan2(-dy, dx);
+        ctx.translate(
+          Math.cos(angle - Math.PI / 2) * heightPlacement,
+          -Math.sin(angle - Math.PI / 2) * heightPlacement
+        );
+        ctx.rotate(-angle);
         if (dx < 0) {
           ctx.scale(-1, -1);
-          ctx.translate(-width, 0);
+          ctx.translate(-width, 2 * heightPlacement);
         }
         ctx.translate(0, -this.offset.get(layout.zoom, feature));
         ctx.font = font;

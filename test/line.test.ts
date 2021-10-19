@@ -14,8 +14,7 @@ test("simple line labeler", async () => {
   let results = simpleLabel(mls, 10, 250, 0);
   assert.deepEqual(results[0].start, { x: 0, y: 0 });
   assert.deepEqual(results[0].end, { x: 10, y: 0 });
-})
-
+});
 
 test("simple line labeler tolerance", async () => {
   mls = [
