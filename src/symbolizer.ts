@@ -862,20 +862,30 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         // ctx.lineTo(dx, dy);
         // ctx.strokeStyle = "red";
         // ctx.stroke();
-        ctx.rotate(Math.atan2(dy, dx));
-        if (dx < 0) {
-          ctx.scale(-1, -1);
-          ctx.translate(-width, 0);
-        }
         let heightPlacement = 0;
         if (this.position === LineLabelPlacement.Below)
-          heightPlacement += height;
+          heightPlacement = height;
         else if (this.position === LineLabelPlacement.Center)
-          heightPlacement += height / 2;
+          heightPlacement = height / 2;
+        // Compute the angle between the positive X axis and
+        // the point (dx, -dy). Notice that we need to change
+        // dy sign in order to account for the sign change of
+        // the canvas reference system respect to cartesian
+        // coordinate system.
+        // Once we get that angle, we substract PI/2 rad to the
+        // angle to create a perpendicular vector that will be
+        // used for the label placement translation
+        const angle = Math.atan2(-dy, dx);
         ctx.translate(
-          0,
-          heightPlacement - this.offset.get(layout.zoom, feature)
+          Math.cos(angle - Math.PI / 2) * heightPlacement,
+          -Math.sin(angle - Math.PI / 2) * heightPlacement
         );
+        ctx.rotate(-angle);
+        if (dx < 0) {
+          ctx.scale(-1, -1);
+          ctx.translate(-width, 2 * heightPlacement);
+        }
+        ctx.translate(0, -this.offset.get(layout.zoom, feature));
         ctx.font = font;
         let lineWidth = this.width.get(layout.zoom, feature);
         if (lineWidth) {
