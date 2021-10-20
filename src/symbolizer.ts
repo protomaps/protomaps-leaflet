@@ -896,7 +896,13 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         ctx.fillStyle = this.fill.get(layout.zoom, feature);
         ctx.fillText(name, 0, 0);
       };
-      labels.push({ anchor: candidate.start, bboxes: bboxes, draw: draw });
+      labels.push({
+        anchor: candidate.start,
+        bboxes: bboxes,
+        draw: draw,
+        deduplicationKey: name,
+        deduplicationDistance: repeatDistance,
+      });
     }
 
     return labels;

@@ -159,4 +159,36 @@ test("remove an individual label", async () => {
   assert.equal(index.tree.all().length, 0);
 });
 
+test("basic label deduplication", async () => {
+  let index = new Index(1024);
+  let label1 = {
+    anchor: new Point(100, 100),
+    bboxes: [{ minX: 100, minY: 100, maxX: 110, maxY: 110 }],
+    draw: (c) => {},
+    deduplicationKey: "Mulholland Dr.",
+    deduplicationDistance: 100,
+  };
+  index.insert(label1, 1, "abcd");
+
+  let repeated_label = {
+    anchor: new Point(200, 100),
+    bboxes: [{ minX: 200, minY: 100, maxX: 210, maxY: 110 }],
+    draw: (c) => {},
+    deduplicationKey: "Mulholland Dr.",
+    deduplicationDistance: 100,
+  };
+
+  assert.equal(index.deduplicationCollides(repeated_label), false);
+
+  let tooclose_label = {
+    anchor: new Point(199, 100),
+    bboxes: [{ minX: 199, minY: 100, maxX: 210, maxY: 110 }],
+    draw: (c) => {},
+    deduplicationKey: "Mulholland Dr.",
+    deduplicationDistance: 100,
+  };
+
+  assert.equal(index.deduplicationCollides(tooclose_label), true);
+});
+
 export default test;

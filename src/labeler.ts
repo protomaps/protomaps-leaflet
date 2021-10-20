@@ -9,10 +9,15 @@ import { Filter } from "./painter";
 
 type TileInvalidationCallback = (tiles: Set<string>) => void;
 
+// the anchor should be contained within, or on the boundary of,
+// one of the bounding boxes. This is not enforced by library,
+// but is required for label deduplication.
 export interface Label {
   anchor: Point;
   bboxes: Bbox[];
   draw: (ctx: any, drawExtra?: DrawExtra) => void;
+  deduplicationKey?: string;
+  deduplicationDistance?: number;
 }
 
 export interface IndexedLabel {
@@ -21,6 +26,8 @@ export interface IndexedLabel {
   draw: (ctx: any) => void;
   order: number;
   tileKey: string;
+  deduplicationKey?: string;
+  deduplicationDistance?: number;
 }
 
 export interface Layout {
@@ -134,6 +141,27 @@ export class Index {
     return false;
   }
 
+  public deduplicationCollides(label: Label): boolean {
+    // create a bbox around anchor to find potential matches.
+    // this is depending on precondition: (anchor is contained within, or on boundary of, a label bbox)
+    if (!label.deduplicationKey || !label.deduplicationDistance) return false;
+    let dist = label.deduplicationDistance;
+    let test_bbox = {
+      minX: label.anchor.x - dist,
+      minY: label.anchor.y - dist,
+      maxX: label.anchor.x + dist,
+      maxY: label.anchor.y + dist,
+    };
+    for (let collision of this.tree.search(test_bbox)) {
+      if (collision.indexed_label.deduplicationKey === label.deduplicationKey) {
+        if (collision.indexed_label.anchor.dist(label.anchor) < dist) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   // can put in multiple due to antimeridian wrapping
   public insert(label: Label, order: number, tileKey: string): void {
     let indexed_label = {
@@ -142,6 +170,8 @@ export class Index {
       draw: label.draw,
       order: order,
       tileKey: tileKey,
+      deduplicationKey: label.deduplicationKey,
+      deduplicationDistance: label.deduplicationDistance,
     };
     let entry = this.current.get(tileKey);
     if (entry) {
@@ -226,7 +256,6 @@ export class Index {
   }
 }
 
-// TODO support deduplicated Labeling
 export class Labeler {
   index: Index;
   z: number;
@@ -287,6 +316,13 @@ export class Labeler {
 
         for (let label of labels) {
           var label_added = false;
+          if (
+            label.deduplicationKey &&
+            this.index.deduplicationCollides(label)
+          ) {
+            continue;
+          }
+
           // does the label collide with anything?
           if (this.index.labelCollides(label, Infinity)) {
             if (!this.index.labelCollides(label, order)) {
