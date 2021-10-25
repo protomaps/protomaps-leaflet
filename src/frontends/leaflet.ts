@@ -47,6 +47,20 @@ const timer = (duration: number) => {
   });
 };
 
+// replacement for Promise.allSettled (requires ES2020+)
+// this is called for every tile render,
+// so ensure font loading failure does not make map rendering fail
+const reflect = (promise) => {
+  return promise.then(
+    (v) => {
+      return { status: "fulfilled", value: v };
+    },
+    (error) => {
+      return { status: "rejected", reason: error };
+    }
+  );
+};
+
 const leafletLayer = (options: any): any => {
   class LeafletLayer extends L.GridLayer {
     constructor(options: any) {
@@ -139,7 +153,7 @@ const leafletLayer = (options: any): any => {
       if (element.key != key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      await Promise.allSettled(this.tasks);
+      await Promise.all(this.tasks.map(reflect));
 
       if (element.key != key) return;
       if (this.lastRequestedZ !== coords.z) return;
