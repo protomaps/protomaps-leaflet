@@ -39,7 +39,7 @@ export class NumberAttr {
 
 export class TextAttr {
   label_props: string[] | ((z: number, f?: Feature) => string[]);
-  textTransform: string;
+  textTransform: string | ((z: number, f?: Feature) => string);
 
   constructor(options: any = {}) {
     this.label_props = options.label_props || ["name"];
@@ -61,8 +61,21 @@ export class TextAttr {
         break;
       }
     }
-    if (retval && this.textTransform === "uppercase")
-      retval = retval.toUpperCase();
+    let transform;
+    if (typeof this.textTransform === "function") {
+      transform = this.textTransform(z, f);
+    } else {
+      transform = this.textTransform;
+    }
+    if (retval && transform === "uppercase") retval = retval.toUpperCase();
+    else if (retval && transform === "lowercase") retval = retval.toLowerCase();
+    else if (retval && transform === "capitalize") {
+      const wordsArray = retval.toLowerCase().split(" ");
+      const capsArray = wordsArray.map((word: string) => {
+        return word[0].toUpperCase() + word.slice(1);
+      });
+      retval = capsArray.join(" ");
+    }
     return retval;
   }
 }

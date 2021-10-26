@@ -130,8 +130,49 @@ test("textattr", async () => {
     t.get(0, { props: { "name:en": "Taipei" }, geomType: GeomType.Point }),
     "TAIPEI"
   );
+  t = new TextAttr({ label_props: ["name:en"], textTransform: "lowercase" });
+  assert.equal(
+    t.get(0, { props: { "name:en": "Taipei" }, geomType: GeomType.Point }),
+    "taipei"
+  );
+  t = new TextAttr({ label_props: ["name:en"], textTransform: "capitalize" });
+  assert.equal(
+    t.get(0, {
+      props: { "name:en": "from Berga to Taipei" },
+      geomType: GeomType.Point,
+    }),
+    "From Berga To Taipei"
+  );
   t = new TextAttr({ label_props: ["name:en"], textTransform: "uppercase" });
   assert.equal(t.get(0, { props: {} }), undefined);
+
+  t = new TextAttr({
+    label_props: ["name:en"],
+    textTransform: (z) => "uppercase",
+  });
+  assert.equal(
+    t.get(0, { props: { "name:en": "Taipei" }, geomType: GeomType.Point }),
+    "TAIPEI"
+  );
+  t = new TextAttr({
+    label_props: ["name:en"],
+    textTransform: (z) => "lowercase",
+  });
+  assert.equal(
+    t.get(0, { props: { "name:en": "Taipei" }, geomType: GeomType.Point }),
+    "taipei"
+  );
+  t = new TextAttr({
+    label_props: ["name:en"],
+    textTransform: (z) => "capitalize",
+  });
+  assert.equal(
+    t.get(0, {
+      props: { "name:en": "from Berga to Taipei" },
+      geomType: GeomType.Point,
+    }),
+    "From Berga To Taipei"
+  );
 
   t = new TextAttr({
     label_props: (z, f) => {
