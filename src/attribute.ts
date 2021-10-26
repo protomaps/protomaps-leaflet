@@ -63,6 +63,15 @@ export class TextAttr {
     }
     if (retval && this.textTransform === "uppercase")
       retval = retval.toUpperCase();
+    else if (retval && this.textTransform === "lowercase")
+      retval = retval.toLowerCase();
+    else if (retval && this.textTransform === "capitalize") {
+      const wordsArray = retval.toLowerCase().split(" ");
+      const capsArray = wordsArray.map((word: string) => {
+        return word[0].toUpperCase() + word.slice(1);
+      });
+      retval = capsArray.join(" ");
+    }
     return retval;
   }
 }
