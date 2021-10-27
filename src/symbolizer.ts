@@ -4,7 +4,13 @@ import UnitBezier from "@mapbox/unitbezier";
 import { GeomType, Feature, Bbox } from "./tilecache";
 // @ts-ignore
 import polylabel from "polylabel";
-import { NumberAttr, StringAttr, TextAttr, FontAttr } from "./attribute";
+import {
+  NumberAttr,
+  StringAttr,
+  TextAttr,
+  FontAttr,
+  ArrayAttr,
+} from "./attribute";
 import { linebreak, isCjk } from "./text";
 import { lineCells, simpleLabel } from "./line";
 import { Index, Label, Layout } from "./labeler";
@@ -228,7 +234,7 @@ export class LineSymbolizer implements PaintSymbolizer {
   color: StringAttr;
   width: NumberAttr;
   opacity: NumberAttr;
-  dash: any;
+  dash: ArrayAttr;
   dashColor: StringAttr;
   dashWidth: NumberAttr;
   skip: boolean;
@@ -240,14 +246,14 @@ export class LineSymbolizer implements PaintSymbolizer {
     this.color = new StringAttr(options.color, "black");
     this.width = new NumberAttr(options.width);
     this.opacity = new NumberAttr(options.opacity);
-    this.dash = options.dash;
+    this.dash = new ArrayAttr(options.dash);
     this.dashColor = new StringAttr(options.dashColor, "black");
     this.dashWidth = new NumberAttr(options.dashWidth);
     this.lineCap = new StringAttr(options.lineCap, "butt");
     this.lineJoin = new StringAttr(options.lineJoin, "miter");
     this.skip = false;
     this.per_feature =
-      this.dash ||
+      this.dash.per_feature ||
       this.color.per_feature ||
       this.opacity.per_feature ||
       this.width.per_feature ||
@@ -280,8 +286,10 @@ export class LineSymbolizer implements PaintSymbolizer {
         if (this.per_feature) {
           ctx.lineWidth = this.dashWidth.get(z, f);
           ctx.strokeStyle = this.dashColor.get(z, f);
+          ctx.setLineDash(this.dash.get(z, f));
+        } else {
+          ctx.setLineDash(this.dash.get(z));
         }
-        ctx.setLineDash(this.dash);
         ctx.stroke();
         ctx.restore();
       } else {

@@ -142,3 +142,25 @@ export class FontAttr {
     }
   }
 }
+
+export class ArrayAttr {
+  value:
+    | string[]
+    | number[]
+    | ((z: number, f?: Feature) => string[] | number[]);
+  per_feature: boolean;
+
+  constructor(c: any, defaultValue: number[] = []) {
+    this.value = c || defaultValue;
+    this.per_feature =
+      typeof this.value == "function" && this.value.length == 2;
+  }
+
+  public get(z: number, f?: Feature): string[] | number[] {
+    if (typeof this.value == "function") {
+      return this.value(z, f);
+    } else {
+      return this.value;
+    }
+  }
+}
