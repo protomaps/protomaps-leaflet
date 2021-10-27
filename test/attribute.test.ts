@@ -1,4 +1,10 @@
-import { NumberAttr, StringAttr, FontAttr, TextAttr } from "../src/attribute";
+import {
+  NumberAttr,
+  StringAttr,
+  FontAttr,
+  TextAttr,
+  ArrayAttr,
+} from "../src/attribute";
 import { GeomType } from "../src/tilecache";
 import assert from "assert";
 import baretest from "baretest";
@@ -183,6 +189,39 @@ test("textattr", async () => {
   });
   assert.equal(t.get(0, { props: { name: "台北", abbr: "TPE" } }), "TPE");
   assert.equal(t.get(9, { props: { name: "台北", abbr: "TPE" } }), "台北");
+});
+
+test("arrayattr", async () => {
+  let n = new ArrayAttr(undefined, undefined);
+  assert.equal(n.get().length, 0);
+
+  n = new ArrayAttr(2, undefined);
+  assert.equal(n.get(), 2);
+
+  n = new ArrayAttr(undefined, 3);
+  assert.equal(n.get(), 3);
+
+  n = new ArrayAttr(undefined, 0);
+  assert.equal(n.get(), 0);
+
+  n = new ArrayAttr((z, f) => {
+    return [z, z];
+  }, 0);
+  assert.equal(n.get(2)[0], 2);
+  assert.equal(n.get(2)[1], 2);
+  assert.equal(n.get(3)[0], 3);
+  assert.equal(n.get(3)[1], 3);
+
+  n = new ArrayAttr(1);
+  assert.equal(n.per_feature, false);
+  n = new ArrayAttr((z) => {
+    return z;
+  });
+  assert.equal(n.per_feature, false);
+  n = new ArrayAttr((z, f) => {
+    return z;
+  });
+  assert.equal(n.per_feature, true);
 });
 
 export default test;
