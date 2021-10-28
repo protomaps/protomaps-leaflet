@@ -12,7 +12,8 @@ export interface LabelableSegment {
 // code from https://github.com/naturalatlas/linelabel (Apache2)
 const linelabel = (
   pts: Point[],
-  max_angle_delta: number
+  max_angle_delta: number,
+  targetLen: number
 ): LabelableSegment[] => {
   var chunks = [];
   var a,
@@ -63,7 +64,7 @@ const linelabel = (
     d += abmag;
 
     dt = Math.acos((abx * bcx + aby * bcy) / (abmag * bcmag));
-    if (dt > max_angle_delta) {
+    if (dt > max_angle_delta ||  (d - d_start) > targetLen) {
       chunks.push({
         length: d - d_start,
         beginDistance: d_start,
@@ -109,7 +110,7 @@ export function simpleLabel(
   var lastLabeledDistance = -Infinity;
 
   for (let ls of mls) {
-    let segments = linelabel(ls, Math.PI / 90); // 2 degrees, close to a straight line
+    let segments = linelabel(ls, Math.PI / 45, minimum); // 4 degrees, close to a straight line
     for (let segment of segments) {
       if (segment.length >= minimum + cellSize) {
         let start = new Point(
