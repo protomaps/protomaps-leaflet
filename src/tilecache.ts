@@ -7,6 +7,8 @@ import Protobuf from "pbf";
 // @ts-ignore
 import { PMTiles } from "pmtiles";
 
+import { splitMultiLineString, splitMultiPolygon } from "./workaround";
+
 export enum GeomType {
   Point = 1,
   Line = 2,
@@ -102,14 +104,39 @@ function parseTile(
       );
       let numVertices = 0;
       for (let part of result.geom) numVertices += part.length;
-      features.push({
-        id: layer.feature(i).id,
-        geomType: layer.feature(i).type,
-        geom: result.geom,
-        numVertices: numVertices,
-        bbox: result.bbox,
-        props: layer.feature(i).properties,
-      });
+
+      let LIMIT = 5400;
+      var split:Point[][];
+      if (numVertices > LIMIT && layer.feature(i).type != GeomType.Point) {
+        console.log(key);
+        if (layer.feature(i).type == GeomType.Line) {
+          split = splitMultiLineString(result.geom,LIMIT);
+        } else if (layer.feature(i).type == GeomType.Polygon) {
+          split = splitMultiPolygon(result.geom,LIMIT); 
+        }
+
+        for (let part of split) {
+          features.push({
+            id: layer.feature(i).id,
+            geomType: layer.feature(i).type,
+            geom: part,
+            numVertices: numVertices,
+            bbox: result.bbox,
+            props: layer.feature(i).properties,
+          });
+        }
+
+
+      } else {
+        features.push({
+          id: layer.feature(i).id,
+          geomType: layer.feature(i).type,
+          geom: result.geom,
+          numVertices: numVertices,
+          bbox: result.bbox,
+          props: layer.feature(i).properties,
+        });
+      }
     }
     result.set(key, features);
   }

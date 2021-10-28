@@ -15,9 +15,6 @@ import { linebreak, isCjk } from "./text";
 import { lineCells, simpleLabel } from "./line";
 import { Index, Label, Layout } from "./labeler";
 
-// https://bugs.webkit.org/show_bug.cgi?id=230751
-const MAX_VERTICES_PER_DRAW_CALL = 5400;
-
 export interface PaintSymbolizer {
   before?(ctx: any, z: number): void;
   draw(ctx: any, geom: Point[][], z: number, feature: Feature): void;
@@ -116,29 +113,18 @@ export class PolygonSymbolizer implements PaintSymbolizer {
       }
     }
 
-    let drawPath = () => {
-      ctx.fill();
-      if (do_stroke || this.do_stroke) {
-        ctx.stroke();
-      }
-    };
-
-    var vertices_in_path = 0;
     ctx.beginPath();
     for (var poly of geom) {
-      if (vertices_in_path + poly.length > MAX_VERTICES_PER_DRAW_CALL) {
-        drawPath();
-        vertices_in_path = 0;
-        ctx.beginPath();
-      }
       for (var p = 0; p < poly.length - 1; p++) {
         let pt = poly[p];
         if (p == 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       }
-      vertices_in_path += poly.length;
     }
-    if (vertices_in_path > 0) drawPath();
+    ctx.fill();
+    if (do_stroke || this.do_stroke) {
+      ctx.stroke();
+    }
   }
 }
 
@@ -275,50 +261,41 @@ export class LineSymbolizer implements PaintSymbolizer {
   public draw(ctx: any, geom: Point[][], z: number, f: Feature) {
     if (this.skip) return;
 
-    let strokePath = () => {
-      if (this.per_feature) {
-        ctx.globalAlpha = this.opacity.get(z, f);
-        ctx.lineCap = this.lineCap.get(z, f);
-        ctx.lineJoin = this.lineJoin.get(z, f);
-      }
-      if (this.dash) {
-        ctx.save();
-        if (this.per_feature) {
-          ctx.lineWidth = this.dashWidth.get(z, f);
-          ctx.strokeStyle = this.dashColor.get(z, f);
-          ctx.setLineDash(this.dash.get(z, f));
-        } else {
-          ctx.setLineDash(this.dash.get(z));
-        }
-        ctx.stroke();
-        ctx.restore();
-      } else {
-        ctx.save();
-        if (this.per_feature) {
-          ctx.lineWidth = this.width.get(z, f);
-          ctx.strokeStyle = this.color.get(z, f);
-        }
-        ctx.stroke();
-        ctx.restore();
-      }
-    };
+    if (this.per_feature) {
+      ctx.globalAlpha = this.opacity.get(z, f);
+      ctx.lineCap = this.lineCap.get(z, f);
+      ctx.lineJoin = this.lineJoin.get(z, f);
+    }
 
-    var vertices_in_path = 0;
     ctx.beginPath();
     for (var ls of geom) {
-      if (vertices_in_path + ls.length > MAX_VERTICES_PER_DRAW_CALL) {
-        strokePath();
-        vertices_in_path = 0;
-        ctx.beginPath();
-      }
       for (var p = 0; p < ls.length; p++) {
         let pt = ls[p];
         if (p == 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       }
-      vertices_in_path += ls.length;
     }
-    if (vertices_in_path > 0) strokePath();
+    
+    if (this.dash) {
+      ctx.save();
+      if (this.per_feature) {
+        ctx.lineWidth = this.dashWidth.get(z, f);
+        ctx.strokeStyle = this.dashColor.get(z, f);
+        ctx.setLineDash(this.dash.get(z, f));
+      } else {
+        ctx.setLineDash(this.dash.get(z));
+      }
+      ctx.stroke();
+      ctx.restore();
+    } else {
+      ctx.save();
+      if (this.per_feature) {
+        ctx.lineWidth = this.width.get(z, f);
+        ctx.strokeStyle = this.color.get(z, f);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 }
 
