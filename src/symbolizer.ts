@@ -223,7 +223,7 @@ export class LineSymbolizer implements PaintSymbolizer {
   color: StringAttr;
   width: NumberAttr;
   opacity: NumberAttr;
-  dash: ArrayAttr;
+  dash: ArrayAttr | null;
   dashColor: StringAttr;
   dashWidth: NumberAttr;
   skip: boolean;
@@ -235,14 +235,14 @@ export class LineSymbolizer implements PaintSymbolizer {
     this.color = new StringAttr(options.color, "black");
     this.width = new NumberAttr(options.width);
     this.opacity = new NumberAttr(options.opacity);
-    this.dash = new ArrayAttr(options.dash);
+    this.dash = options.dash ? new ArrayAttr(options.dash) : null;
     this.dashColor = new StringAttr(options.dashColor, "black");
-    this.dashWidth = new NumberAttr(options.dashWidth);
+    this.dashWidth = new NumberAttr(options.dashWidth, 1.0);
     this.lineCap = new StringAttr(options.lineCap, "butt");
     this.lineJoin = new StringAttr(options.lineJoin, "miter");
     this.skip = false;
     this.per_feature =
-      this.dash.per_feature ||
+      this.dash?.per_feature ||
       this.color.per_feature ||
       this.opacity.per_feature ||
       this.width.per_feature ||
