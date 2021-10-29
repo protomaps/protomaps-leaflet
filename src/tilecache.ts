@@ -106,13 +106,13 @@ function parseTile(
       for (let part of result.geom) numVertices += part.length;
 
       let LIMIT = 5400;
-      let split:Point[][] = [];
+      let split: Point[][] = [];
       if (numVertices > LIMIT && layer.feature(i).type != GeomType.Point) {
         console.log(key);
         if (layer.feature(i).type == GeomType.Line) {
-          split = splitMultiLineString(result.geom,LIMIT);
+          split = splitMultiLineString(result.geom, LIMIT);
         } else if (layer.feature(i).type == GeomType.Polygon) {
-          split = splitMultiPolygon(result.geom, result.bbox, LIMIT); 
+          split = splitMultiPolygon(result.geom, result.bbox, LIMIT);
         }
 
         for (let part of split) {
@@ -125,8 +125,6 @@ function parseTile(
             props: layer.feature(i).properties,
           });
         }
-
-
       } else {
         features.push({
           id: layer.feature(i).id,

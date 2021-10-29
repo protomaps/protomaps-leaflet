@@ -306,7 +306,7 @@ export class Labeler {
         zoom: this.z,
         scratch: this.scratch,
         order: order,
-        overzoom: this.z - pt.data_tile.z
+        overzoom: this.z - pt.data_tile.z,
       };
       for (let feature of feats) {
         if (rule.filter && !rule.filter(this.z, feature)) continue;

@@ -14,8 +14,7 @@ test("simple line labeler", async () => {
   let results = simpleLabel(mls, 10, 250, 0);
   assert.deepEqual(results[0].start, { x: 0, y: 0 });
   assert.deepEqual(results[0].end, { x: 10, y: 0 });
-})
-
+});
 
 test("simple line labeler tolerance", async () => {
   mls = [
@@ -32,15 +31,15 @@ test("simple line labeler tolerance", async () => {
   assert.equal(results[0].end.x < 100, true);
 });
 
-test ("simple line labeler - very gradual angles - multiple labels", async () => {
+test("simple line labeler - very gradual angles - multiple labels", async () => {
   mls = [
     [
       { x: 0, y: 0 },
       { x: 10, y: 0.5 }, // about 2 degrees
       { x: 20, y: 1.5 },
       { x: 30, y: 3.0 },
-    ]
-  ]
+    ],
+  ];
   results = simpleLabel(mls, 10, 250, 0);
   assert.equal(results.length, 3);
 });
