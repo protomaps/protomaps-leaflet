@@ -242,7 +242,7 @@ export class LineSymbolizer implements PaintSymbolizer {
     this.lineJoin = new StringAttr(options.lineJoin, "miter");
     this.skip = false;
     this.per_feature =
-      this.dash?.per_feature ||
+      this.dash ||
       this.color.per_feature ||
       this.opacity.per_feature ||
       this.width.per_feature ||
