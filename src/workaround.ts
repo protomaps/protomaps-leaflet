@@ -1,7 +1,8 @@
 // @ts-ignore
 import Point from "@mapbox/point-geometry";
 import simplify from "simplify-js";
-import { isCCW } from "./tilecache";
+import PolygonClipping, { Polygon } from "polygon-clipping"
+import { Bbox } from "./tilecache";
 
 export const splitMultiLineString = (mls: Point[][], maxVertices:number) => {
   let retval = [];
@@ -31,48 +32,18 @@ const verticesCount = (rings:Point[][]) : number => {
     return acc;
 }
 
-export const splitMultiPolygon = (mp: Point[][], maxVertices:number) => {
-  console.log("Total:", mp);
-  // group the MultiPolygon into individual polygons based on winding order
-  let complete_polygons = [];
-  let current_polygon = [];
-  for (let poly of mp) {
-    if (current_polygon.length > 0 && !isCCW(poly)) {
-        complete_polygons.push(current_polygon);
-        current_polygon = [];
-    }
-    current_polygon.push(poly);
-  }
-
-  if (current_polygon.length > 0) complete_polygons.push(current_polygon);
-
-  console.log("Grouped:", complete_polygons);
-
-  // do simplification
-
-  let retval = [];
-  var current:Point[][] = [];
-  var currentVertices = 0;
-  // console.log("Complete polygons: ", complete_polygons.length);
-  for (let complete_polygon of complete_polygons) {
-    let vc = verticesCount(complete_polygon);
-    if (vc > maxVertices) {
-        console.log("Total Vertices", vc, "Outer Vertices", complete_polygon[0].length, "Holes", complete_polygon.length-1);
-        let outerRingLimit = maxVertices - (vc - (complete_polygon[0].length));
-        // console.log("Simplifying outer ring from ", complete_polygon[0].length," to" , outerRingLimit);
-        complete_polygon[0] = simplifyToMax(complete_polygon[0],outerRingLimit);
-    }
-    if (current.length > 0 && currentVertices + vc > maxVertices) {
-        retval.push(current);
-        current = [];
-        currentVertices = 0;
-    }
-    current = current.concat(complete_polygon);
-    currentVertices += vc;
-  }
-  if (current.length > 0) retval.push(current);
-
-  return retval;
+export const splitMultiPolygon = (mp: Point[][], bbox: Bbox, maxVertices:number) => {
+  const flat = mp.map(m => m.map(p => [p.x, p.y]))
+  const centerPoint = {x: (bbox.minX + bbox.maxX) / 2, y: (bbox.minY + bbox.maxY) / 2}
+  const nw = [[[bbox.minX, bbox.minY], [bbox.minX, centerPoint.y], [centerPoint.x, centerPoint.y], [centerPoint.x, bbox.minY]]]
+  const ne = [[[centerPoint.x, bbox.minY], [centerPoint.x, centerPoint.y], [bbox.maxX, centerPoint.y], [bbox.maxX, bbox.minY]]]
+  const sw = [[[bbox.minX, centerPoint.y], [bbox.minX, bbox.maxY], [centerPoint.x, bbox.maxY], [centerPoint.x, centerPoint.y]]]
+  const se = [[[centerPoint.x, centerPoint.y], [centerPoint.x, bbox.maxY], [bbox.maxX, bbox.maxY], [bbox.maxX, centerPoint.y]]]
+  const firstQuadrant = PolygonClipping.intersection(flat, nw as Polygon)
+  const secondQuadrant = PolygonClipping.intersection(flat, ne as Polygon)
+  const thirdQuadrant = PolygonClipping.intersection(flat, se as Polygon)
+  const fourthQuadrant = PolygonClipping.intersection(flat, sw as Polygon)
+  return [ firstQuadrant, secondQuadrant, thirdQuadrant, fourthQuadrant ];
 };
 
 export const simplifyToMax = (seq:Point[],limit:number):Point[] => {

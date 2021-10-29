@@ -4,6 +4,7 @@
     "lib": ["es2020", "dom"],
     "strict": true,
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "paths": {
       "@mapbox/unitbezier": ["./src/types/unitbezier.d.ts"]
     }
