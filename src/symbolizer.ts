@@ -272,13 +272,9 @@ export class LineSymbolizer implements PaintSymbolizer {
       }
       if (this.dash) {
         ctx.save();
-        if (this.per_feature) {
-          ctx.lineWidth = this.dashWidth.get(z, f);
-          ctx.strokeStyle = this.dashColor.get(z, f);
-          ctx.setLineDash(this.dash.get(z, f));
-        } else {
-          ctx.setLineDash(this.dash.get(z));
-        }
+        ctx.lineWidth = this.dashWidth.get(z, f);
+        ctx.strokeStyle = this.dashColor.get(z, f);
+        ctx.setLineDash(this.dash.get(z, f));
         ctx.stroke();
         ctx.restore();
       } else {

@@ -1,4 +1,10 @@
-import { exp, step, linear, cubicBezier } from "../src/symbolizer";
+import {
+  exp,
+  step,
+  linear,
+  cubicBezier,
+  LineSymbolizer,
+} from "../src/symbolizer";
 import assert from "assert";
 import baretest from "baretest";
 
@@ -97,6 +103,157 @@ test("cubic-bezier", async () => {
   assert(almostEqual(91.834, f(80)));
   assert(almostEqual(98.0277, f(90)));
   assert(almostEqual(100, f(100)));
+});
+
+test("LineSymbolizer", async () => {
+  let ctx = {
+    setLineDashCalls: 0,
+    strokeCalls: 0,
+    beginPath: () => {},
+    moveTo: () => {},
+    lineTo: () => {},
+    save: () => {},
+    stroke: () => {
+      ctx.strokeCalls++;
+    },
+    setLineDash: () => {
+      ctx.setLineDashCalls++;
+    },
+    restore: () => {},
+  };
+  // Test default values
+  let symbolizer = new LineSymbolizer({});
+  assert(symbolizer.color, "black");
+  assert(symbolizer.width, 1);
+  assert(symbolizer.opacity, 1);
+  assert(symbolizer.dash === null);
+  assert(symbolizer.dashColor, "black");
+  assert(symbolizer.dashWidth, 1.0);
+  assert(symbolizer.dashWidth, 1.0);
+  assert(symbolizer.lineCap, "butt");
+  assert(symbolizer.lineJoin, "miter");
+  assert(symbolizer.skip === false);
+  assert(!symbolizer.per_feature);
+  symbolizer.before(ctx, 0);
+  assert(ctx.strokeStyle, symbolizer.color);
+  assert(ctx.lineWidth, symbolizer.width);
+  assert(ctx.globalAlpha, symbolizer.opacity);
+  assert(ctx.lineCap, symbolizer.lineCap);
+  assert(ctx.lineJoin, symbolizer.lineJoin);
+  // Should not override globalAlpha, lineCap or lineJoin
+  // when not evaluating per feature, should not
+  // call setLineDash and should call stroke
+  ctx.globalAlpha = 0.0;
+  ctx.lineCap = "miter";
+  ctx.lineJoin = "butt";
+  symbolizer.draw(ctx, [[0, 0]], 0, {});
+  assert(ctx.globalAlpha === 0.0);
+  assert(ctx.lineCap, "miter");
+  assert(ctx.lineJoin, "butt");
+  assert(ctx.setLineDashCalls === 0);
+  assert(ctx.strokeCalls !== 0);
+
+  // Test LineSymbolizer with dash
+  symbolizer = new LineSymbolizer({ dash: [2, 2] });
+  assert(symbolizer.dash !== null);
+  assert(symbolizer.per_feature);
+  // Should not set global attributes
+  ctx.strokeStyle = "";
+  ctx.lineWidth = 0;
+  ctx.globalAlpha = 0;
+  ctx.lineCap = "butt";
+  ctx.lineCap = "miter";
+  symbolizer.before(ctx, 0);
+  assert(ctx.strokeStyle == "");
+  assert(ctx.lineWidth === 0);
+  assert(ctx.globalAlpha === 0);
+  assert(ctx.lineCap, "butt");
+  assert(ctx.lineJoin, "miter");
+  // Should override globalAlpha, lineCap, lineJoin,
+  // lineWidth and strokeStyle when evaluating per feature,
+  // should call setLineDash and should call stroke
+  ctx.globalAlpha = 0.0;
+  ctx.lineCap = "miter";
+  ctx.lineJoin = "butt";
+  ctx.lineWidth = 0;
+  ctx.strokeStyle = "";
+  ctx.strokeCalls = 0;
+  symbolizer.draw(ctx, [[0, 0]], 0, {});
+  assert(ctx.globalAlpha !== 0.0);
+  assert(ctx.lineCap !== "miter");
+  assert(ctx.lineJoin !== "butt");
+  assert(ctx.lineWidth !== 0);
+  assert(ctx.strokeStyle !== "");
+  assert(ctx.setLineDashCalls === 1);
+  assert(ctx.strokeCalls !== 0);
+
+  // Test LineSymbolizer with no dash but per feature properties
+  symbolizer = new LineSymbolizer({ color: (z, f) => "white" });
+  assert(symbolizer.per_feature);
+  // Should not set global attributes
+  ctx.strokeStyle = "";
+  ctx.lineWidth = 0;
+  ctx.globalAlpha = 0;
+  ctx.lineCap = "butt";
+  ctx.lineCap = "miter";
+  symbolizer.before(ctx, 0);
+  assert(ctx.strokeStyle == "");
+  assert(ctx.lineWidth === 0);
+  assert(ctx.globalAlpha === 0);
+  assert(ctx.lineCap, "butt");
+  assert(ctx.lineJoin, "miter");
+  // Should override globalAlpha, lineCap, lineJoin,
+  // lineWidth and strokeStyle when evaluating per feature,
+  // should not call setLineDash and should call stroke
+  ctx.globalAlpha = 0.0;
+  ctx.lineCap = "miter";
+  ctx.lineJoin = "butt";
+  ctx.lineWidth = 0;
+  ctx.strokeStyle = "";
+  ctx.setLineDashCalls = 0;
+  ctx.strokeCalls = 0;
+  symbolizer.draw(ctx, [[0, 0]], 0, {});
+  assert(ctx.globalAlpha !== 0.0);
+  assert(ctx.lineCap !== "miter");
+  assert(ctx.lineJoin !== "butt");
+  assert(ctx.lineWidth !== 0);
+  assert(ctx.strokeStyle === "white");
+  assert(ctx.setLineDashCalls === 0);
+  assert(ctx.strokeCalls !== 0);
+
+  // Test LineSymbolizer with no per feature properties
+  symbolizer = new LineSymbolizer({ color: "white" });
+  assert(!symbolizer.per_feature);
+  // Should set global attributes
+  ctx.strokeStyle = "";
+  ctx.lineWidth = 0;
+  ctx.globalAlpha = 0;
+  ctx.lineCap = "miter";
+  ctx.lineCap = "butt";
+  symbolizer.before(ctx, 0);
+  assert(ctx.strokeStyle === "white");
+  assert(ctx.lineWidth !== 0);
+  assert(ctx.globalAlpha !== 0);
+  assert(ctx.lineCap === "butt");
+  assert(ctx.lineJoin === "miter");
+  // Should NOT override globalAlpha, lineCap, lineJoin,
+  // lineWidth or strokeStyle,
+  // should not call setLineDash and should call stroke
+  ctx.globalAlpha = 0.0;
+  ctx.lineCap = "miter";
+  ctx.lineJoin = "butt";
+  ctx.lineWidth = 0;
+  ctx.strokeStyle = "";
+  ctx.setLineDashCalls = 0;
+  ctx.strokeCalls = 0;
+  symbolizer.draw(ctx, [[0, 0]], 0, {});
+  assert(ctx.globalAlpha === 0.0);
+  assert(ctx.lineCap === "miter");
+  assert(ctx.lineJoin === "butt");
+  assert(ctx.lineWidth === 0);
+  assert(ctx.strokeStyle === "");
+  assert(ctx.setLineDashCalls === 0);
+  assert(ctx.strokeCalls !== 0);
 });
 
 export default test;
