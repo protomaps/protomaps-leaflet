@@ -1,11 +1,11 @@
 // @ts-ignore
 import Point from "@mapbox/point-geometry";
-import { PreparedTile, transformGeom } from "./view";
-import { Zxy, toIndex, Bbox } from "./tilecache";
 // @ts-ignore
 import RBush from "rbush";
-import { LabelSymbolizer, DrawExtra } from "./symbolizer";
 import { Filter } from "./painter";
+import { DrawExtra, LabelSymbolizer } from "./symbolizer";
+import { Bbox, toIndex } from "./tilecache";
+import { PreparedTile, transformGeom } from "./view";
 
 type TileInvalidationCallback = (tiles: Set<string>) => void;
 
@@ -15,7 +15,7 @@ type TileInvalidationCallback = (tiles: Set<string>) => void;
 export interface Label {
   anchor: Point;
   bboxes: Bbox[];
-  draw: (ctx: any, drawExtra?: DrawExtra) => void;
+  draw: (ctx: CanvasRenderingContext2D, drawExtra?: DrawExtra) => void;
   deduplicationKey?: string;
   deduplicationDistance?: number;
 }
@@ -23,7 +23,7 @@ export interface Label {
 export interface IndexedLabel {
   anchor: Point;
   bboxes: Bbox[];
-  draw: (ctx: any) => void;
+  draw: (ctx: CanvasRenderingContext2D) => void;
   order: number;
   tileKey: string;
   deduplicationKey?: string;
@@ -81,7 +81,7 @@ export const covering = (
 };
 
 export class Index {
-  tree: RBush;
+  tree: RBush<any>;
   current: Map<string, Set<IndexedLabel>>;
   dim: number;
 
@@ -306,7 +306,7 @@ export class Labeler {
         zoom: this.z,
         scratch: this.scratch,
         order: order,
-        overzoom: this.z - pt.data_tile.z
+        overzoom: this.z - pt.data_tile.z,
       };
       for (let feature of feats) {
         if (rule.filter && !rule.filter(this.z, feature)) continue;
@@ -450,7 +450,7 @@ export class Labelers {
     }
   }
 
-  public getIndex(z: number): RBush {
+  public getIndex(z: number) {
     let labeler = this.labelers.get(z);
     if (labeler) return labeler.index; // TODO cleanup
   }
