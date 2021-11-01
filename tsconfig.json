@@ -6,7 +6,8 @@
     "moduleResolution": "node",
     "paths": {
       "@mapbox/unitbezier": ["./src/types/unitbezier.d.ts"]
-    }
+    },
+    "types": ["node"]
   },
   "include": ["src/**/*"]
 }

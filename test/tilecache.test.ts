@@ -1,20 +1,14 @@
-import {
-  Zxy,
-  TileCache,
-  TileSource,
-  pointMinDistToPoints,
-  pointMinDistToLines,
-  pointInPolygon,
-  isCCW,
-  isInRing,
-} from "../src/tilecache";
-import { StubSource } from "./test_helpers";
 import assert from "assert";
 import baretest from "baretest";
+import {
+  isCCW,
+  isInRing,
+  pointInPolygon,
+  pointMinDistToLines,
+  pointMinDistToPoints,
+} from "../src/tilecache";
 
-test = baretest("Tilecache");
-
-var cache = new TileCache(new StubSource());
+const test = baretest("Tilecache");
 
 test("basic", async () => {
   // cache.get({z:0,x:0,y:0}).then(f => {
