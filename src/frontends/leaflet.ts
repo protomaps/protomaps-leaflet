@@ -50,7 +50,7 @@ const timer = (duration: number) => {
 // replacement for Promise.allSettled (requires ES2020+)
 // this is called for every tile render,
 // so ensure font loading failure does not make map rendering fail
-const reflect = (promise:Promise<any>) => {
+const reflect = (promise: Promise<any>) => {
   return promise.then(
     (v) => {
       return { status: "fulfilled", value: v };
@@ -146,7 +146,7 @@ const leafletLayer = (options: any): any => {
       try {
         prepared_tile = await this.view.getDisplayTile(coords);
       } catch (e) {
-        if (e.name == "AbortError") return;
+        if ((e as any).name == "AbortError") return;
         else throw e;
       }
 
