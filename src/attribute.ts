@@ -161,12 +161,12 @@ export class FontAttr {
   }
 }
 
-export class ArrayAttr<T = string> {
-  value: T[] | ((z: number, f?: Feature) => T[]);
+export class ArrayAttr<T = number> {
+  value: AttrOption<T[]>;
   per_feature: boolean;
 
-  constructor(c: any, defaultValue: number[] = []) {
-    this.value = c || defaultValue;
+  constructor(c: AttrOption<T[]>, defaultValue: T[] = []) {
+    this.value = c ?? defaultValue;
     this.per_feature =
       typeof this.value == "function" && this.value.length == 2;
   }

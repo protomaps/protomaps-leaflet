@@ -210,11 +210,11 @@ test("textattr", async () => {
 });
 
 test("arrayattr", async () => {
-  let n = new ArrayAttr(undefined, undefined);
+  let n: ArrayAttr<string> | ArrayAttr<number> = new ArrayAttr([], undefined);
   assert.equal(n.get(1).length, 0);
 
-  n = new ArrayAttr(2, undefined);
-  assert.equal(n.get(1), 2);
+  n = new ArrayAttr<number>([2], undefined);
+  assert.equal(n.get(1)[0], 2);
 
   n = new ArrayAttr(undefined, [3]);
   assert.equal(n.get(1)[0], 3);
@@ -233,14 +233,14 @@ test("arrayattr", async () => {
   assert.equal(n.get(3)[0], 3);
   assert.equal(n.get(3)[1], 3);
 
-  n = new ArrayAttr(1);
+  n = new ArrayAttr([1]);
   assert.equal(n.per_feature, false);
   n = new ArrayAttr((z) => {
-    return z;
+    return [z];
   });
   assert.equal(n.per_feature, false);
   n = new ArrayAttr((z, f) => {
-    return z;
+    return [z];
   });
   assert.equal(n.per_feature, true);
 });
