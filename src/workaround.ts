@@ -34,8 +34,7 @@ const verticesCount = (rings: Point[][]): number => {
 
 export const splitMultiPolygon = (
   mp: Point[][],
-  bbox: Bbox,
-  maxVertices: number
+  bbox: Bbox
 ) => {
   const flat = mp.map((m) => m.map((p) => [p.x, p.y]));
   const centerPoint = {

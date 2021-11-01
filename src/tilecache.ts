@@ -112,7 +112,7 @@ function parseTile(
         if (layer.feature(i).type == GeomType.Line) {
           split = splitMultiLineString(result.geom, LIMIT);
         } else if (layer.feature(i).type == GeomType.Polygon) {
-          split = splitMultiPolygon(result.geom, result.bbox, LIMIT);
+          split = splitMultiPolygon(result.geom, result.bbox);
         }
 
         for (let part of split) {
