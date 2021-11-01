@@ -28,9 +28,11 @@
     "flatqueue": "^1.2.1",
     "pbf": "^3.2.1",
     "pmtiles": "^0.2",
+    "polygon-clipping": "^0.15.3",
     "polylabel": "^1.1.0",
     "protosprites": "0.2.0",
-    "rbush": "^3.0.1"
+    "rbush": "^3.0.1",
+    "simplify-js": "^1.2.4"
   },
   "scripts": {
     "dev": "esbuild src/index.ts --bundle --target=es2015 --servedir=. --outfile=dist/protomaps.js --global-name=protomaps",

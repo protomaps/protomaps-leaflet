@@ -64,7 +64,7 @@ const linelabel = (
     d += abmag;
 
     dt = Math.acos((abx * bcx + aby * bcy) / (abmag * bcmag));
-    if (dt > max_angle_delta ||  (d - d_start) > targetLen) {
+    if (dt > max_angle_delta || d - d_start > targetLen) {
       chunks.push({
         length: d - d_start,
         beginDistance: d_start,
