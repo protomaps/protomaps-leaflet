@@ -2,7 +2,7 @@ import { exp, step, linear, cubicBezier } from "../src/symbolizer";
 import assert from "assert";
 import baretest from "baretest";
 
-test = baretest("symbolizer");
+const test = baretest("symbolizer");
 
 test("exp", async () => {
   let result = exp(1.4, [])(5);

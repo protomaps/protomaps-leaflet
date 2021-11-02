@@ -7,6 +7,18 @@ import Protobuf from "pbf";
 // @ts-ignore
 import { PMTiles } from "pmtiles";
 
+export type JsonValue =
+  | boolean
+  | number
+  | string
+  | null
+  | JsonArray
+  | JsonObject;
+export interface JsonObject {
+  [key: string]: JsonValue;
+}
+export interface JsonArray extends Array<JsonValue> {}
+
 export enum GeomType {
   Point = 1,
   Line = 2,
@@ -21,7 +33,7 @@ export interface Bbox {
 }
 
 export interface Feature {
-  readonly props: any;
+  readonly props: JsonObject;
   readonly bbox: Bbox;
   readonly geomType: GeomType;
   readonly geom: Point[][];

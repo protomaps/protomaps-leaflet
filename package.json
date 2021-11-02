@@ -10,6 +10,8 @@
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
   "devDependencies": {
+    "@types/baretest": "^2.0.0",
+    "@types/node": "^16.11.1",
     "baretest": "^2.0.0",
     "esbuild": "^0.12.15",
     "esbuild-runner": "^2.2.0",

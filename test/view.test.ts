@@ -1,9 +1,9 @@
 import Point from "@mapbox/point-geometry";
-import { Zxy, TileCache, TileSource } from "../src/tilecache";
-import { wrap, View } from "../src/view";
-import { StubSource } from "./test_helpers";
 import assert from "assert";
 import baretest from "baretest";
+import { TileCache } from "../src/tilecache";
+import { View, wrap } from "../src/view";
+import { StubSource } from "./test_helpers";
 
 let test = baretest("view");
 

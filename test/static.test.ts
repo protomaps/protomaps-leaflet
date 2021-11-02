@@ -2,7 +2,7 @@ import assert from "assert";
 import baretest from "baretest";
 import { getZoom } from "../src/frontends/static";
 
-test = baretest("Static");
+const test = baretest("Static");
 
 test("basic", async () => {
   assert.equal(getZoom(360, 256), 0);

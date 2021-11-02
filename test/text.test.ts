@@ -1,8 +1,8 @@
-import { linebreak, FontSpec, TextSpec } from "../src/text";
 import assert from "assert";
 import baretest from "baretest";
+import { linebreak } from "../src/text";
 
-test = baretest("Text");
+const test = baretest("Text");
 
 test("trivial", async () => {
   let lines = linebreak("foo", 15);

@@ -1,25 +1,21 @@
-import {
-  createPattern,
-  PolygonSymbolizer,
-  IconSymbolizer,
-  ShieldSymbolizer,
-  LineSymbolizer,
-  CenteredTextSymbolizer,
-  OffsetTextSymbolizer,
-  GroupSymbolizer,
-  FlexSymbolizer,
-  CircleSymbolizer,
-  PolygonLabelSymbolizer,
-  LineLabelSymbolizer,
-  exp,
-  LabelSymbolizer,
-  Padding,
-  Justify,
-} from "../symbolizer";
-import { Rule } from "../painter";
-import { LabelRule } from "../labeler";
-import { Feature } from "../tilecache";
 import { hsla, parseToHsla } from "color2k";
+import { LabelRule } from "../labeler";
+import { Rule } from "../painter";
+import {
+  CenteredTextSymbolizer,
+  CircleSymbolizer,
+  exp,
+  FlexSymbolizer,
+  GroupSymbolizer,
+  LabelSymbolizer,
+  LineLabelSymbolizer,
+  LineSymbolizer,
+  OffsetTextSymbolizer,
+  PolygonLabelSymbolizer,
+  PolygonSymbolizer,
+  ShieldSymbolizer,
+} from "../symbolizer";
+import { Feature } from "../tilecache";
 
 export interface DefaultStyleParams {
   earth: string;
@@ -333,27 +329,21 @@ export const labelRules = (
   let languageStack = (symbolizer: LabelSymbolizer, fill: string) => {
     if (!language2) return symbolizer;
     if (symbolizer instanceof OffsetTextSymbolizer) {
-      return new FlexSymbolizer(
-        [
-          symbolizer,
-          new OffsetTextSymbolizer({
-            fill: fill,
-            label_props: language2,
-          }),
-        ],
-        {}
-      );
+      return new FlexSymbolizer([
+        symbolizer,
+        new OffsetTextSymbolizer({
+          fill: fill,
+          label_props: language2,
+        }),
+      ]);
     } else {
-      return new FlexSymbolizer(
-        [
-          symbolizer,
-          new CenteredTextSymbolizer({
-            fill: fill,
-            label_props: language2,
-          }),
-        ],
-        {}
-      );
+      return new FlexSymbolizer([
+        symbolizer,
+        new CenteredTextSymbolizer({
+          fill: fill,
+          label_props: language2,
+        }),
+      ]);
     }
   };
 
@@ -365,7 +355,7 @@ export const labelRules = (
           label_props: nametags,
           fill: params.countryLabel,
           lineHeight: 1.5,
-          font: (z: number, f: Feature) => {
+          font: (z: number, f?: Feature) => {
             if (z < 6) return "200 14px sans-serif";
             return "200 20px sans-serif";
           },
@@ -402,8 +392,8 @@ export const labelRules = (
         new CenteredTextSymbolizer({
           label_props: nametags,
           fill: params.cityLabel,
-          font: (z: number, f: Feature) => {
-            if (f.props["pmap:rank"] == 1) {
+          font: (z: number, f?: Feature) => {
+            if (f?.props["pmap:rank"] === 1) {
               if (z > 8) return "600 20px sans-serif";
               return "600 12px sans-serif";
             } else {
@@ -434,9 +424,10 @@ export const labelRules = (
           new OffsetTextSymbolizer({
             label_props: nametags,
             fill: params.cityLabel,
-            offset: 2,
-            font: (z: number, f: Feature) => {
-              if (f.props["pmap:rank"] == 1) {
+            offsetX: 2,
+            offsetY: 2,
+            font: (z: number, f?: Feature) => {
+              if (f?.props["pmap:rank"] === 1) {
                 if (z > 8) return "600 20px sans-serif";
                 return "600 12px sans-serif";
               } else {
@@ -537,7 +528,8 @@ export const labelRules = (
           new OffsetTextSymbolizer({
             label_props: nametags,
             fill: params.poisLabel,
-            offset: 2,
+            offsetX: 2,
+            offsetY: 2,
             font: "300 10px sans-serif",
           }),
           params.poisLabel

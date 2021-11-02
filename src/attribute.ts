@@ -1,16 +1,18 @@
 import { Feature } from "./tilecache";
 
-export class StringAttr {
-  str: string | ((z: number, f?: Feature) => string);
+export type AttrOption<T> = T | ((z: number, f?: Feature) => T);
+
+export class StringAttr<T extends string = string> {
+  str: AttrOption<T>;
   per_feature: boolean;
 
-  constructor(c: any, defaultValue: string = "") {
-    this.str = c || defaultValue;
+  constructor(c: AttrOption<T> | undefined, defaultValue: T) {
+    this.str = c ?? defaultValue;
     this.per_feature = typeof this.str == "function" && this.str.length == 2;
   }
 
-  public get(z: number, f?: Feature): string {
-    if (typeof this.str == "function") {
+  public get(z: number, f?: Feature): T {
+    if (typeof this.str === "function") {
       return this.str(z, f);
     } else {
       return this.str;
@@ -19,11 +21,11 @@ export class StringAttr {
 }
 
 export class NumberAttr {
-  value: number | ((z: number, f?: Feature) => number);
+  value: AttrOption<number>;
   per_feature: boolean;
 
-  constructor(c: any, defaultValue: number = 1) {
-    this.value = c || defaultValue;
+  constructor(c: AttrOption<number> | undefined, defaultValue: number = 1) {
+    this.value = c ?? defaultValue;
     this.per_feature =
       typeof this.value == "function" && this.value.length == 2;
   }
@@ -37,27 +39,35 @@ export class NumberAttr {
   }
 }
 
-export class TextAttr {
-  label_props: string[] | ((z: number, f?: Feature) => string[]);
-  textTransform: string | ((z: number, f?: Feature) => string);
+export interface TextAttrOptions {
+  label_props?: AttrOption<string[]>;
+  textTransform?: AttrOption<string>;
+}
 
-  constructor(options: any = {}) {
-    this.label_props = options.label_props || ["name"];
-    this.textTransform = options.textTransform;
+export class TextAttr {
+  label_props: AttrOption<string[]>;
+  textTransform?: AttrOption<string>;
+
+  constructor(options?: TextAttrOptions) {
+    this.label_props = options?.label_props ?? ["name"];
+    this.textTransform = options?.textTransform;
   }
 
-  public get(z: number, f: Feature): string {
-    var retval;
+  public get(z: number, f: Feature): string | undefined {
+    let retval: string | undefined;
 
-    var label_props: string[];
+    let label_props: string[];
     if (typeof this.label_props == "function") {
       label_props = this.label_props(z, f);
     } else {
       label_props = this.label_props;
     }
     for (let property of label_props) {
-      if (f.props.hasOwnProperty(property)) {
-        retval = f.props[property];
+      if (
+        f.props.hasOwnProperty(property) &&
+        typeof f.props[property] === "string"
+      ) {
+        retval = f.props[property] as string;
         break;
       }
     }
@@ -80,25 +90,33 @@ export class TextAttr {
   }
 }
 
-export class FontAttr {
-  family?: string | ((z: number, f: Feature) => string);
-  size?: number | ((z: number, f: Feature) => number);
-  weight?: number | ((z: number, f: Feature) => number);
-  style?: number | ((z: number, f: Feature) => string);
-  font?: string | ((z: number, f: Feature) => string);
+export interface FontAttrOptions {
+  font?: AttrOption<string>;
+  fontFamily?: AttrOption<string>;
+  fontSize?: AttrOption<number>;
+  fontWeight?: AttrOption<number>;
+  fontStyle?: AttrOption<string>;
+}
 
-  constructor(options: any) {
-    if (options.font) {
+export class FontAttr {
+  family?: AttrOption<string>;
+  size?: AttrOption<number>;
+  weight?: AttrOption<number>;
+  style?: AttrOption<string>;
+  font?: AttrOption<string>;
+
+  constructor(options?: FontAttrOptions) {
+    if (options?.font) {
       this.font = options.font;
     } else {
-      this.family = options.fontFamily || "sans-serif";
-      this.size = options.fontSize || 12;
-      this.weight = options.fontWeight;
-      this.style = options.fontStyle;
+      this.family = options?.fontFamily ?? "sans-serif";
+      this.size = options?.fontSize ?? 12;
+      this.weight = options?.fontWeight;
+      this.style = options?.fontStyle;
     }
   }
 
-  public get(z: number, f: Feature) {
+  public get(z: number, f?: Feature) {
     if (this.font) {
       if (typeof this.font === "function") {
         return this.font(z, f);
@@ -143,20 +161,17 @@ export class FontAttr {
   }
 }
 
-export class ArrayAttr {
-  value:
-    | string[]
-    | number[]
-    | ((z: number, f?: Feature) => string[] | number[]);
+export class ArrayAttr<T = number> {
+  value: AttrOption<T[]>;
   per_feature: boolean;
 
-  constructor(c: any, defaultValue: number[] = []) {
-    this.value = c || defaultValue;
+  constructor(c: AttrOption<T[]>, defaultValue: T[] = []) {
+    this.value = c ?? defaultValue;
     this.per_feature =
       typeof this.value == "function" && this.value.length == 2;
   }
 
-  public get(z: number, f?: Feature): string[] | number[] {
+  public get(z: number, f?: Feature): T[] {
     if (typeof this.value == "function") {
       return this.value(z, f);
     } else {
