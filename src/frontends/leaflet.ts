@@ -118,6 +118,7 @@ const leafletLayer = (options: any): any => {
         this.onTilesInvalidated
       );
       this.tile_size = 256 * window.devicePixelRatio;
+      this.tileDelay = options.tileDelay || 3;
       this.pool = new CanvasPool(options.lang);
 
       // bound instance of function
@@ -171,7 +172,7 @@ const leafletLayer = (options: any): any => {
       let pixelBounds = this._getTiledPixelBounds(center),
         tileRange = this._pxBoundsToTileRange(pixelBounds),
         tileCenter = tileRange.getCenter();
-      let priority = coords.distanceTo(tileCenter) * 5;
+      let priority = coords.distanceTo(tileCenter) * this.tileDelay;
 
       await timer(priority);
 
