@@ -48,6 +48,10 @@ See the docs on [what protomaps.js is, what protomaps.js is not](https://protoma
 
 Exports of OpenStreetMap data in PMTiles format can be obtained from [https://protomaps.com/bundles](https://protomaps.com/bundles).
 
+## Benchmarking
+* Go into the `benchmarks` folder and run `npm install` and `npm run start`.
+* If you want to add benchmarks, take a look at the `benchmarks/benchs/benchmarks.ts` file
+
 ## Project Status
 
 The design is still evolving rapidly, so do not expect any kind of stable internal or external-facing API between minor versions. But please do report bugs and discuss requirements in the Issues.

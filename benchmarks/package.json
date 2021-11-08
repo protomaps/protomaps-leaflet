@@ -1,0 +1,32 @@
+{
+  "name": "protomapsbenchmarking",
+  "version": "1.0.0",
+  "description": "Protomaps Benchmarking",
+  "main": "dist/index.js",
+  "scripts": {
+    "build-tsc": "tsc",
+    "build-dev": "npm run build-tsc",
+    "build-bench": "rollup -c rollup.config.js",
+    "build": "run-s build-dev build-bench",
+    "prettier": "npx prettier --write .",
+    "start": "run-s build start-server",
+    "start-server": "st --no-cache -H 0.0.0.0 --port 9966 --index index.html .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "@ibesora",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-alias": "^3.1.8",
+    "@rollup/plugin-buble": "^0.21.3",
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@rollup/plugin-replace": "^3.0.0",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^2.59.0",
+    "st": "^3.0.0"
+  },
+  "dependencies": {
+    "@feltmaps/benchmarking": "^1.0.2",
+    "protomaps": "^1.15.0"
+  }
+}
