@@ -50,7 +50,12 @@ const timer = (duration: number) => {
 // replacement for Promise.allSettled (requires ES2020+)
 // this is called for every tile render,
 // so ensure font loading failure does not make map rendering fail
-const reflect = (promise: Promise<any>) => {
+type Status = {
+  status: string;
+  value?: any;
+  reason: Error;
+};
+const reflect = (promise: Promise<Status>) => {
   return promise.then(
     (v) => {
       return { status: "fulfilled", value: v };
