@@ -11,34 +11,6 @@ import { light } from "../default_style/light";
 import { dark } from "../default_style/dark";
 import { paintRules, labelRules } from "../default_style/style";
 
-class CanvasPool {
-  unused: any[];
-  lang: string;
-
-  constructor(lang: string) {
-    this.lang = lang;
-    this.unused = [];
-  }
-
-  public get(tile_size: number) {
-    if (this.unused.length) {
-      let tile = this.unused.shift();
-      tile.removed = false;
-      return tile;
-    }
-    let element = L.DomUtil.create("canvas", "leaflet-tile");
-    element.width = tile_size;
-    element.height = tile_size;
-    element.lang = this.lang;
-    return element;
-  }
-
-  public put(elem: any) {
-    L.DomUtil.removeClass(elem, "leaflet-tile-loaded");
-    this.unused.push(elem);
-  }
-}
-
 const timer = (duration: number) => {
   return new Promise<void>((resolve, reject) => {
     setTimeout(() => {
@@ -119,7 +91,7 @@ const leafletLayer = (options: any): any => {
       );
       this.tile_size = 256 * window.devicePixelRatio;
       this.tileDelay = options.tileDelay || 3;
-      this.pool = new CanvasPool(options.lang);
+      this.lang = options.lang;
 
       // bound instance of function
       this.inspector = this.inspect(this);
@@ -188,6 +160,8 @@ const leafletLayer = (options: any): any => {
       };
       let origin = new Point(256 * coords.x, 256 * coords.y);
 
+      element.width = this.tile_size;
+      element.height = this.tile_size;
       let ctx = element.getContext("2d");
       ctx.setTransform(this.tile_size / 256, 0, 0, this.tile_size / 256, 0, 0);
       ctx.clearRect(0, 0, 256, 256);
@@ -293,7 +267,9 @@ const leafletLayer = (options: any): any => {
     }
 
     public createTile(coords: any, showTile: any) {
-      let element = this.pool.get(this.tile_size);
+      let element = L.DomUtil.create("canvas", "leaflet-tile");
+      element.lang = this.lang;
+
       let key = this._tileCoordsToKey(coords);
       element.key = key;
 
@@ -311,8 +287,8 @@ const leafletLayer = (options: any): any => {
       }
       tile.el.removed = true;
       tile.el.key = undefined;
+      L.DomUtil.removeClass(tile.el, "leaflet-tile-loaded");
       L.DomUtil.remove(tile.el);
-      this.pool.put(tile.el);
       delete this._tiles[key];
       this.fire("tileunload", {
         tile: tile.el,
