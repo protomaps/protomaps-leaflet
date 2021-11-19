@@ -366,11 +366,6 @@ export class TileCache {
       };
       for (let [layer_name, layer_arr] of entry.data.entries()) {
         for (let feature of layer_arr) {
-          // rough check by bbox
-          //  if ((query_bbox.maxX >= feature.bbox.minX && feature.bbox.maxX >= query_bbox.minX) &&
-          //      (query_bbox.maxY >= feature.bbox.minY && feature.bbox.maxY >= query_bbox.minY)) {
-          //  }
-
           if (feature.geomType == GeomType.Point) {
             if (pointMinDistToPoints(center, feature.geom) < brushSize) {
               retval.push({ feature, layerName: layer_name });
@@ -380,8 +375,26 @@ export class TileCache {
               retval.push({ feature, layerName: layer_name });
             }
           } else {
+            // Attempt PIP approach
             if (pointInPolygon(center, feature.geom)) {
               retval.push({ feature, layerName: layer_name });
+            }
+            // Fallback to rough check by bbox on PIP misses
+            else {
+              const query_bbox = {
+                minX: center.x - 8,
+                minY: center.y - 8,
+                maxX: center.x + 8,
+                maxY: center.y + 8,
+              };
+              if (
+                query_bbox.maxX >= feature.bbox.minX &&
+                feature.bbox.maxX >= query_bbox.minX &&
+                query_bbox.maxY >= feature.bbox.minY &&
+                feature.bbox.maxY >= query_bbox.minY
+              ) {
+                retval.push({ feature, layerName: layer_name });
+              }
             }
           }
         }
