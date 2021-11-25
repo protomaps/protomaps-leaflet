@@ -239,9 +239,9 @@ export class Index {
     let keys_for_ds = 0;
 
     for (var existing_key of this.current.keys()) {
-      keys_for_ds++;
       let existing = existing_key.split(":");
       if (existing[3] === added[3]) {
+        keys_for_ds++;
         let dist = Math.sqrt(
           Math.pow(+existing[0] - +added[0], 2) +
             Math.pow(+existing[1] - +added[1], 2)
