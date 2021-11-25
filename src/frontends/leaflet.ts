@@ -2,9 +2,9 @@ declare var L: any;
 
 import Point from "@mapbox/point-geometry";
 
-import { ZxySource, Zxy, PmtilesSource, TileCache } from "../tilecache";
-import { View } from "../view";
-import { painter, xray } from "../painter";
+import { Zxy, TileCache } from "../tilecache";
+import { View, PreparedTile, sourcesToViews } from "../view";
+import { painter } from "../painter";
 import { Labelers } from "../labeler";
 import { light } from "../default_style/light";
 import { dark } from "../default_style/dark";
@@ -59,26 +59,10 @@ const leafletLayer = (options: any): any => {
       this.backgroundColor = options.backgroundColor;
       this.lastRequestedZ = undefined;
       this.xray = options.xray;
-
-      let source;
-      if (options.url.url) {
-        source = new PmtilesSource(options.url, true);
-      } else if (options.url.endsWith(".pmtiles")) {
-        source = new PmtilesSource(options.url, true);
-      } else {
-        source = new ZxySource(options.url, true);
-      }
-
-      let maxDataZoom = 14;
-      if (options.maxDataZoom) {
-        maxDataZoom = options.maxDataZoom;
-      }
-
-      this.levelDiff = options.levelDiff === undefined ? 2 : options.levelDiff;
-
       this.tasks = options.tasks || [];
-      let cache = new TileCache(source, (256 * 1) << this.levelDiff);
-      this.view = new View(cache, maxDataZoom, this.levelDiff);
+
+      this.views = sourcesToViews(options);
+
       this.debug = options.debug;
       let scratch = document.createElement("canvas").getContext("2d");
       this.scratch = scratch;
@@ -119,12 +103,30 @@ const leafletLayer = (options: any): any => {
       done = () => {}
     ) {
       this.lastRequestedZ = coords.z;
-      var prepared_tile;
-      try {
-        prepared_tile = await this.view.getDisplayTile(coords);
-      } catch (e) {
-        if ((e as any).name == "AbortError") return;
-        else throw e;
+
+      let promises = [];
+      for (const [k, v] of this.views) {
+        let promise = v.getDisplayTile(coords);
+        promises.push({ key: k, promise: promise });
+      }
+      let tile_responses = await Promise.all(
+        promises.map((o) => {
+          return o.promise.then(
+            (v: PreparedTile[]) => {
+              return { status: "fulfilled", value: v, key: o.key };
+            },
+            (error: Error) => {
+              return { status: "rejected", reason: error, key: o.key };
+            }
+          );
+        })
+      );
+
+      let prepared_tilemap = new Map<string, PreparedTile[]>();
+      for (const tile_response of tile_responses) {
+        if (tile_response.status === "fulfilled") {
+          prepared_tilemap.set(tile_response.key, [tile_response.value]);
+        }
       }
 
       if (element.key != key) return;
@@ -135,12 +137,12 @@ const leafletLayer = (options: any): any => {
       if (element.key != key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      let layout_time = await this.labelers.add(prepared_tile);
+      let layout_time = this.labelers.add(coords.z, prepared_tilemap);
 
       if (element.key != key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      let label_data = this.labelers.getIndex(prepared_tile.z);
+      let label_data = this.labelers.getIndex(coords.z);
 
       if (!this._map) return; // the layer has been removed from the map
 
@@ -178,58 +180,56 @@ const leafletLayer = (options: any): any => {
       }
 
       var painting_time = 0;
-      if (this.xray) {
-        painting_time = xray(
-          ctx,
-          [prepared_tile],
-          bbox,
-          origin,
-          false,
-          this.debug
-        );
-      } else {
-        painting_time = painter(
-          ctx,
-          [prepared_tile],
-          label_data,
-          this.paint_rules,
-          bbox,
-          origin,
-          false,
-          this.debug
-        );
-      }
+
+      painting_time = painter(
+        ctx,
+        coords.z,
+        prepared_tilemap,
+        label_data,
+        this.paint_rules,
+        bbox,
+        origin,
+        false,
+        this.debug,
+        this.xray
+      );
 
       if (this.debug) {
-        let data_tile = prepared_tile.data_tile;
         ctx.save();
         ctx.fillStyle = this.debug;
         ctx.font = "600 12px sans-serif";
         ctx.fillText(coords.z + " " + coords.x + " " + coords.y, 4, 14);
-        ctx.font = "200 12px sans-serif";
-        ctx.fillText(
-          data_tile.z + " " + data_tile.x + " " + data_tile.y,
-          4,
-          28
-        );
+
+        ctx.font = "12px sans-serif";
+        let ypos = 28;
+        for (let [k, v] of prepared_tilemap) {
+          let dt = v[0].data_tile;
+          ctx.fillText(
+            k + (k ? " " : "") + dt.z + " " + dt.x + " " + dt.y,
+            4,
+            ypos
+          );
+          ypos += 14;
+        }
+
         ctx.font = "600 10px sans-serif";
         if (painting_time > 8) {
-          ctx.fillText(painting_time.toFixed() + " ms paint", 4, 42);
+          ctx.fillText(painting_time.toFixed() + " ms paint", 4, ypos);
+          ypos += 14;
         }
+
         if (layout_time > 8) {
-          ctx.fillText(layout_time.toFixed() + " ms layout", 4, 56);
+          ctx.fillText(layout_time.toFixed() + " ms layout", 4, ypos);
         }
         ctx.strokeStyle = this.debug;
 
-        ctx.lineWidth =
-          coords.x / (1 << this.levelDiff) === data_tile.x ? 2.5 : 0.5;
+        ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(0, 256);
         ctx.stroke();
 
-        ctx.lineWidth =
-          coords.y / (1 << this.levelDiff) === data_tile.y ? 2.5 : 0.5;
+        ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(256, 0);
@@ -302,32 +302,62 @@ const leafletLayer = (options: any): any => {
     }
 
     public queryFeatures(lng: number, lat: number) {
-      return this.view.queryFeatures(lng, lat, this._map.getZoom());
+      let featuresBySourceName = new Map();
+      for (var [sourceName, view] of this.views) {
+        featuresBySourceName.set(
+          sourceName,
+          view.queryFeatures(lng, lat, this._map.getZoom())
+        );
+      }
+      return featuresBySourceName;
     }
 
     public inspect(layer: LeafletLayer) {
       return (ev: any) => {
-        let typeNames = ["Point", "Line", "Polygon"];
+        let typeGlyphs = ["◎", "⟍", "◻"];
         let wrapped = layer._map.wrapLatLng(ev.latlng);
-        let results = layer.queryFeatures(wrapped.lng, wrapped.lat);
+        let resultsBySourceName = layer.queryFeatures(wrapped.lng, wrapped.lat);
         var content = "";
-        for (var i = 0; i < results.length; i++) {
-          let result = results[i];
-          content =
-            content +
-            `<div><b>${result.layerName}</b> ${
-              typeNames[result.feature.geomType - 1]
-            } ${result.feature.id}</div>`;
-          for (const prop in result.feature.props) {
+        let firstRow = true;
+
+        for (var [sourceName, results] of resultsBySourceName) {
+          for (var result of results) {
+            if (this.xray && this.xray !== true) {
+              if (
+                !(
+                  this.xray.dataSource === sourceName &&
+                  this.xray.dataLayer === result.layerName
+                )
+              ) {
+                continue;
+              }
+            }
             content =
-              content + `<div>${prop}=${result.feature.props[prop]}</div>`;
+              content +
+              `<div style="margin-top:${firstRow ? 0 : 0.5}em">${
+                typeGlyphs[result.feature.geomType - 1]
+              } <b>${sourceName} ${sourceName ? "/" : ""} ${
+                result.layerName
+              }</b> ${result.feature.id || ""}</div>`;
+            for (const prop in result.feature.props) {
+              content =
+                content +
+                `<div style="font-size:0.9em">${prop} = ${result.feature.props[prop]}</div>`;
+            }
+            firstRow = false;
           }
-          if (i < results.length - 1) content = content + "<hr/>";
         }
-        if (results.length == 0) {
+        if (firstRow) {
           content = "No features.";
         }
-        L.popup().setLatLng(ev.latlng).setContent(content).openOn(layer._map);
+        L.popup()
+          .setLatLng(ev.latlng)
+          .setContent(
+            '<div style="max-height:400px;overflow-y:scroll;padding-right:8px">' +
+              content +
+              "</div>"
+          )
+          .openOn(layer._map);
       };
     }
 

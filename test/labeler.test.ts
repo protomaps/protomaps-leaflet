@@ -134,7 +134,7 @@ test("pruning", async () => {
   );
   assert.equal(index.tree.all().length, 1);
   assert.equal(index.current.has("abcd"), true);
-  index.prune("abcd");
+  index.pruneKey("abcd");
   assert.equal(index.current.size, 0);
   assert.equal(index.tree.all().length, 0);
 });

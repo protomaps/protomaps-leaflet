@@ -1,7 +1,7 @@
 import Point from "@mapbox/point-geometry";
 
 import { ZxySource, PmtilesSource, TileCache } from "../tilecache";
-import { View } from "../view";
+import { View, PreparedTile, sourcesToViews } from "../view";
 import { Rule, painter } from "../painter";
 import { LabelRule, Labeler } from "../labeler";
 import { light } from "../default_style/light";
@@ -62,7 +62,7 @@ export const getZoom = (degrees_lng: number, css_pixels: number): number => {
 export class Static {
   paint_rules: Rule[];
   label_rules: LabelRule[];
-  view: View;
+  views: Map<string, View>;
   debug: string;
   backgroundColor: string;
 
@@ -74,23 +74,7 @@ export class Static {
       labelRules(theme, options.shade, options.language1, options.language2);
     this.backgroundColor = options.backgroundColor;
 
-    let source;
-    if (options.url.url) {
-      source = new PmtilesSource(options.url, false);
-    } else if (options.url.endsWith(".pmtiles")) {
-      source = new PmtilesSource(options.url, false);
-    } else {
-      source = new ZxySource(options.url, false);
-    }
-
-    let maxDataZoom = 14;
-    if (options.maxDataZoom) {
-      maxDataZoom = options.maxDataZoom;
-    }
-
-    let levelDiff = options.levelDiff === undefined ? 2 : options.levelDiff;
-    let cache = new TileCache(source, (256 * 1) << levelDiff);
-    this.view = new View(cache, maxDataZoom, levelDiff);
+    this.views = sourcesToViews(options);
     this.debug = options.debug || false;
   }
 
@@ -121,7 +105,30 @@ export class Static {
       maxY: origin.y + height,
     };
 
-    let prepared_tiles = await this.view.getBbox(display_zoom, bbox);
+    let promises = [];
+    for (const [k, v] of this.views) {
+      let promise = v.getBbox(display_zoom, bbox);
+      promises.push({ key: k, promise: promise });
+    }
+    let tile_responses = await Promise.all(
+      promises.map((o) => {
+        return o.promise.then(
+          (v: PreparedTile[]) => {
+            return { status: "fulfilled", value: v, key: o.key };
+          },
+          (error: Error) => {
+            return { status: "rejected", value: [], reason: error, key: o.key };
+          }
+        );
+      })
+    );
+
+    let prepared_tilemap = new Map<string, PreparedTile[]>();
+    for (const tile_response of tile_responses) {
+      if (tile_response.status === "fulfilled") {
+        prepared_tilemap.set(tile_response.key, tile_response.value);
+      }
+    }
 
     let start = performance.now();
     let labeler = new Labeler(
@@ -131,9 +138,8 @@ export class Static {
       16,
       undefined
     ); // because need ctx to measure
-    for (var prepared_tile of prepared_tiles) {
-      await labeler.add(prepared_tile);
-    }
+
+    let layout_time = labeler.add(prepared_tilemap);
 
     if (this.backgroundColor) {
       ctx.save();
@@ -144,7 +150,8 @@ export class Static {
 
     let p = painter(
       ctx,
-      prepared_tiles,
+      display_zoom,
+      prepared_tilemap,
       labeler.index,
       this.paint_rules,
       bbox,
@@ -156,14 +163,26 @@ export class Static {
     if (this.debug) {
       ctx.save();
       ctx.translate(-origin.x, -origin.y);
-      for (var prepared_tile of prepared_tiles) {
-        ctx.strokeStyle = this.debug;
-        ctx.strokeRect(
-          prepared_tile.origin.x,
-          prepared_tile.origin.y,
-          prepared_tile.dim,
-          prepared_tile.dim
-        );
+      ctx.strokeStyle = this.debug;
+      ctx.fillStyle = this.debug;
+      ctx.font = "12px sans-serif";
+      let idx = 0;
+      for (const [k, v] of prepared_tilemap) {
+        for (let prepared_tile of v) {
+          ctx.strokeRect(
+            prepared_tile.origin.x,
+            prepared_tile.origin.y,
+            prepared_tile.dim,
+            prepared_tile.dim
+          );
+          let dt = prepared_tile.data_tile;
+          ctx.fillText(
+            k + (k ? " " : "") + dt.z + " " + dt.x + " " + dt.y,
+            prepared_tile.origin.x + 4,
+            prepared_tile.origin.y + 14 * (1 + idx)
+          );
+        }
+        idx++;
       }
       ctx.restore();
     }

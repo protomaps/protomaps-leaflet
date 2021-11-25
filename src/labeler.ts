@@ -40,6 +40,7 @@ export interface LabelRule {
   id?: string;
   minzoom?: number;
   maxzoom?: number;
+  dataSource?: string;
   dataLayer: string;
   symbolizer: LabelSymbolizer;
   filter?: Filter;
@@ -82,11 +83,13 @@ export class Index {
   tree: RBush<any>;
   current: Map<string, Set<IndexedLabel>>;
   dim: number;
+  maxLabeledTiles: number;
 
-  constructor(dim: number) {
+  constructor(dim: number, maxLabeledTiles: number) {
     this.tree = new RBush();
     this.current = new Map();
     this.dim = dim;
+    this.maxLabeledTiles = maxLabeledTiles;
   }
 
   public has(tileKey: string): boolean {
@@ -160,6 +163,14 @@ export class Index {
     return false;
   }
 
+  public makeEntry(tileKey: string) {
+    if (this.current.get(tileKey)) {
+      console.log("consistency error 1");
+    }
+    let newSet = new Set<IndexedLabel>();
+    this.current.set(tileKey, newSet);
+  }
+
   // can put in multiple due to antimeridian wrapping
   public insert(label: Label, order: number, tileKey: string): void {
     let indexed_label = {
@@ -172,13 +183,12 @@ export class Index {
       deduplicationDistance: label.deduplicationDistance,
     };
     let entry = this.current.get(tileKey);
-    if (entry) {
-      entry.add(indexed_label);
-    } else {
+    if (!entry) {
       let newSet = new Set<IndexedLabel>();
-      newSet.add(indexed_label);
       this.current.set(tileKey, newSet);
+      entry = newSet;
     }
+    entry.add(indexed_label);
 
     var wrapsLeft = false;
     var wrapsRight = false;
@@ -220,7 +230,33 @@ export class Index {
     }
   }
 
-  public prune(keyToRemove: string): void {
+  public pruneOrNoop(key_added: string) {
+    let added = key_added.split(":");
+    let max_key = undefined;
+    let max_dist = 0;
+    let keys_for_ds = 0;
+
+    for (var existing_key of this.current.keys()) {
+      keys_for_ds++;
+      let existing = existing_key.split(":");
+      if (existing[3] === added[3]) {
+        let dist = Math.sqrt(
+          Math.pow(+existing[0] - +added[0], 2) +
+            Math.pow(+existing[1] - +added[1], 2)
+        );
+        if (dist > max_dist) {
+          max_dist = dist;
+          max_key = existing_key;
+        }
+      }
+
+      if (max_key && keys_for_ds > this.maxLabeledTiles) {
+        this.pruneKey(max_key);
+      }
+    }
+  }
+
+  public pruneKey(keyToRemove: string): void {
     let indexed_labels = this.current.get(keyToRemove);
     if (!indexed_labels) return; // TODO: not that clean...
     let entries_to_delete = [];
@@ -260,7 +296,6 @@ export class Labeler {
   scratch: CanvasRenderingContext2D;
   labelRules: LabelRule[];
   callback?: TileInvalidationCallback;
-  maxLabeledTiles: number;
 
   constructor(
     z: number,
@@ -269,97 +304,131 @@ export class Labeler {
     maxLabeledTiles: number,
     callback?: TileInvalidationCallback
   ) {
-    this.index = new Index((256 * 1) << z);
+    this.index = new Index((256 * 1) << z, maxLabeledTiles);
     this.z = z;
     this.scratch = scratch;
     this.labelRules = labelRules;
     this.callback = callback;
-    this.maxLabeledTiles = maxLabeledTiles;
   }
 
-  private layout(pt: PreparedTile): number {
+  private layout(prepared_tilemap: Map<string, PreparedTile[]>): number {
     let start = performance.now();
-    let key = toIndex(pt.data_tile);
+
+    let keys_adding = new Set<string>();
+    // if it already exists... short circuit
+    for (let [k, prepared_tiles] of prepared_tilemap) {
+      for (let prepared_tile of prepared_tiles) {
+        let key = toIndex(prepared_tile.data_tile) + ":" + k;
+        if (!this.index.has(key)) {
+          this.index.makeEntry(key);
+          keys_adding.add(key);
+        }
+      }
+    }
 
     let tiles_invalidated = new Set<string>();
     for (let [order, rule] of this.labelRules.entries()) {
       if (rule.visible == false) continue;
       if (rule.minzoom && this.z < rule.minzoom) continue;
       if (rule.maxzoom && this.z > rule.maxzoom) continue;
-      let layer = pt.data.get(rule.dataLayer);
-      if (layer === undefined) continue;
 
-      let feats = layer;
-      if (rule.sort)
-        feats.sort((a, b) => {
-          if (rule.sort) {
-            // TODO ugly hack for type checking
-            return rule.sort(a.props, b.props);
-          }
-          return 0;
-        });
+      let dsName = rule.dataSource || "";
+      let prepared_tiles = prepared_tilemap.get(dsName);
+      if (!prepared_tiles) continue;
 
-      let layout = {
-        index: this.index,
-        zoom: this.z,
-        scratch: this.scratch,
-        order: order,
-        overzoom: this.z - pt.data_tile.z,
-      };
-      for (let feature of feats) {
-        if (rule.filter && !rule.filter(this.z, feature)) continue;
-        let transformed = transformGeom(feature.geom, pt.scale, pt.origin);
-        let labels = rule.symbolizer.place(layout, transformed, feature);
-        if (!labels) continue;
+      for (let prepared_tile of prepared_tiles) {
+        let key = toIndex(prepared_tile.data_tile) + ":" + dsName;
+        if (!keys_adding.has(key)) continue;
 
-        for (let label of labels) {
-          var label_added = false;
-          if (
-            label.deduplicationKey &&
-            this.index.deduplicationCollides(label)
-          ) {
-            continue;
-          }
+        let layer = prepared_tile.data.get(rule.dataLayer);
+        if (layer === undefined) continue;
 
-          // does the label collide with anything?
-          if (this.index.labelCollides(label, Infinity)) {
-            if (!this.index.labelCollides(label, order)) {
-              let conflicts = this.index.searchLabel(label, Infinity);
-              for (let conflict of conflicts) {
-                this.index.removeLabel(conflict);
-                for (let bbox of conflict.bboxes) {
+        let feats = layer;
+        if (rule.sort)
+          feats.sort((a, b) => {
+            if (rule.sort) {
+              // TODO ugly hack for type checking
+              return rule.sort(a.props, b.props);
+            }
+            return 0;
+          });
+
+        let layout = {
+          index: this.index,
+          zoom: this.z,
+          scratch: this.scratch,
+          order: order,
+          overzoom: this.z - prepared_tile.data_tile.z,
+        };
+        for (let feature of feats) {
+          if (rule.filter && !rule.filter(this.z, feature)) continue;
+          let transformed = transformGeom(
+            feature.geom,
+            prepared_tile.scale,
+            prepared_tile.origin
+          );
+          let labels = rule.symbolizer.place(layout, transformed, feature);
+          if (!labels) continue;
+
+          for (let label of labels) {
+            var label_added = false;
+            if (
+              label.deduplicationKey &&
+              this.index.deduplicationCollides(label)
+            ) {
+              continue;
+            }
+
+            // does the label collide with anything?
+            if (this.index.labelCollides(label, Infinity)) {
+              if (!this.index.labelCollides(label, order)) {
+                let conflicts = this.index.searchLabel(label, Infinity);
+                for (let conflict of conflicts) {
+                  this.index.removeLabel(conflict);
+                  for (let bbox of conflict.bboxes) {
+                    this.findInvalidatedTiles(
+                      tiles_invalidated,
+                      prepared_tile.dim,
+                      bbox,
+                      key
+                    );
+                  }
+                }
+                this.index.insert(label, order, key);
+                label_added = true;
+              }
+              // label not added.
+            } else {
+              this.index.insert(label, order, key);
+              label_added = true;
+            }
+
+            if (label_added) {
+              for (let bbox of label.bboxes) {
+                if (
+                  bbox.maxX > prepared_tile.origin.x + prepared_tile.dim ||
+                  bbox.minX < prepared_tile.origin.x ||
+                  bbox.minY < prepared_tile.origin.y ||
+                  bbox.maxY > prepared_tile.origin.y + prepared_tile.dim
+                ) {
                   this.findInvalidatedTiles(
                     tiles_invalidated,
-                    pt.dim,
+                    prepared_tile.dim,
                     bbox,
                     key
                   );
                 }
-              }
-              this.index.insert(label, order, key);
-              label_added = true;
-            }
-            // label not added.
-          } else {
-            this.index.insert(label, order, key);
-            label_added = true;
-          }
-
-          if (label_added) {
-            for (let bbox of label.bboxes) {
-              if (
-                bbox.maxX > pt.origin.x + pt.dim ||
-                bbox.minX < pt.origin.x ||
-                bbox.minY < pt.origin.y ||
-                bbox.maxY > pt.origin.y + pt.dim
-              ) {
-                this.findInvalidatedTiles(tiles_invalidated, pt.dim, bbox, key);
               }
             }
           }
         }
       }
     }
+
+    for (var key of keys_adding) {
+      this.index.pruneOrNoop(key);
+    }
+
     if (tiles_invalidated.size > 0 && this.callback) {
       this.callback(tiles_invalidated);
     }
@@ -380,32 +449,19 @@ export class Labeler {
     }
   }
 
-  private pruneCache(added: PreparedTile) {
-    if (this.index.size() > this.maxLabeledTiles) {
-      let max_key = undefined;
-      let max_dist = 0;
-      for (let key of this.index.keys()) {
-        let split = key.split(":");
-        let dist = Math.sqrt(
-          Math.pow(+split[0] - added.data_tile.x, 2) +
-            Math.pow(+split[1] - added.data_tile.y, 2)
-        );
-        if (dist > max_dist) {
-          max_dist = dist;
-          max_key = key;
-        }
+  public add(prepared_tilemap: Map<string, PreparedTile[]>): number {
+    var all_added = true;
+    for (let [k, prepared_tiles] of prepared_tilemap) {
+      for (let prepared_tile of prepared_tiles) {
+        if (!this.index.has(toIndex(prepared_tile.data_tile) + ":" + k))
+          all_added = false;
       }
-      if (max_key) this.index.prune(max_key); // TODO cleanup
     }
-  }
 
-  public add(prepared_tile: PreparedTile): number {
-    let idx = toIndex(prepared_tile.data_tile);
-    if (this.index.has(idx)) {
+    if (all_added) {
       return 0;
     } else {
-      let timing = this.layout(prepared_tile);
-      this.pruneCache(prepared_tile);
+      let timing = this.layout(prepared_tilemap);
       return timing;
     }
   }
@@ -431,20 +487,20 @@ export class Labelers {
     this.callback = callback;
   }
 
-  public add(prepared_tile: PreparedTile): number {
-    var labeler = this.labelers.get(prepared_tile.z);
+  public add(z: number, prepared_tilemap: Map<string, PreparedTile[]>): number {
+    var labeler = this.labelers.get(z);
     if (labeler) {
-      return labeler.add(prepared_tile);
+      return labeler.add(prepared_tilemap);
     } else {
       labeler = new Labeler(
-        prepared_tile.z,
+        z,
         this.scratch,
         this.labelRules,
         this.maxLabeledTiles,
         this.callback
       );
-      this.labelers.set(prepared_tile.z, labeler);
-      return labeler.add(prepared_tile);
+      this.labelers.set(z, labeler);
+      return labeler.add(prepared_tilemap);
     }
   }
 
