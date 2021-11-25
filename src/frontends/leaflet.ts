@@ -3,9 +3,9 @@ declare var L: any;
 // @ts-ignore
 import Point from "@mapbox/point-geometry";
 
-import { ZxySource, Zxy, PmtilesSource, TileCache } from "../tilecache";
-import { View } from "../view";
-import { painter, xray } from "../painter";
+import { Zxy, TileCache } from "../tilecache";
+import { View, PreparedTile, sourcesToViews } from "../view";
+import { painter } from "../painter";
 import { Labelers } from "../labeler";
 import { light } from "../default_style/light";
 import { dark } from "../default_style/dark";
@@ -60,26 +60,10 @@ const leafletLayer = (options: any): any => {
       this.backgroundColor = options.backgroundColor;
       this.lastRequestedZ = undefined;
       this.xray = options.xray;
-
-      let source;
-      if (options.url.url) {
-        source = new PmtilesSource(options.url, true);
-      } else if (options.url.endsWith(".pmtiles")) {
-        source = new PmtilesSource(options.url, true);
-      } else {
-        source = new ZxySource(options.url, true);
-      }
-
-      let maxDataZoom = 14;
-      if (options.maxDataZoom) {
-        maxDataZoom = options.maxDataZoom;
-      }
-
-      this.levelDiff = options.levelDiff === undefined ? 2 : options.levelDiff;
-
       this.tasks = options.tasks || [];
-      let cache = new TileCache(source, (256 * 1) << this.levelDiff);
-      this.view = new View(cache, maxDataZoom, this.levelDiff);
+
+      this.views = sourcesToViews(options);
+
       this.debug = options.debug;
       let scratch = document.createElement("canvas").getContext("2d");
       this.scratch = scratch;
@@ -120,12 +104,30 @@ const leafletLayer = (options: any): any => {
       done = () => {}
     ) {
       this.lastRequestedZ = coords.z;
-      var prepared_tile;
-      try {
-        prepared_tile = await this.view.getDisplayTile(coords);
-      } catch (e) {
-        if ((e as any).name == "AbortError") return;
-        else throw e;
+
+      let promises = [];
+      for (const [k, v] of this.views) {
+        let promise = v.getDisplayTile(coords);
+        promises.push({ key: k, promise: promise });
+      }
+      let tile_responses = await Promise.all(
+        promises.map((o) => {
+          return o.promise.then(
+            (v: any) => {
+              return { status: "fulfilled", value: v, key: o.key };
+            },
+            (error: Error) => {
+              return { status: "rejected", reason: error, key: o.key };
+            }
+          );
+        })
+      );
+
+      let prepared_tilemap = new Map<string, PreparedTile>();
+      for (const tile_response of tile_responses) {
+        if (tile_response.status === "fulfilled") {
+          prepared_tilemap.set(tile_response.key, tile_response.value);
+        }
       }
 
       if (element.key != key) return;
@@ -136,12 +138,12 @@ const leafletLayer = (options: any): any => {
       if (element.key != key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      let layout_time = await this.labelers.add(prepared_tile);
+      let layout_time = this.labelers.add(coords.z, prepared_tilemap);
 
       if (element.key != key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      let label_data = this.labelers.getIndex(prepared_tile.z);
+      let label_data = this.labelers.getIndex(coords.z);
 
       if (!this._map) return; // the layer has been removed from the map
 
@@ -179,40 +181,25 @@ const leafletLayer = (options: any): any => {
       }
 
       var painting_time = 0;
-      if (this.xray) {
-        painting_time = xray(
-          ctx,
-          [prepared_tile],
-          bbox,
-          origin,
-          false,
-          this.debug
-        );
-      } else {
-        painting_time = painter(
-          ctx,
-          [prepared_tile],
-          label_data,
-          this.paint_rules,
-          bbox,
-          origin,
-          false,
-          this.debug
-        );
-      }
+
+      painting_time = painter(
+        ctx,
+        coords.z,
+        [prepared_tilemap],
+        label_data,
+        this.paint_rules,
+        bbox,
+        origin,
+        false,
+        this.debug
+      );
 
       if (this.debug) {
-        let data_tile = prepared_tile.data_tile;
         ctx.save();
         ctx.fillStyle = this.debug;
         ctx.font = "600 12px sans-serif";
         ctx.fillText(coords.z + " " + coords.x + " " + coords.y, 4, 14);
-        ctx.font = "200 12px sans-serif";
-        ctx.fillText(
-          data_tile.z + " " + data_tile.x + " " + data_tile.y,
-          4,
-          28
-        );
+
         ctx.font = "600 10px sans-serif";
         if (painting_time > 8) {
           ctx.fillText(painting_time.toFixed() + " ms paint", 4, 42);
@@ -222,15 +209,13 @@ const leafletLayer = (options: any): any => {
         }
         ctx.strokeStyle = this.debug;
 
-        ctx.lineWidth =
-          coords.x / (1 << this.levelDiff) === data_tile.x ? 2.5 : 0.5;
+        ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(0, 256);
         ctx.stroke();
 
-        ctx.lineWidth =
-          coords.y / (1 << this.levelDiff) === data_tile.y ? 2.5 : 0.5;
+        ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(256, 0);
@@ -302,7 +287,7 @@ const leafletLayer = (options: any): any => {
     }
 
     public queryFeatures(lng: number, lat: number) {
-      return this.view.queryFeatures(lng, lat, this._map.getZoom());
+      return this.views.get("").queryFeatures(lng, lat, this._map.getZoom());
     }
 
     public inspect(layer: LeafletLayer) {
