@@ -308,7 +308,7 @@ const leafletLayer = (options: any): any => {
 
         for (var [sourceName, results] of resultsBySourceName) {
           for (var result of results) {
-            if (this.xray) {
+            if (this.xray && this.xray !== true) {
               if (
                 !(
                   this.xray.dataSource === sourceName &&
