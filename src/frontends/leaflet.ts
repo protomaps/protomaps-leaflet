@@ -191,7 +191,8 @@ const leafletLayer = (options: any): any => {
         bbox,
         origin,
         false,
-        this.debug
+        this.debug,
+        this.xray
       );
 
       if (this.debug) {
@@ -307,6 +308,16 @@ const leafletLayer = (options: any): any => {
 
         for (var [sourceName, results] of resultsBySourceName) {
           for (var result of results) {
+            if (this.xray) {
+              if (
+                !(
+                  this.xray.dataSource === sourceName &&
+                  this.xray.dataLayer === result.layerName
+                )
+              ) {
+                continue;
+              }
+            }
             content =
               content +
               `<div style="margin-top:${firstRow ? 0 : 0.5}em">${

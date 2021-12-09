@@ -25,6 +25,78 @@ export interface Rule {
   filter?: Filter;
 }
 
+export interface XraySelection {
+  dataSource?: string;
+  dataLayer: string;
+}
+
+let xray_symbolizers = (
+  dataSource: string,
+  dataLayer: string,
+  color: string
+): Rule[] => {
+  return [
+    {
+      dataSource: dataSource,
+      dataLayer: dataLayer,
+      symbolizer: new CircleSymbolizer({
+        opacity: 0.7,
+        fill: color,
+        radius: 4,
+      }),
+      filter: (z, f) => {
+        return f.geomType == GeomType.Point;
+      },
+    },
+    {
+      dataSource: dataSource,
+      dataLayer: dataLayer,
+      symbolizer: new LineSymbolizer({
+        opacity: 0.5,
+        color: color,
+        width: 2,
+      }),
+      filter: (z, f) => {
+        return f.geomType == GeomType.Line;
+      },
+    },
+    {
+      dataSource: dataSource,
+      dataLayer: dataLayer,
+      symbolizer: new PolygonSymbolizer({
+        opacity: 0.5,
+        fill: color,
+        stroke: color,
+        width: 1,
+      }),
+      filter: (z, f) => {
+        return f.geomType == GeomType.Polygon;
+      },
+    },
+  ];
+};
+
+let xray_rules = (
+  prepared_tilemap: Map<string, PreparedTile>,
+  xray: XraySelection
+): Rule[] => {
+  var rules: Rule[] = [];
+  for (var [dataSource, tile] of prepared_tilemap) {
+    for (var dataLayer of tile.data.keys()) {
+      if (dataSource === xray.dataSource && dataLayer === xray.dataLayer) {
+        // do nothing since the rule should go last
+      } else {
+        rules = rules.concat(xray_symbolizers(dataSource, dataLayer, "#999"));
+      }
+    }
+  }
+
+  rules = rules.concat(
+    xray_symbolizers(xray.dataSource || "", xray.dataLayer, "steelblue")
+  );
+  return rules;
+};
+
 export function painter(
   ctx: any,
   z: number,
@@ -34,7 +106,8 @@ export function painter(
   bbox: Bbox,
   origin: Point,
   clip: boolean,
-  debug: string
+  debug: string,
+  xray: XraySelection
 ) {
   let start = performance.now();
   ctx.save();
@@ -57,6 +130,11 @@ export function painter(
     //   ctx.scale(1 + 1 / dim, 1 + 1 / dim);
     //   ctx.translate(-dim / 2, -dim / 2);
     // }
+
+    if (xray) {
+      rules = xray_rules(prepared_tilemap, xray);
+    }
+
     for (var rule of rules) {
       if (rule.minzoom && z < rule.minzoom) continue;
       if (rule.maxzoom && z > rule.maxzoom) continue;
@@ -104,7 +182,7 @@ export function painter(
     ctx.clip();
   }
 
-  if (label_data) {
+  if (label_data && !xray) {
     let matches = label_data.searchBbox(bbox, Infinity);
     for (var label of matches) {
       ctx.save();
