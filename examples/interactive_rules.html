@@ -1,0 +1,75 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+        <!-- <script src="../dist/protomaps.js"></script> -->
+        <style>
+            body, #map {
+                height:100vh;
+                margin:0px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script>
+            const TILES_URL = 'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=acca1945a15b113d'
+
+            const map = L.map('map', { minZoom: 16 })
+            hash = new L.Hash(map)
+            if (!window.location.hash) map.setView(new L.LatLng(51.5065, -0.1292),16)
+
+            const layer = protomaps.leafletLayer({ url:TILES_URL })
+
+            layer.paint_rules = layer.paint_rules.map((rule) => {
+              if (rule.dataLayer === 'roads') {
+                return {};
+              }
+              return rule;
+            })
+
+            const roadRule = {
+              dataLayer: 'roads',
+              symbolizer: new protomaps.LineSymbolizer({
+                  color: "#ccc",
+                  width: 1,
+              })
+            }
+            layer.paint_rules.push(roadRule);
+
+            let features = [];
+
+            const clickedRule = {
+              dataLayer: 'roads',
+              filter: (zoom, feature) => {
+                if (features.includes(feature.id)) {
+                  return true;
+                }
+              },
+              symbolizer: new protomaps.LineSymbolizer({
+                  color: "#f00",
+                  width: 5,
+              }),
+              minzoom: 1,
+              maxzoom: 100,
+            }
+            layer.paint_rules.push(clickedRule);
+
+            layer.addTo(map)
+
+            map.on('click', event => {
+                for (let result of layer.queryFeatures(event.latlng.lng, event.latlng.lat)) {
+                  if (result.layerName === 'roads') {
+                      features.push(result.feature.id)
+                      features = [...new Set(features)]
+                      layer.rerenderTiles()
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>
