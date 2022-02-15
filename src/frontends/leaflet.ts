@@ -293,6 +293,7 @@ const leafletLayer = (options: any): any => {
       tile.el.removed = true;
       tile.el.key = undefined;
       L.DomUtil.removeClass(tile.el, "leaflet-tile-loaded");
+      tile.el.width = tile.el.height = 0;
       L.DomUtil.remove(tile.el);
       delete this._tiles[key];
       this.fire("tileunload", {
