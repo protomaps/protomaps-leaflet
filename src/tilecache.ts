@@ -4,7 +4,6 @@ import Point from "@mapbox/point-geometry";
 import { VectorTile } from "@mapbox/vector-tile";
 // @ts-ignore
 import Protobuf from "pbf";
-// @ts-ignore
 import { PMTiles } from "pmtiles";
 
 export type JsonValue =
@@ -154,28 +153,35 @@ export class PmtilesSource implements TileSource {
       });
     }
     let result = await this.p.getZxy(c.z, c.x, c.y);
-    if (!result)
-      throw new Error(`Tile ${c.z} ${c.x} ${c.y} not found in archive`);
+
     const controller = new AbortController();
     this.controllers.push([c.z, controller]);
     const signal = controller.signal;
     return new Promise((resolve, reject) => {
-      fetch(this.p.url, {
-        headers: {
-          Range: "bytes=" + result[0] + "-" + (result[0] + result[1] - 1),
-        },
-        signal: signal,
-      })
-        .then((resp) => {
-          return resp.arrayBuffer();
+      if (result) {
+        fetch(this.p.url, {
+          headers: {
+            Range:
+              "bytes=" +
+              result.offset +
+              "-" +
+              (result.offset + result.length - 1),
+          },
+          signal: signal,
         })
-        .then((buffer) => {
-          let result = parseTile(buffer, tileSize);
-          resolve(result);
-        })
-        .catch((e) => {
-          reject(e);
-        });
+          .then((resp) => {
+            return resp.arrayBuffer();
+          })
+          .then((buffer) => {
+            let result = parseTile(buffer, tileSize);
+            resolve(result);
+          })
+          .catch((e) => {
+            reject(e);
+          });
+      } else {
+        reject(new Error(`Tile ${c.z} ${c.x} ${c.y} not found in archive`));
+      }
     });
   }
 }
