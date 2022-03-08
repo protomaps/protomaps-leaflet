@@ -26,7 +26,7 @@
     "color2k": "^1.2.4",
     "flatqueue": "^1.2.1",
     "pbf": "^3.2.1",
-    "pmtiles": "1.0.2",
+    "pmtiles": "1.0.3",
     "polylabel": "^1.1.0",
     "protosprites": "0.2.0",
     "rbush": "^3.0.1"
