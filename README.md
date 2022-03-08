@@ -4,7 +4,7 @@ A vector map renderer for the web.
 
 [![npm](https://img.shields.io/npm/v/protomaps)](https://www.npmjs.com/package/protomaps)
 [![Test suite](https://github.com/protomaps/protomaps.js/actions/workflows/node.js.yml/badge.svg)](https://github.com/protomaps/protomaps.js/actions/workflows/node.js.yml)
-[![minzipped size](https://badgen.net/bundlephobia/minzip/protomaps)](https://bundlephobia.com/package/protomaps)
+[![minzipped size](https://img.shields.io/bundlephobia/minzip/protomaps)](https://bundlephobia.com/package/protomaps)
 
 <p float="left">
     <img src="benchmark/example_1.png" width="400">
