@@ -81,7 +81,7 @@ const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
       if (y < y1) y1 = y;
       if (y > y2) y2 = y;
       if (cmd === 1) {
-        if (line) lines.push(line);
+        if (line.length > 0) lines.push(line);
         line = [];
       }
       line.push(new Point(x, y));
