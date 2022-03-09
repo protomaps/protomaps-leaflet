@@ -1,6 +1,4 @@
-// @ts-ignore
 import Point from "@mapbox/point-geometry";
-// @ts-ignore
 import RBush from "rbush";
 import { Filter } from "./painter";
 import { DrawExtra, LabelSymbolizer } from "./symbolizer";

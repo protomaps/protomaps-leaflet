@@ -1,4 +1,3 @@
-// @ts-ignore
 import Point from "@mapbox/point-geometry";
 
 export interface LabelableSegment {
@@ -64,7 +63,7 @@ const linelabel = (
     d += abmag;
 
     dt = Math.acos((abx * bcx + aby * bcy) / (abmag * bcmag));
-    if (dt > max_angle_delta ||  (d - d_start) > targetLen) {
+    if (dt > max_angle_delta || d - d_start > targetLen) {
       chunks.push({
         length: d - d_start,
         beginDistance: d_start,
@@ -113,17 +112,27 @@ export function simpleLabel(
     let segments = linelabel(ls, Math.PI / 45, minimum); // 4 degrees, close to a straight line
     for (let segment of segments) {
       if (segment.length >= minimum + cellSize) {
-        let start = new Point(ls[segment.beginIndex].x,ls[segment.beginIndex].y)
-        let end = ls[segment.endIndex-1]
-        let normalized = new Point((end.x-start.x)/segment.length,(end.y-start.y)/segment.length)
+        let start = new Point(
+          ls[segment.beginIndex].x,
+          ls[segment.beginIndex].y
+        );
+        let end = ls[segment.endIndex - 1];
+        let normalized = new Point(
+          (end.x - start.x) / segment.length,
+          (end.y - start.y) / segment.length
+        );
 
         // offset from the start by cellSize to allow streets that meet at right angles
         // to both be labeled.
-        for (var i = cellSize; i < segment.length - minimum; i += repeatDistance) {
+        for (
+          var i = cellSize;
+          i < segment.length - minimum;
+          i += repeatDistance
+        ) {
           candidates.push({
             start: start.add(normalized.mult(i)),
-            end: start.add(normalized.mult(i+minimum))
-          })
+            end: start.add(normalized.mult(i + minimum)),
+          });
         }
       }
     }

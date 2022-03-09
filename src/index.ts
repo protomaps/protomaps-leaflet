@@ -11,5 +11,4 @@ export * from "./tilecache";
 export * from "./view";
 export * from "./labeler";
 
-// @ts-ignore
 export { PMTiles } from "pmtiles";

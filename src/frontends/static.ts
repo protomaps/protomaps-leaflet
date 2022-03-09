@@ -1,4 +1,3 @@
-// @ts-ignore
 import Point from "@mapbox/point-geometry";
 
 import { ZxySource, PmtilesSource, TileCache } from "../tilecache";
@@ -13,17 +12,14 @@ let R = 6378137;
 let MAX_LATITUDE = 85.0511287798;
 let MAXCOORD = R * Math.PI;
 
-let project = (latlng: number[]) => {
+let project = (latlng: Point): Point => {
   let d = Math.PI / 180;
   let constrained_lat = Math.max(
-    Math.min(MAX_LATITUDE, latlng[0]),
+    Math.min(MAX_LATITUDE, latlng.x),
     -MAX_LATITUDE
   );
   let sin = Math.sin(constrained_lat * d);
-  return new Point(
-    R * latlng[1] * d,
-    (R * Math.log((1 + sin) / (1 - sin))) / 2
-  );
+  return new Point(R * latlng.y * d, (R * Math.log((1 + sin) / (1 - sin))) / 2);
 };
 
 let unproject = (point: Point) => {
@@ -35,7 +31,7 @@ let unproject = (point: Point) => {
 };
 
 let instancedProject = (origin: Point, display_zoom: number) => {
-  return (latlng: number[]) => {
+  return (latlng: Point) => {
     let projected = project(latlng);
     let normalized = new Point(
       (projected.x + MAXCOORD) / (MAXCOORD * 2),
@@ -104,7 +100,7 @@ export class Static {
     ctx: any,
     width: number,
     height: number,
-    latlng: number[],
+    latlng: Point,
     display_zoom: number
   ) {
     let center = project(latlng);
@@ -209,11 +205,11 @@ export class Static {
     width: number,
     height: number
   ) {
-    let delta_degrees = bottom_right[0] - top_left[0];
-    let center = [
-      (top_left[1] + bottom_right[1]) / 2,
-      (top_left[0] + bottom_right[0]) / 2,
-    ];
+    let delta_degrees = bottom_right.x - top_left.x;
+    let center = new Point(
+      (top_left.y + bottom_right.y) / 2,
+      (top_left.x + bottom_right.x) / 2
+    );
     return this.drawContext(
       ctx,
       width,
@@ -230,11 +226,11 @@ export class Static {
     width: number,
     options: any = {}
   ) {
-    let delta_degrees = bottom_right[0] - top_left[0];
-    let center = [
-      (top_left[1] + bottom_right[1]) / 2,
-      (top_left[0] + bottom_right[0]) / 2,
-    ];
+    let delta_degrees = bottom_right.x - top_left.y;
+    let center = new Point(
+      (top_left.y + bottom_right.y) / 2,
+      (top_left.x + bottom_right.x) / 2
+    );
     return this.drawCanvas(
       canvas,
       center,

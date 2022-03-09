@@ -1,6 +1,5 @@
 declare var L: any;
 
-// @ts-ignore
 import Point from "@mapbox/point-geometry";
 
 import { ZxySource, Zxy, PmtilesSource, TileCache } from "../tilecache";

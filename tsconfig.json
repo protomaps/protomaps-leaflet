@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
     "target": "es6",
     "lib": ["es2020", "dom"],
     "strict": true,

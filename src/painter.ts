@@ -1,4 +1,3 @@
-// @ts-ignore
 import Point from "@mapbox/point-geometry";
 import { Zxy, Bbox, Feature } from "./tilecache";
 import { PreparedTile, transformGeom } from "./view";
