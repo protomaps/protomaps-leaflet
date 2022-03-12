@@ -1,8 +1,5 @@
-// @ts-ignore
 import Point from "@mapbox/point-geometry";
-// @ts-ignore
 import { VectorTile } from "@mapbox/vector-tile";
-// @ts-ignore
 import Protobuf from "pbf";
 import { PMTiles } from "pmtiles";
 
@@ -67,8 +64,8 @@ const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
     y1 = Infinity,
     y2 = -Infinity;
 
-  var lines: number[][] = [];
-  var line: any;
+  var lines: Point[][] = [];
+  var line: Point[] = [];
   while (pbf.pos < end) {
     if (length <= 0) {
       var cmdLen = pbf.readVarint();
@@ -84,7 +81,7 @@ const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
       if (y < y1) y1 = y;
       if (y > y2) y2 = y;
       if (cmd === 1) {
-        if (line) lines.push(line);
+        if (line.length > 0) lines.push(line);
         line = [];
       }
       line.push(new Point(x, y));
@@ -106,19 +103,19 @@ function parseTile(
     let features = [];
     let layer = value as any;
     for (let i = 0; i < layer.length; i++) {
-      let result = loadGeomAndBbox(
+      let loaded = loadGeomAndBbox(
         layer.feature(i)._pbf,
         layer.feature(i)._geometry,
         tileSize / layer.extent
       );
       let numVertices = 0;
-      for (let part of result.geom) numVertices += part.length;
+      for (let part of loaded.geom) numVertices += part.length;
       features.push({
         id: layer.feature(i).id,
         geomType: layer.feature(i).type,
-        geom: result.geom,
+        geom: loaded.geom,
         numVertices: numVertices,
-        bbox: result.bbox,
+        bbox: loaded.bbox,
         props: layer.feature(i).properties,
       });
     }
@@ -265,7 +262,7 @@ function distToSegmentSquared(p: Point, v: Point, w: Point) {
   if (l2 === 0) return dist2(p, v);
   var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
   t = Math.max(0, Math.min(1, t));
-  return dist2(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
+  return dist2(p, new Point(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y)));
 }
 
 export function isInRing(point: Point, ring: Point[]): boolean {
@@ -366,10 +363,10 @@ export class TileCache {
     let retval: PickedFeature[] = [];
     let entry = this.cache.get(idx);
     if (entry) {
-      const center = {
-        x: (on_zoom.x - tile_x) * this.tileSize,
-        y: (on_zoom.y - tile_y) * this.tileSize,
-      };
+      const center = new Point(
+        (on_zoom.x - tile_x) * this.tileSize,
+        (on_zoom.y - tile_y) * this.tileSize
+      );
       for (let [layer_name, layer_arr] of entry.data.entries()) {
         for (let feature of layer_arr) {
           // rough check by bbox

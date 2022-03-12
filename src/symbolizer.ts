@@ -1,4 +1,3 @@
-// @ts-ignore
 import Point from "@mapbox/point-geometry";
 import UnitBezier from "@mapbox/unitbezier";
 // @ts-ignore
@@ -540,7 +539,7 @@ export class FlexSymbolizer implements LabelSymbolizer {
     let height = bbox.maxY - bbox.minY;
     let draws = [{ draw: label.draw, translate: { x: 0, y: 0 } }];
 
-    let newGeom = [[{ x: geom[0][0].x, y: geom[0][0].y + height }]];
+    let newGeom = [[new Point(geom[0][0].x, geom[0][0].y + height)]];
     for (let i = 1; i < this.list.length; i++) {
       labels = this.list[i].place(layout, newGeom, feature);
       if (labels) {
