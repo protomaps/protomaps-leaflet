@@ -79,7 +79,7 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.glacier,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props.natural == "glacier";
       },
     },
@@ -88,7 +88,7 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.residential,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return (
           f.props.landuse == "residential" || f.props.place == "neighbourhood"
         );
@@ -99,7 +99,7 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.hospital,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props.amenity == "hospital";
       },
     },
@@ -108,7 +108,7 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.cemetery,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props.landuse == "cemetery";
       },
     },
@@ -117,7 +117,7 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.school,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return (
           f.props.amenity == "school" ||
           f.props.amenity == "kindergarten" ||
@@ -131,7 +131,7 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.industrial,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props.landuse == "industrial";
       },
     },
@@ -140,7 +140,7 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.wood,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props.natural == "wood";
       },
     },
@@ -149,7 +149,7 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.grass,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props.landuse == "grass";
       },
     },
@@ -158,7 +158,7 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.park,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props.leisure == "park";
       },
     },
@@ -173,7 +173,7 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.sand,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props.natural == "sand";
       },
     },
@@ -194,7 +194,7 @@ export const paintRules = (
           [20, 40],
         ]),
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "highway";
       },
     },
@@ -209,7 +209,7 @@ export const paintRules = (
           [20, 22],
         ]),
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "major_road";
       },
     },
@@ -223,7 +223,7 @@ export const paintRules = (
           [20, 18],
         ]),
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "medium_road";
       },
     },
@@ -237,7 +237,7 @@ export const paintRules = (
           [20, 15],
         ]),
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "minor_road";
       },
     },
@@ -251,7 +251,7 @@ export const paintRules = (
           [20, 13],
         ]),
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "minor_road";
       },
     },
@@ -265,7 +265,7 @@ export const paintRules = (
           [20, 15],
         ]),
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "medium_road";
       },
     },
@@ -280,7 +280,7 @@ export const paintRules = (
           [20, 20],
         ]),
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "major_road";
       },
     },
@@ -295,7 +295,7 @@ export const paintRules = (
           [20, 30],
         ]),
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "highway";
       },
     },
@@ -363,7 +363,7 @@ export const labelRules = (
         }),
         params.countryLabel
       ),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "country";
       },
     },
@@ -377,14 +377,14 @@ export const labelRules = (
         }),
         params.stateLabel
       ),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "state";
       },
     },
     {
       id: "cities_high",
       dataLayer: "places",
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "city";
       },
       minzoom: 7,
@@ -411,7 +411,7 @@ export const labelRules = (
     {
       id: "cities_low",
       dataLayer: "places",
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "city";
       },
       maxzoom: 6,
@@ -455,7 +455,7 @@ export const labelRules = (
         }),
         params.neighbourhoodLabel
       ),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "neighbourhood";
       },
     },
@@ -513,7 +513,7 @@ export const labelRules = (
         padding: 2,
         fill: params.neighbourhoodLabel,
       }),
-      filter: (z: number, f: Feature) => {
+      filter: (z, f) => {
         return f.props["pmap:kind"] == "highway";
       },
     },
