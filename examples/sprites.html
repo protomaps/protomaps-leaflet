@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+        <!-- <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script> -->
+        <script src="../dist/protomaps.js"></script>
+        <style>
+            body, #map {
+                height:100vh;
+                margin:0px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div> 
+        <script>
+            const map = L.map('map')
+            let hash = new L.Hash(map)
+            if (!window.location.hash) map.setView(new L.LatLng(25.0412,121.5177),16)
+            let url = 'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'
+
+            const ICONS = `
+            <html>
+              <body>
+                <svg id="hospital" width="32px" height="32px" viewBox="4 4 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:10;">
+                    <g transform="matrix(1,0,0,1,-143.475,-174.472)">
+                        <g transform="matrix(1,0,0,1,160.5,179.497)">
+                            <path d="M0,16L-8,16C-10.209,16 -12,14.209 -12,12L-12,4C-12,1.791 -10.209,0 -8,0L0,0C2.209,0 4,1.791 4,4L4,12C4,14.209 2.209,16 0,16Z" style="fill:rgb(239,216,217);fill-rule:nonzero;stroke:rgb(216,30,58);stroke-width:1px;"/>
+                        </g>
+                        <g transform="matrix(1,0,0,1,154.5,185.497)">
+                            <path d="M0,4L-3,4L-3,0L0,0L0,-3L4,-3L4,0L7,0L7,4L4,4L4,7L0,7L0,4Z" style="fill:rgb(234,101,107);fill-rule:nonzero;stroke:white;stroke-width:1px;"/>
+                        </g>
+                    </g>
+                </svg>
+              </body>
+            </html>
+            `
+
+            let sheet = new protomaps.Sheet(ICONS)
+
+            var layer = protomaps.leafletLayer({url:url,tasks:[sheet.load()],label_rules:[
+                    {
+                        dataLayer:"pois",
+                        symbolizer:new protomaps.IconSymbolizer({
+                            name:"hospital",
+                            sheet:sheet
+                        })
+                    }
+                ]})
+            layer.addTo(map)
+        </script>
+    </body>
+</html>
