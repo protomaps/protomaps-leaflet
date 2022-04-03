@@ -24,7 +24,7 @@ export interface Rule {
 }
 
 export function xray(
-  ctx: any,
+  ctx: CanvasRenderingContext2D,
   prepared_tiles: PreparedTile[],
   bbox: Bbox,
   origin: Point,
@@ -130,7 +130,7 @@ export function xray(
 }
 
 export function painter(
-  ctx: any,
+  ctx: CanvasRenderingContext2D,
   prepared_tiles: PreparedTile[],
   label_data: Index,
   rules: Rule[],

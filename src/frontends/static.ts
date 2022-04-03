@@ -15,11 +15,11 @@ let MAXCOORD = R * Math.PI;
 let project = (latlng: Point): Point => {
   let d = Math.PI / 180;
   let constrained_lat = Math.max(
-    Math.min(MAX_LATITUDE, latlng.x),
+    Math.min(MAX_LATITUDE, latlng.y),
     -MAX_LATITUDE
   );
   let sin = Math.sin(constrained_lat * d);
-  return new Point(R * latlng.y * d, (R * Math.log((1 + sin) / (1 - sin))) / 2);
+  return new Point(R * latlng.x * d, (R * Math.log((1 + sin) / (1 - sin))) / 2);
 };
 
 let unproject = (point: Point) => {
@@ -43,7 +43,6 @@ let instancedProject = (origin: Point, display_zoom: number) => {
 
 let instancedUnproject = (origin: Point, display_zoom: number) => {
   return (point: Point) => {
-    console.log(point);
     let normalized = new Point(point.x, point.y)
       .add(origin)
       .div((1 << display_zoom) * 256);
@@ -65,7 +64,6 @@ export class Static {
   label_rules: LabelRule[];
   view: View;
   debug: string;
-  scratch: any;
   backgroundColor: string;
 
   constructor(options: any) {
@@ -97,7 +95,7 @@ export class Static {
   }
 
   async drawContext(
-    ctx: any,
+    ctx: CanvasRenderingContext2D,
     width: number,
     height: number,
     latlng: Point,
@@ -179,7 +177,7 @@ export class Static {
   }
 
   async drawCanvas(
-    canvas: any,
+    canvas: HTMLCanvasElement,
     latlng: Point,
     display_zoom: number,
     options: any = {}
@@ -187,19 +185,18 @@ export class Static {
     let dpr = window.devicePixelRatio;
     let width = canvas.clientWidth;
     let height = canvas.clientHeight;
-    if (!canvas.sizeSet) {
+    if (!(canvas.width == width * dpr && canvas.height == height * dpr)) {
       canvas.width = width * dpr;
       canvas.height = height * dpr;
-      canvas.sizeSet = true;
     }
-    canvas.lang = options.lang;
-    let ctx = canvas.getContext("2d");
+    if (options.lang) canvas.lang = options.lang;
+    let ctx = canvas.getContext("2d")!;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return this.drawContext(ctx, width, height, latlng, display_zoom);
   }
 
   async drawContextBounds(
-    ctx: any,
+    ctx: CanvasRenderingContext2D,
     top_left: Point,
     bottom_right: Point,
     width: number,
@@ -220,7 +217,7 @@ export class Static {
   }
 
   async drawCanvasBounds(
-    canvas: any,
+    canvas: HTMLCanvasElement,
     top_left: Point,
     bottom_right: Point,
     width: number,

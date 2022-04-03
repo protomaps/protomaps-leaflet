@@ -23,7 +23,7 @@
         let canvas = document.getElementById("map")
         var zoom = 12
         let map = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
-        let center = [37.7658,-122.4221]
+        let center = {y:37.7658,x:-122.4221}
         map.drawCanvas(canvas,center,zoom)
         document.getElementById("zoom").innerHTML = zoom
 

@@ -31,7 +31,7 @@ export interface IndexedLabel {
 export interface Layout {
   index: Index;
   order: number;
-  scratch: any;
+  scratch: CanvasRenderingContext2D;
   zoom: number;
   overzoom: number;
 }
@@ -257,14 +257,14 @@ export class Index {
 export class Labeler {
   index: Index;
   z: number;
-  scratch: any;
+  scratch: CanvasRenderingContext2D;
   labelRules: LabelRule[];
   callback?: TileInvalidationCallback;
   maxLabeledTiles: number;
 
   constructor(
     z: number,
-    scratch: any,
+    scratch: CanvasRenderingContext2D,
     labelRules: LabelRule[],
     maxLabeledTiles: number,
     callback?: TileInvalidationCallback
@@ -413,13 +413,13 @@ export class Labeler {
 
 export class Labelers {
   labelers: Map<number, Labeler>;
-  scratch: any;
+  scratch: CanvasRenderingContext2D;
   labelRules: LabelRule[];
   maxLabeledTiles: number;
   callback: TileInvalidationCallback;
 
   constructor(
-    scratch: any,
+    scratch: CanvasRenderingContext2D,
     labelRules: LabelRule[],
     maxLabeledTiles: number,
     callback: TileInvalidationCallback

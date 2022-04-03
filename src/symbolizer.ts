@@ -716,7 +716,7 @@ export class TextSymbolizer implements LabelSymbolizer {
       property,
       this.maxLineCodeUnits.get(layout.zoom, feature)
     );
-    var longestLine;
+    var longestLine = "";
     var longestLineLen = 0;
     for (let line of lines) {
       if (line.length > longestLineLen) {
