@@ -16,6 +16,7 @@ import { Label, Layout } from "./labeler";
 import { lineCells, simpleLabel } from "./line";
 import { linebreak } from "./text";
 import { Bbox, Feature, GeomType } from "./tilecache";
+import { Sheet } from "./task";
 
 // https://bugs.webkit.org/show_bug.cgi?id=230751
 const MAX_VERTICES_PER_DRAW_CALL = 5400;
@@ -360,41 +361,48 @@ export class LineSymbolizer implements PaintSymbolizer {
   }
 }
 
-interface Sprite {
-  canvas: CanvasImageSource;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
-
 export interface IconSymbolizerOptions {
   name: string;
-  sprites?: Map<string, Sprite>;
+  sheet: Sheet;
 }
 export class IconSymbolizer implements LabelSymbolizer {
   name: string;
-  sprites: Map<string, Sprite>;
+  sheet: Sheet;
+  dpr: number;
 
   constructor(options: IconSymbolizerOptions) {
     this.name = options.name;
-    this.sprites = options.sprites ?? new Map();
+    this.sheet = options.sheet;
+    this.dpr = window.devicePixelRatio;
   }
 
   public place(layout: Layout, geom: Point[][], feature: Feature) {
     let pt = geom[0];
     let a = new Point(geom[0][0].x, geom[0][0].y);
+    let loc = this.sheet.get(this.name);
+    let width = loc.w / this.dpr;
+    let height = loc.h / this.dpr;
+
     let bbox = {
-      minX: a.x - 32,
-      minY: a.y - 32,
-      maxX: a.x + 32,
-      maxY: a.y + 32,
+      minX: a.x - width / 2,
+      minY: a.y - height / 2,
+      maxX: a.x + width / 2,
+      maxY: a.y + height / 2,
     };
 
     let draw = (ctx: CanvasRenderingContext2D) => {
       ctx.globalAlpha = 1;
-      let r = this.sprites.get(this.name);
-      if (r) ctx.drawImage(r.canvas, r.x, r.y, r.w, r.h, -8, -8, r.w, r.h);
+      ctx.drawImage(
+        this.sheet.canvas,
+        loc.x,
+        loc.y,
+        loc.w,
+        loc.h,
+        -loc.w / 2 / this.dpr,
+        -loc.h / 2 / this.dpr,
+        loc.w / 2,
+        loc.h / 2
+      );
     };
     return [{ anchor: a, bboxes: [bbox], draw: draw }];
   }
