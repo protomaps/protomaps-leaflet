@@ -70,6 +70,7 @@ function loadCode( editor ) {
 
 function vscode() {
   window.editor = CodeMirror(document.getElementById("editor"),{lineNumbers:true,value:"",mode:'javascript',colorpicker:true})
+  editor.setSize(null,"100%");
   document.getElementById("loader").style.display = "none";
   loadCode(window.editor);
 }
