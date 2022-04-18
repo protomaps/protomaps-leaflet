@@ -24,8 +24,8 @@
             let ctx = canvas.getContext('2d')
             ctx.scale(dpr,dpr)
             let map = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
-            let {project} = await map.drawContext(ctx,800,600,[22.1777,114.1635],10)
-            let highlight = project([22.2777,114.1635])
+            let {project} = await map.drawContext(ctx,800,600,{y:22.1777,x:114.1635},10)
+            let highlight = project({y:22.2777,x:114.1635})
             ctx.globalAlpha = 0.2
             ctx.strokeRect(highlight.x-20,highlight.y-10,40,20)
             ctx.beginPath()
@@ -36,7 +36,7 @@
             ctx.closePath()
             ctx.fill()
             ctx.translate(280,330)
-            await map.drawContext(ctx,500,250,[22.2777,114.1635],14)
+            await map.drawContext(ctx,500,250,{y:22.2777,x:114.1635},14)
             ctx.strokeRect(0,0,500,250)
             canvas.style.opacity = 1
         }
