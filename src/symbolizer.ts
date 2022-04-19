@@ -153,7 +153,7 @@ export class PolygonSymbolizer implements PaintSymbolizer {
         vertices_in_path = 0;
         ctx.beginPath();
       }
-      for (var p = 0; p < poly.length - 1; p++) {
+      for (var p = 0; p < poly.length; p++) {
         let pt = poly[p];
         if (p == 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
