@@ -112,23 +112,6 @@ export function painter(
   ctx.save();
   ctx.miterLimit = 2;
 
-  // find the smallest of all the origins
-  // if (clip) {
-  //   ctx.beginPath();
-  //   let minX = Math.max(po.x - origin.x, bbox.minX - origin.x) - 0.5;
-  //   let minY = Math.max(po.y - origin.y, bbox.minY - origin.y) - 0.5;
-  //   let maxX = Math.min(po.x - origin.x + dim, bbox.maxX - origin.x) + 0.5;
-  //   let maxY = Math.min(po.y - origin.y + dim, bbox.maxY - origin.y) + 0.5;
-  //   ctx.rect(minX, minY, maxX - minX, maxY - minY);
-  //   ctx.clip();
-  // }
-  // if (clip) {
-  //   // small fudge factor in static mode to fix seams
-  //   ctx.translate(dim / 2, dim / 2);
-  //   ctx.scale(1 + 1 / dim, 1 + 1 / dim);
-  //   ctx.translate(-dim / 2, -dim / 2);
-  // }
-
   // if (xray) {
   //   rules = xray_rules(prepared_tilemap, xray);
   // }
@@ -143,11 +126,32 @@ export function painter(
       if (layer === undefined) continue;
       if (rule.symbolizer.before) rule.symbolizer.before(ctx, prepared_tile.z);
 
-      ctx.save();
       let po = prepared_tile.origin;
       let dim = prepared_tile.dim;
       let ps = prepared_tile.scale;
+      ctx.save();
+
+      // apply clipping to the tile
+      // find the smallest of all the origins
+      if (clip) {
+        ctx.beginPath();
+        let minX = Math.max(po.x - origin.x, bbox.minX - origin.x); // - 0.5;
+        let minY = Math.max(po.y - origin.y, bbox.minY - origin.y); // - 0.5;
+        let maxX = Math.min(po.x - origin.x + dim, bbox.maxX - origin.x); // + 0.5;
+        let maxY = Math.min(po.y - origin.y + dim, bbox.maxY - origin.y); // + 0.5;
+        ctx.rect(minX, minY, maxX - minX, maxY - minY);
+        ctx.clip();
+      }
+
       ctx.translate(po.x - origin.x, po.y - origin.y);
+
+      // TODO fix seams in static mode
+      // if (clip) {
+      //     // small fudge factor in static mode to fix seams
+      //     ctx.translate(dim / 2, dim / 2);
+      //     ctx.scale(1 + 1 / dim, 1 + 1 / dim);
+      //     ctx.translate(-dim / 2, -dim / 2);
+      // }
 
       for (var feature of layer) {
         let geom = feature.geom;
