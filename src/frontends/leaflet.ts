@@ -9,6 +9,7 @@ import { Labelers } from "../labeler";
 import { light } from "../default_style/light";
 import { dark } from "../default_style/dark";
 import { paintRules, labelRules } from "../default_style/style";
+import { xray_rules } from "../xray";
 
 const timer = (duration: number) => {
   return new Promise<void>((resolve, reject) => {
@@ -181,17 +182,21 @@ const leafletLayer = (options: any): any => {
 
       var painting_time = 0;
 
+      let paint_rules = this.paint_rules;
+      if (this.xray) {
+        paint_rules = xray_rules(prepared_tilemap, this.xray);
+      }
+
       painting_time = painter(
         ctx,
         coords.z,
         prepared_tilemap,
-        label_data,
-        this.paint_rules,
+        this.xray ? null : label_data,
+        paint_rules,
         bbox,
         origin,
         false,
-        this.debug,
-        this.xray
+        this.debug
       );
 
       if (this.debug) {
@@ -325,7 +330,7 @@ const leafletLayer = (options: any): any => {
             if (this.xray && this.xray !== true) {
               if (
                 !(
-                  this.xray.dataSource === sourceName &&
+                  (this.xray.dataSource || "") === sourceName &&
                   this.xray.dataLayer === result.layerName
                 )
               ) {

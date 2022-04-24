@@ -7,6 +7,7 @@ import { LabelRule, Labeler } from "../labeler";
 import { light } from "../default_style/light";
 import { dark } from "../default_style/dark";
 import { paintRules, labelRules } from "../default_style/style";
+import { XraySelection, xray_rules } from "../xray";
 
 let R = 6378137;
 let MAX_LATITUDE = 85.0511287798;
@@ -65,6 +66,7 @@ export class Static {
   views: Map<string, View>;
   debug: string;
   backgroundColor: string;
+  xray?: XraySelection;
 
   constructor(options: any) {
     let theme = options.dark ? dark : light;
@@ -76,6 +78,7 @@ export class Static {
 
     this.views = sourcesToViews(options);
     this.debug = options.debug || false;
+    this.xray = options.xray;
   }
 
   async drawContext(
@@ -148,12 +151,17 @@ export class Static {
       ctx.restore();
     }
 
+    let paint_rules = this.paint_rules;
+    if (this.xray) {
+      paint_rules = xray_rules(prepared_tilemap, this.xray);
+    }
+
     let p = painter(
       ctx,
       display_zoom,
       prepared_tilemap,
-      labeler.index,
-      this.paint_rules,
+      this.xray ? null : labeler.index,
+      paint_rules,
       bbox,
       origin,
       true,
