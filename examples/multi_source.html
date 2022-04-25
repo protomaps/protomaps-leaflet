@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+        <script src="https://unpkg.com/protomaps@latest/dist/protomaps.min.js"></script>
+        <!-- <script src="../dist/protomaps.js"></script> -->
+        <style>
+            body, #map {
+                height:800px;
+                margin:0px;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- <div id="map"></div>  -->
+        <canvas id="map"></canvas>
+        <script>
+            let sources = {
+                '':{url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'},
+                'source2':{url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',maxDataZoom:10}
+            }
+
+            let paint_rules = [
+                {
+                    dataSource:"source2",
+                    dataLayer:"landuse",
+                    symbolizer:new protomaps.PolygonSymbolizer({
+                        fill:"red",
+                        opacity:0.2
+                    })
+                },
+                {
+                    dataLayer:"buildings",
+                    symbolizer:new protomaps.PolygonSymbolizer({
+                        fill:"blue",
+                        opacity:0.2
+                    })
+                }
+            ]
+
+            // const map = L.map('map')
+            // let hash = new L.Hash(map)
+            // if (!window.location.hash) map.setView(new L.LatLng(25.0412,121.5177),16)
+            // var layer = protomaps.leafletLayer({sources:sources,paint_rules:paint_rules})
+            // layer.addTo(map)
+
+            let canvas = document.getElementById("map")
+            var zoom = 13
+            let map = new protomaps.Static({sources:sources,paint_rules:paint_rules})
+            let center = {y:37.7658,x:-122.4221}
+            map.drawCanvas(canvas,center,zoom)
+        </script>
+    </body>
+</html>

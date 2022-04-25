@@ -1,3 +1,25 @@
+# 1.19.0
+* Multiple vector tile sources in a single layer
+
+# 1.18.2
+* Fix missing last stroke of `PolygonSymbolizer`
+* make css-font-loading-module a dependency for types to be findable
+
+# 1.18.0
+* Sprites module formerly under `protosprites` package merged into this project
+
+# 1.16.0
+* Set canvas size to 0,0 before garbage collection, workaround for Safari
+
+# 1.15.0
+* Type improvements for Symbolizers, thanks nf-s
+* add additional TextTransforms
+* LineLabelSymbolizer features, step interpolation features, label deduplication
+
+# 1.14.0
+* Label repetition for lines
+* Limit label repetition when overzooming
+
 # 1.13.0
 * `PolygonSymbolizer` has `stroke` and `width` for efficient outlines.
 * `maxLineChars` line-breaking can be a function.
