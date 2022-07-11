@@ -33,4 +33,8 @@ export const dark: DefaultStyleParams = {
   naturalLabel: "#4c4c4c",
   roadsLabel: "#C4C4C4",
   poisLabel: "#959393",
+  railway: "#7F84D1",
+  tram: "#CF1718",
+  subway: "#76319E",
+  subwayLabel: "#FAD0D0",
 };

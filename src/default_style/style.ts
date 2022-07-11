@@ -50,6 +50,10 @@ export interface DefaultStyleParams {
   naturalLabel: string;
   roadsLabel: string;
   poisLabel: string;
+  railway: string;
+  tram: string;
+  subway: string;
+  subwayLabel: string;
 }
 
 const doShading = (params: DefaultStyleParams, shade: string) => {
@@ -141,7 +145,7 @@ export const paintRules = (
         fill: params.wood,
       }),
       filter: (z, f) => {
-        return f.props.natural == "wood";
+        return f.props.natural == "wood" || f.props.landuse=="forest";
       },
     },
     {
@@ -169,6 +173,37 @@ export const paintRules = (
       }),
     },
     {
+      dataLayer: "transit",
+      symbolizer: new LineSymbolizer({
+        color: params.railway,
+        width: exp(1.4, [
+          [5, 0.5],
+          [14, 1],
+          [16, 2],
+        ]),
+        dash: [3,3]
+      }),
+      filter: (z, f) => {
+        return f.props["railway"] == "rail" && f.props["layer"]<0;
+      },
+    },
+    {
+      dataLayer: "physical_line",
+      symbolizer: new LineSymbolizer({
+        color: params.water,
+        width: exp(1.4, [
+          [5, 1],
+          [15, 2],
+          [16, 3],
+        ]),
+        lineCap: "round",
+        lineJoin: "round"
+      }),
+      filter: (z, f) => {
+        return f.props["waterway"] == "river" || (z > 15 && f.props['waterway']=="stream");
+      },
+    },
+    {
       dataLayer: "natural",
       symbolizer: new PolygonSymbolizer({
         fill: params.sand,
@@ -182,6 +217,20 @@ export const paintRules = (
       symbolizer: new PolygonSymbolizer({
         fill: params.buildings,
       }),
+    },
+    {
+      dataLayer: "transit",
+      symbolizer: new LineSymbolizer({
+        color: params.subway,
+        width: exp(1.4, [
+          [5, 2],
+          [14, 3],
+          [16, 2],
+        ]),
+      }),
+      filter: (z, f) => {
+        return f.props["railway"] == "subway";
+      },
     },
     {
       dataLayer: "roads",
@@ -297,6 +346,34 @@ export const paintRules = (
       }),
       filter: (z, f) => {
         return f.props["pmap:kind"] == "highway";
+      },
+    },
+    {
+      dataLayer: "transit",
+      symbolizer: new LineSymbolizer({
+        color: params.tram,
+        width: exp(1.4, [
+          [5, 0.5],
+          [14, 1],
+          [16, 2],
+        ]),
+      }),
+      filter: (z, f) => {
+        return f.props["railway"] == "tram";
+      },
+    },
+    {
+      dataLayer: "transit",
+      symbolizer: new LineSymbolizer({
+        color: params.railway,
+        width: exp(1.4, [
+          [5, 0.5],
+          [14, 1],
+          [16, 2],
+        ]),
+      }),
+      filter: (z, f) => {
+        return f.props["railway"] == "rail" && (!f.props["layer"] || f.props["layer"]>0);
       },
     },
     {
@@ -480,6 +557,36 @@ export const labelRules = (
         }),
         params.waterLabel
       ),
+    },
+    {
+      dataLayer: "physical_line",
+      symbolizer: languageStack(
+          new LineLabelSymbolizer({
+            label_props: nametags,
+            fill: params.waterLabel,
+            font: "italic 600 12px sans-serif",
+            repeatDistance: 500,
+          }),
+          params.waterLabel,
+      ),
+      filter: (z, f) => {
+        return f.props["waterway"] == "river" || (z > 15 && f.props['waterway']=="stream");
+      },
+    },
+    {
+      dataLayer: "transit",
+      symbolizer: languageStack(
+          new LineLabelSymbolizer({
+            label_props: nametags,
+            fill: params.subwayLabel,
+            stroke: 0.5,
+            font: "italic 600 12px sans-serif",
+          }),
+          params.waterLabel,
+      ),
+      filter: (z, f) => {
+        return f.props["railway"] == "subway";
+      },
     },
     {
       dataLayer: "natural",

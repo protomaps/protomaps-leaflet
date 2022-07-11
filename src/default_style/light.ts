@@ -33,4 +33,8 @@ export const light: DefaultStyleParams = {
   naturalLabel: "#4B8F14",
   roadsLabel: "#888888",
   poisLabel: "#606060",
+  railway: "#B7876B",
+  tram: "#FC6E56",
+  subway: "#D1CCF9",
+  subwayLabel: "#76319E"
 };
