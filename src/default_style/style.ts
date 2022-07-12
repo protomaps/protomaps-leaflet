@@ -219,20 +219,6 @@ export const paintRules = (
       }),
     },
     {
-      dataLayer: "transit",
-      symbolizer: new LineSymbolizer({
-        color: params.subway,
-        width: exp(1.4, [
-          [5, 2],
-          [14, 3],
-          [16, 2],
-        ]),
-      }),
-      filter: (z, f) => {
-        return f.props["railway"] == "subway";
-      },
-    },
-    {
       dataLayer: "roads",
       symbolizer: new LineSymbolizer({
         color: params.highwayCasing,
@@ -374,6 +360,20 @@ export const paintRules = (
       }),
       filter: (z, f) => {
         return f.props["railway"] == "rail" && (!f.props["layer"] || f.props["layer"]>0);
+      },
+    },
+    {
+      dataLayer: "transit",
+      symbolizer: new LineSymbolizer({
+        color: params.subway,
+        width: exp(1.4, [
+          [5, 2],
+          [14, 3],
+          [16, 2],
+        ]),
+      }),
+      filter: (z, f) => {
+        return f.props["railway"] == "subway";
       },
     },
     {
@@ -581,11 +581,12 @@ export const labelRules = (
             fill: params.subwayLabel,
             stroke: 0.5,
             font: "italic 600 12px sans-serif",
+            repeatDistance: 800
           }),
-          params.waterLabel,
+          params.subwayLabel,
       ),
       filter: (z, f) => {
-        return f.props["railway"] == "subway";
+        return z<15 && f.props["railway"] == "subway";
       },
     },
     {
@@ -622,6 +623,30 @@ export const labelRules = (
       }),
       filter: (z, f) => {
         return f.props["pmap:kind"] == "highway";
+      },
+    },
+    {
+      dataLayer: "pois",
+      symbolizer: new GroupSymbolizer([
+        new CircleSymbolizer({
+          radius: 3,
+          fill: params.poisLabel,
+          stroke: params.earth,
+          width: 1,
+        }),
+        languageStack(
+            new OffsetTextSymbolizer({
+              label_props: nametags,
+              fill: params.subwayLabel,
+              offsetX: 4,
+              offsetY: 4,
+              font: "300 15px sans-serif",
+            }),
+            params.poisLabel
+        ),
+      ]),
+      filter: (z, f) => {
+        return f.props["railway"] == "station";
       },
     },
     {
