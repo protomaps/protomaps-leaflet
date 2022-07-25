@@ -133,10 +133,25 @@ test("pruning", async () => {
     "abcd"
   );
   assert.equal(index.tree.all().length, 1);
-  assert.equal(index.current.has("abcd"), true);
+  assert.equal(index.has("abcd"), true);
   index.pruneKey("abcd");
   assert.equal(index.current.size, 0);
   assert.equal(index.tree.all().length, 0);
+});
+
+test("tile prefixes", async () => {
+  let index = new Index(1024);
+  assert.equal(index.hasPrefix("my_key"), false);
+  index.insert(
+    {
+      anchor: new Point(100, 100),
+      bboxes: [{ minX: 100, minY: 100, maxX: 200, maxY: 200 }],
+      draw: (c) => {},
+    },
+    1,
+    "my_key:123"
+  );
+  assert.equal(index.hasPrefix("my_key"), true);
 });
 
 test("remove an individual label", async () => {
