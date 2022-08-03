@@ -2,6 +2,7 @@ import Point from "@mapbox/point-geometry";
 import { VectorTile } from "@mapbox/vector-tile";
 import Protobuf from "pbf";
 import { PMTiles } from "pmtiles";
+import { decompressSync } from "fflate";
 
 export type JsonValue =
   | boolean
@@ -170,6 +171,13 @@ export class PmtilesSource implements TileSource {
             return resp.arrayBuffer();
           })
           .then((buffer) => {
+            let temp = new Uint8Array(buffer);
+
+            // this detection cleaned up in a future PMTiles client
+            // but renderer needs to control HTTP request for aborts
+            if (temp[0] == 0x1f && temp[1] == 0x8b) {
+              buffer = decompressSync(temp).buffer;
+            }
             let result = parseTile(buffer, tileSize);
             resolve(result);
           })
