@@ -1,3 +1,7 @@
+# 1.20.0
+* Fix labeling-across-tiles bug introduced in 1.19.0
+* Support for vector PMTiles with compression
+
 # 1.19.0
 * Multiple vector tile sources in a single layer
 
