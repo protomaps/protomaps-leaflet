@@ -127,6 +127,8 @@ const leafletLayer = (options: any): any => {
       for (const tile_response of tile_responses) {
         if (tile_response.status === "fulfilled") {
           prepared_tilemap.set(tile_response.key, [tile_response.value]);
+        } else {
+          console.error(tile_response.reason);
         }
       }
 
