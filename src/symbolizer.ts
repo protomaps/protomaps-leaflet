@@ -440,10 +440,11 @@ export class CircleSymbolizer implements LabelSymbolizer, PaintSymbolizer {
     let radius = this.radius.get(z, f);
     let width = this.width.get(z, f);
     if (width > 0) {
-      ctx.fillStyle = this.stroke.get(z, f);
+      ctx.strokeStyle = this.stroke.get(z, f);
+      ctx.lineWidth = width;
       ctx.beginPath();
-      ctx.arc(geom[0][0].x, geom[0][0].y, radius + width, 0, 2 * Math.PI);
-      ctx.fill();
+      ctx.arc(geom[0][0].x, geom[0][0].y, radius + width / 2, 0, 2 * Math.PI);
+      ctx.stroke();
     }
 
     ctx.fillStyle = this.fill.get(z, f);
