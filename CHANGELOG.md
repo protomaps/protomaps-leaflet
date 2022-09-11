@@ -1,3 +1,6 @@
+# 1.20.2
+* missing tiles in PMTiles archive do not show a browser error
+
 # 1.20.1
 * Fix stroking of circle symbolizer
 * Fix static map `drawCanvasBounds` and `drawContextBounds` coordinate order

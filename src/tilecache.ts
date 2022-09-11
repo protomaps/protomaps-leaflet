@@ -185,7 +185,7 @@ export class PmtilesSource implements TileSource {
             reject(e);
           });
       } else {
-        resolve(new Map<string,Feature>());
+        resolve(new Map<string,Feature[]>());
       }
     });
   }
