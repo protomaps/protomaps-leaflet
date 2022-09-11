@@ -1,3 +1,7 @@
+# 1.20.1
+* Fix stroking of circle symbolizer
+* Fix static map `drawCanvasBounds` and `drawContextBounds` coordinate order
+
 # 1.20.0
 * Fix labeling-across-tiles bug introduced in 1.19.0
 * Support for vector PMTiles with compression
