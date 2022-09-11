@@ -231,8 +231,8 @@ export class Static {
   ) {
     let delta_degrees = bottom_right.x - top_left.x;
     let center = new Point(
-      (top_left.y + bottom_right.y) / 2,
-      (top_left.x + bottom_right.x) / 2
+      (top_left.x + bottom_right.x) / 2,
+      (top_left.y + bottom_right.y) / 2
     );
     return this.drawContext(
       ctx,
@@ -250,10 +250,10 @@ export class Static {
     width: number,
     options: any = {}
   ) {
-    let delta_degrees = bottom_right.x - top_left.y;
+    let delta_degrees = bottom_right.x - top_left.x;
     let center = new Point(
-      (top_left.y + bottom_right.y) / 2,
-      (top_left.x + bottom_right.x) / 2
+      (top_left.x + bottom_right.x) / 2,
+      (top_left.y + bottom_right.y) / 2
     );
     return this.drawCanvas(
       canvas,

@@ -47,7 +47,7 @@
             let map = new protomaps.Static({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'})
             let top_left = projection.invert([0,0])
             let bottom_right = projection.invert([width,height])
-            map.drawCanvasBounds(d3.select("#basemap").node(),top_left,bottom_right,width)
+            map.drawCanvasBounds(d3.select("#basemap").node(),{y:top_left[1],x:top_left[0]},{y:bottom_right[1],x:bottom_right[0]},width)
         </script>
     </body>
 </html>
