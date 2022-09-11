@@ -185,7 +185,7 @@ export class PmtilesSource implements TileSource {
             reject(e);
           });
       } else {
-        reject(new Error(`Tile ${c.z} ${c.x} ${c.y} not found in archive`));
+        resolve(new Map<string,Feature>());
       }
     });
   }
