@@ -64,7 +64,7 @@ const doShading = (params: DefaultStyleParams, shade: string) => {
 
 export const paintRules = (
   params: DefaultStyleParams,
-  shade: string
+  shade?: string
 ): Rule[] => {
   if (shade) params = doShading(params, shade);
   return [
@@ -318,9 +318,9 @@ export const paintRules = (
 
 export const labelRules = (
   params: DefaultStyleParams,
-  shade: string,
-  language1: string[],
-  language2: string[]
+  shade?: string,
+  language1?: string[],
+  language2?: string[]
 ): LabelRule[] => {
   if (shade) params = doShading(params, shade);
   var nametags = ["name"];

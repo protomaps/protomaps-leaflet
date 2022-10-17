@@ -3,13 +3,14 @@ declare var L: any;
 import Point from "@mapbox/point-geometry";
 
 import { Zxy, TileCache } from "../tilecache";
-import { View, PreparedTile, sourcesToViews } from "../view";
-import { painter } from "../painter";
-import { Labelers } from "../labeler";
+import { View, PreparedTile, sourcesToViews, SourceOptions } from "../view";
+import { painter, Rule } from "../painter";
+import { Labelers, LabelRule } from "../labeler";
 import { light } from "../default_style/light";
 import { dark } from "../default_style/dark";
 import { paintRules, labelRules } from "../default_style/style";
-import { xray_rules } from "../xray";
+import { xray_rules, XraySelection } from "../xray";
+import { PMTiles } from "pmtiles";
 
 const timer = (duration: number) => {
   return new Promise<void>((resolve, reject) => {
@@ -38,9 +39,32 @@ const reflect = (promise: Promise<Status>) => {
   );
 };
 
-const leafletLayer = (options: any): any => {
+interface LeafletLayerOptions {
+  bounds?: number[][];
+  attribution?: string;
+  debug?: string;
+  lang?: string;
+  tileDelay?: number;
+  backgroundColor?: string;
+  language1?: string[];
+  language2?: string[];
+  shade?: string;
+  dark?: boolean;
+  noWrap?: boolean;
+  paint_rules?: Rule[];
+  label_rules?: LabelRule[];
+  xray?: XraySelection;
+  tasks?: Promise<Status>[];
+
+  levelDiff?: number;
+  maxDataZoom?: number;
+  url?: PMTiles | string;
+  sources?: Map<string, SourceOptions>;
+}
+
+const leafletLayer = (options: LeafletLayerOptions): any => {
   class LeafletLayer extends L.GridLayer {
-    constructor(options: any) {
+    constructor(options: LeafletLayerOptions) {
       if (options.noWrap && !options.bounds)
         options.bounds = [
           [-90, -180],
@@ -128,7 +152,11 @@ const leafletLayer = (options: any): any => {
         if (tile_response.status === "fulfilled") {
           prepared_tilemap.set(tile_response.key, [tile_response.value]);
         } else {
-          console.error(tile_response.reason);
+          if (tile_response.reason.name === "AbortError") {
+            // do nothing
+          } else {
+            console.error(tile_response.reason);
+          }
         }
       }
 

@@ -1,13 +1,14 @@
 import Point from "@mapbox/point-geometry";
 
 import { ZxySource, PmtilesSource, TileCache } from "../tilecache";
-import { View, PreparedTile, sourcesToViews } from "../view";
+import { View, PreparedTile, sourcesToViews, SourceOptions } from "../view";
 import { Rule, painter } from "../painter";
 import { LabelRule, Labeler } from "../labeler";
 import { light } from "../default_style/light";
 import { dark } from "../default_style/dark";
 import { paintRules, labelRules } from "../default_style/style";
 import { XraySelection, xray_rules } from "../xray";
+import { PMTiles } from "pmtiles";
 
 let R = 6378137;
 let MAX_LATITUDE = 85.0511287798;
@@ -60,15 +61,32 @@ export const getZoom = (degrees_lng: number, css_pixels: number): number => {
   return Math.log2(d / 256);
 };
 
+interface StaticOptions {
+  debug?: string;
+  lang?: string;
+  shade?: string;
+  levelDiff?: number;
+  maxDataZoom?: number;
+  url?: PMTiles | string;
+  sources?: Map<string, SourceOptions>;
+  paint_rules: Rule[];
+  dark?: boolean;
+  label_rules: LabelRule[];
+  language1: string[];
+  language2: string[];
+  backgroundColor?: string;
+  xray?: XraySelection;
+}
+
 export class Static {
   paint_rules: Rule[];
   label_rules: LabelRule[];
   views: Map<string, View>;
-  debug: string;
-  backgroundColor: string;
+  debug?: string;
+  backgroundColor?: string;
   xray?: XraySelection;
 
-  constructor(options: any) {
+  constructor(options: StaticOptions) {
     let theme = options.dark ? dark : light;
     this.paint_rules = options.paint_rules || paintRules(theme, options.shade);
     this.label_rules =
@@ -77,7 +95,7 @@ export class Static {
     this.backgroundColor = options.backgroundColor;
 
     this.views = sourcesToViews(options);
-    this.debug = options.debug || false;
+    this.debug = options.debug || "";
     this.xray = options.xray;
   }
 
@@ -207,7 +225,7 @@ export class Static {
     canvas: HTMLCanvasElement,
     latlng: Point,
     display_zoom: number,
-    options: any = {}
+    options: StaticOptions
   ) {
     let dpr = window.devicePixelRatio;
     let width = canvas.clientWidth;
@@ -248,7 +266,7 @@ export class Static {
     top_left: Point,
     bottom_right: Point,
     width: number,
-    options: any = {}
+    options: StaticOptions
   ) {
     let delta_degrees = bottom_right.x - top_left.x;
     let center = new Point(

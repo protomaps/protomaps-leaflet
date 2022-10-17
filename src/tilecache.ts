@@ -2,7 +2,6 @@ import Point from "@mapbox/point-geometry";
 import { VectorTile } from "@mapbox/vector-tile";
 import Protobuf from "pbf";
 import { PMTiles } from "pmtiles";
-import { decompressSync } from "fflate";
 
 export type JsonValue =
   | boolean
@@ -130,11 +129,11 @@ export class PmtilesSource implements TileSource {
   controllers: any[];
   shouldCancelZooms: boolean;
 
-  constructor(url: any, shouldCancelZooms: boolean) {
-    if (url.url) {
-      this.p = url;
-    } else {
+  constructor(url: string | PMTiles, shouldCancelZooms: boolean) {
+    if (typeof url == "string") {
       this.p = new PMTiles(url);
+    } else {
+      this.p = url;
     }
     this.controllers = [];
     this.shouldCancelZooms = shouldCancelZooms;
@@ -150,44 +149,17 @@ export class PmtilesSource implements TileSource {
         return true;
       });
     }
-    let result = await this.p.getZxy(c.z, c.x, c.y);
-
     const controller = new AbortController();
     this.controllers.push([c.z, controller]);
     const signal = controller.signal;
-    return new Promise((resolve, reject) => {
-      if (result) {
-        fetch(this.p.url, {
-          headers: {
-            Range:
-              "bytes=" +
-              result.offset +
-              "-" +
-              (result.offset + result.length - 1),
-          },
-          signal: signal,
-        })
-          .then((resp) => {
-            return resp.arrayBuffer();
-          })
-          .then((buffer) => {
-            let temp = new Uint8Array(buffer);
 
-            // this detection cleaned up in a future PMTiles client
-            // but renderer needs to control HTTP request for aborts
-            if (temp[0] == 0x1f && temp[1] == 0x8b) {
-              buffer = decompressSync(temp).buffer;
-            }
-            let result = parseTile(buffer, tileSize);
-            resolve(result);
-          })
-          .catch((e) => {
-            reject(e);
-          });
-      } else {
-        resolve(new Map<string,Feature[]>());
-      }
-    });
+    let result = await this.p.getZxy(c.z, c.x, c.y, signal);
+
+    if (result) {
+      return parseTile(result.data, tileSize);
+    } else {
+      return new Map<string, Feature[]>();
+    }
   }
 }
 

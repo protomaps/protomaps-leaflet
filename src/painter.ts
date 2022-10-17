@@ -25,7 +25,7 @@ export function painter(
   bbox: Bbox,
   origin: Point,
   clip: boolean,
-  debug: string
+  debug?: string
 ) {
   let start = performance.now();
   ctx.save();
