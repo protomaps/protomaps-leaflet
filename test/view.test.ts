@@ -2,7 +2,7 @@ import Point from "@mapbox/point-geometry";
 import assert from "assert";
 import baretest from "baretest";
 import { TileCache } from "../src/tilecache";
-import { View, wrap } from "../src/view";
+import { View, wrap, sourcesToViews } from "../src/view";
 import { StubSource } from "./test_helpers";
 
 let test = baretest("view");
@@ -90,6 +90,17 @@ test("wrap tile coordinates", async () => {
 test("wrap", async () => {
   assert.equal(wrap(-1, 3), 7);
   assert.equal(wrap(8, 3), 0);
+});
+
+test("sources to views", async () => {
+  let v = sourcesToViews({url:"http://example.com/{z}/{x}/{y}.mvt"});
+  assert.equal(v.get('').levelDiff,2);
+  v = sourcesToViews({sources:{
+    source1: {
+      url:"http://example.com/{z}/{x}/{y}.mvt"
+    }
+  }});
+  assert.equal(v.get('source1').levelDiff,2);
 });
 
 export default test;

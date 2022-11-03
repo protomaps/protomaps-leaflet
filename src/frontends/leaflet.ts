@@ -59,12 +59,12 @@ interface LeafletLayerOptions {
   levelDiff?: number;
   maxDataZoom?: number;
   url?: PMTiles | string;
-  sources?: Map<string, SourceOptions>;
+  sources?: Record<string, SourceOptions>;
 }
 
-const leafletLayer = (options: LeafletLayerOptions): any => {
+const leafletLayer = (options: LeafletLayerOptions = {}): any => {
   class LeafletLayer extends L.GridLayer {
-    constructor(options: LeafletLayerOptions) {
+    constructor(options: LeafletLayerOptions = {}) {
       if (options.noWrap && !options.bounds)
         options.bounds = [
           [-90, -180],

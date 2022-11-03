@@ -68,12 +68,12 @@ interface StaticOptions {
   levelDiff?: number;
   maxDataZoom?: number;
   url?: PMTiles | string;
-  sources?: Map<string, SourceOptions>;
-  paint_rules: Rule[];
+  sources?: Record<string, SourceOptions>;
+  paint_rules?: Rule[];
   dark?: boolean;
-  label_rules: LabelRule[];
-  language1: string[];
-  language2: string[];
+  label_rules?: LabelRule[];
+  language1?: string[];
+  language2?: string[];
   backgroundColor?: string;
   xray?: XraySelection;
 }
@@ -225,7 +225,7 @@ export class Static {
     canvas: HTMLCanvasElement,
     latlng: Point,
     display_zoom: number,
-    options: StaticOptions
+    options: StaticOptions = {}
   ) {
     let dpr = window.devicePixelRatio;
     let width = canvas.clientWidth;
@@ -266,7 +266,7 @@ export class Static {
     top_left: Point,
     bottom_right: Point,
     width: number,
-    options: StaticOptions
+    options: StaticOptions = {}
   ) {
     let delta_degrees = bottom_right.x - top_left.x;
     let center = new Point(

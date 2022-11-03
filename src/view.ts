@@ -227,7 +227,7 @@ export interface SourceOptions {
   levelDiff?: number;
   maxDataZoom?: number;
   url?: PMTiles | string;
-  sources?: Map<string, SourceOptions>;
+  sources?: Record<string, SourceOptions>;
 }
 
 export let sourcesToViews = (options: SourceOptions) => {
@@ -251,8 +251,8 @@ export let sourcesToViews = (options: SourceOptions) => {
 
   let sources = new Map<string, View>();
   if (options.sources) {
-    for (const [key, value] of options.sources) {
-      sources.set(key, sourceToViews(value));
+    for (const key in options.sources) {
+      sources.set(key, sourceToViews(options.sources[key]));
     }
   } else {
     sources.set("", sourceToViews(options));
