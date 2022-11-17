@@ -30,7 +30,6 @@ See the docs on [what protomaps.js is, what protomaps.js is not](https://protoma
 * [Multi-language customization](https://protomaps.github.io/protomaps.js/examples/multi_language.html)
 * [Satellite + labels demo](https://protomaps.github.io/protomaps.js/examples/labels.html)
 * [GeoJSON between basemap and labels demo](https://protomaps.github.io/protomaps.js/examples/sandwich.html)
-* [JSON style](https://protomaps.github.io/protomaps.js/examples/json_style.html)
 * [Map inset](https://protomaps.github.io/protomaps.js/examples/inset.html)
 * [PostGIS](https://protomaps.github.io/protomaps.js/examples/postgis.html)
 * [Custom fonts](https://protomaps.github.io/protomaps.js/examples/fonts.html)
