@@ -1,3 +1,12 @@
+# 1.23
+* bump `pmtiles` to 2.6.1.
+
+# 1.22
+* fix type of multiple `Source`s passed into leaflet layer or static map.
+
+# 1.21
+* support pmtiles v3.
+
 # 1.20.2
 * missing tiles in PMTiles archive do not show a browser error
 
