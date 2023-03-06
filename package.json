@@ -31,7 +31,7 @@
     "color2k": "^1.2.4",
     "flatqueue": "^1.2.1",
     "pbf": "^3.2.1",
-    "pmtiles": "2.6.1",
+    "pmtiles": "2.7.0",
     "polylabel": "^1.1.0",
     "potpack": "^1.0.2",
     "rbush": "^3.0.1"
