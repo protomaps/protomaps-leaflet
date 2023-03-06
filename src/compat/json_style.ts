@@ -150,6 +150,7 @@ export function getFont(obj: any, fontsubmap: any) {
   } else if (text_size.stops) {
     var base = 1.4;
     if (text_size.base) base = text_size.base;
+    else text_size.base = base;
     let t = numberFn(text_size);
     return (z: number, f?: Feature) => {
       return `${style}${weight}${t(z, f)}px ${fontfaces
