@@ -5,8 +5,8 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps@1.23.1/dist/protomaps.min.js"></script>
-        <!-- <script src="../dist/protomaps.js"></script> -->
+        <script src="https://unpkg.com/protomaps-leaflet@1.23.1/dist/protomaps-leaflet.min.js"></script>
+        <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body {
                 margin: 0;
@@ -175,14 +175,14 @@
                     <label for="shade">Shade</label>
                     <input id="shade" type="color"></input>
                 </span>
-                <span class="comment">multilingual demo of <a href="https://github.com/protomaps/protomaps.js">protomaps.js</a></span>
+                <span class="comment">multilingual demo of <a href="https://github.com/protomaps/protomaps-leaflet">protomaps-leaflet</a></span>
             </div>
         </div>
         <script>
             const map = L.map('map')
             hash = new L.Hash(map)
             if (!window.location.hash) map.setView(new L.LatLng(0,0),3)
-            var layer = protomaps.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'})
+            var layer = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'})
             layer.addTo(map)
             map.on('click',ev => {
                 for (let result of layer.queryFeatures(ev.latlng.lng,ev.latlng.lat)) {

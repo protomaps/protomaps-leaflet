@@ -5,8 +5,8 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps@1.23.1/dist/protomaps.min.js"></script>
-        <!-- <script src="../dist/protomaps.js"></script> -->
+        <script src="https://unpkg.com/protomaps-leaflet@1.23.1/dist/protomaps-leaflet.min.js"></script>
+        <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
 
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Work+Sans:wght@100..900&family=Petrona:wght@100..900&family=Raleway:wght@100..900" rel="stylesheet">
 
@@ -53,7 +53,7 @@
                     <option value="sans-serif">sans-serif</option>
                     <option value="serif">serif</option>
                 </select>
-                <a href="https://github.com/protomaps/protomaps.js">protomaps.js</a> web fonts demo /
+                <a href="https://github.com/protomaps/protomaps-leaflet">protomaps-leaflet</a> web fonts demo /
                 <a href="https://fonts.google.com/?vfonly=true">Browse more variable fonts at Google Fonts</a>
             </div>
         </div>
@@ -64,11 +64,11 @@
             let paint_rules = [
               {
                 dataLayer:"water",
-                symbolizer:new protomaps.PolygonSymbolizer({fill:"#CDECFF"})
+                symbolizer:new protomapsL.PolygonSymbolizer({fill:"#CDECFF"})
               },
               {
                 dataLayer:"boundaries",
-                symbolizer:new protomaps.LineSymbolizer({color:"#357EDD"})
+                symbolizer:new protomapsL.LineSymbolizer({color:"#357EDD"})
               }
             ]
 
@@ -76,7 +76,7 @@
                 return [
                   {
                     dataLayer:"places",
-                    symbolizer:new protomaps.CenteredTextSymbolizer({
+                    symbolizer:new protomapsL.CenteredTextSymbolizer({
                         label_props:["name:en"],
                         font: (z,f) => {
                             if (f.props.place === 'city') return "100 24px " + font
@@ -89,7 +89,7 @@
                   },
                   {
                     dataLayer:"water",
-                    symbolizer:new protomaps.PolygonLabelSymbolizer({
+                    symbolizer:new protomapsL.PolygonLabelSymbolizer({
                         label_props:["name:en"],
                         font:"900 20px " + font,
                         fill:"#00449E"
@@ -98,7 +98,7 @@
                 ]
             }
 
-            let layer = protomaps.leafletLayer({
+            let layer = protomapsL.leafletLayer({
                 url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',
                 paint_rules:paint_rules,
                 label_rules:labelRulesWithFont("sans-serif"),

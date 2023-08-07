@@ -5,8 +5,8 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps@1.23.1/dist/protomaps.min.js"></script>
-        <!-- <script src="../dist/protomaps.js"></script> -->
+        <script src="https://unpkg.com/protomaps-leaflet@1.23.1/dist/protomaps-leaflet.min.js"></script>
+        <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
                 height:800px;
@@ -27,14 +27,14 @@
                 {
                     dataSource:"source2",
                     dataLayer:"landuse",
-                    symbolizer:new protomaps.PolygonSymbolizer({
+                    symbolizer:new protomapsL.PolygonSymbolizer({
                         fill:"red",
                         opacity:0.2
                     })
                 },
                 {
                     dataLayer:"buildings",
-                    symbolizer:new protomaps.PolygonSymbolizer({
+                    symbolizer:new protomapsL.PolygonSymbolizer({
                         fill:"blue",
                         opacity:0.2
                     })
@@ -44,12 +44,12 @@
             // const map = L.map('map')
             // let hash = new L.Hash(map)
             // if (!window.location.hash) map.setView(new L.LatLng(25.0412,121.5177),16)
-            // var layer = protomaps.leafletLayer({sources:sources,paint_rules:paint_rules})
+            // var layer = protomapsL.leafletLayer({sources:sources,paint_rules:paint_rules})
             // layer.addTo(map)
 
             let canvas = document.getElementById("map")
             var zoom = 13
-            let map = new protomaps.Static({sources:sources,paint_rules:paint_rules})
+            let map = new protomapsL.Static({sources:sources,paint_rules:paint_rules})
             let center = {y:37.7658,x:-122.4221}
             map.drawCanvas(canvas,center,zoom)
         </script>

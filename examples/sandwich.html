@@ -5,8 +5,8 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps@1.23.1/dist/protomaps.min.js"></script>
-        <!-- <script src="../dist/protomaps.js"></script> -->
+        <script src="https://unpkg.com/protomaps-leaflet@1.23.1/dist/protomaps-leaflet.min.js"></script>
+        <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
                 height:100vh;
@@ -42,25 +42,25 @@
             let paint_rules = [
                 {
                     dataLayer: "buildings",
-                    symbolizer: new protomaps.PolygonSymbolizer({
+                    symbolizer: new protomapsL.PolygonSymbolizer({
                         fill:"#aaa"
                     })
                 },
                 {
                     dataLayer: "roads",
-                    symbolizer: new protomaps.LineSymbolizer({
+                    symbolizer: new protomapsL.LineSymbolizer({
                         color:"#aaa"
                     })
                 }
 
             ]
-            let paint = protomaps.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',paint_rules:paint_rules,label_rules:[]})
+            let paint = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',paint_rules:paint_rules,label_rules:[]})
             paint.addTo(map)
 
             let label_rules = [
                 {
                     dataLayer: "places",
-                    symbolizer: new protomaps.CenteredTextSymbolizer({
+                    symbolizer: new protomapsL.CenteredTextSymbolizer({
                         label_props:["name:en"],
                         fill:"black",
                         font:"600 14px sans-serif"
@@ -71,7 +71,7 @@
 
             // https://leafletjs.com/examples/map-panes/
             map.createPane('labels');
-            let labels = protomaps.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',paint_rules:[],label_rules:label_rules,pane:'labels'})
+            let labels = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',paint_rules:[],label_rules:label_rules,pane:'labels'})
             labels.addTo(map)
         </script>
     </body>

@@ -6,8 +6,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="pixelmatch.js"></script>
-        <script src="https://unpkg.com/protomaps@1.23.1/dist/protomaps.min.js"></script>
-        <!-- <script src="../dist/protomaps.js"></script> -->
+        <script src="https://unpkg.com/protomaps-leaflet@1.23.1/dist/protomaps-leaflet.min.js"></script>
+        <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             html {
                 font-family: sans-serif;
@@ -121,10 +121,10 @@
             })
         }
 
-        let example_1 = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
+        let example_1 = new protomapsL.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f"})
         doExample(example_1,"example_1",42.3238,-83.0512,11,34)
 
-        let example_2 = new protomaps.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f",shade:"#00449E",language1:["name:zh"],language2:["name:en"]})
+        let example_2 = new protomapsL.Static({url:"https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f",shade:"#00449E",language1:["name:zh"],language2:["name:en"]})
         doExample(example_2,"example_2",22.3118,114.1804,14,62.85)
         </script>
     </body>

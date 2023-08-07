@@ -5,8 +5,8 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps@1.23.1/dist/protomaps.min.js"></script>
-        <!-- <script src="../dist/protomaps.js"></script> -->
+        <script src="https://unpkg.com/protomaps-leaflet@1.23.1/dist/protomaps-leaflet.min.js"></script>
+        <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
                 height:100vh;
@@ -27,7 +27,7 @@
             let label_rules = [
                 {
                     dataLayer: "places",
-                    symbolizer: new protomaps.CenteredTextSymbolizer({
+                    symbolizer: new protomapsL.CenteredTextSymbolizer({
                         label_props:["name:en"],
                         fill:"white",
                         width:2,
@@ -42,7 +42,7 @@
                 }
             ]
 
-            let labels = protomaps.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',paint_rules:[],label_rules:label_rules})
+            let labels = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',paint_rules:[],label_rules:label_rules})
             labels.addTo(map)
         </script>
     </body>

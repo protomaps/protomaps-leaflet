@@ -5,8 +5,8 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps@1.23.1/dist/protomaps.min.js"></script>
-        <!-- <script src="../dist/protomaps.js"></script> -->
+        <script src="https://unpkg.com/protomaps-leaflet@1.23.1/dist/protomaps-leaflet.min.js"></script>
+        <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
                 height:100vh;
@@ -20,7 +20,7 @@
             const map = L.map('map')
             let hash = new L.Hash(map)
             if (!window.location.hash) map.setView(new L.LatLng(25.0412,121.5177),16)
-            var layer = protomaps.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'})
+            var layer = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'})
             layer.addTo(map)
             layer.addInspector(map)
             // layer.removeInspector(map)

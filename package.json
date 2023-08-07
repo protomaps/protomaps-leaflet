@@ -1,12 +1,12 @@
 {
-  "name": "protomaps",
+  "name": "protomaps-leaflet",
   "version": "1.23.1",
   "files": [
     "dist",
     "src"
   ],
-  "main": "dist/protomaps.js",
-  "module": "dist/protomaps.module.js",
+  "main": "dist/protomaps-leaflet.js",
+  "module": "dist/protomaps-leaflet.module.js",
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
   "devDependencies": {
@@ -37,10 +37,10 @@
     "rbush": "^3.0.1"
   },
   "scripts": {
-    "dev": "esbuild src/index.ts --bundle --target=es2015 --servedir=. --outfile=dist/protomaps.js --global-name=protomaps",
-    "build": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps.js --global-name=protomaps",
-    "build-min": "esbuild src/index.ts --bundle --target=es2015 --minify --outfile=dist/protomaps.min.js --global-name=protomaps",
-    "build-module": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps.module.js --format=esm",
+    "dev": "esbuild src/index.ts --bundle --target=es2015 --servedir=. --outfile=dist/protomaps-leaflet.js --global-name=protomapsL",
+    "build": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps-leaflet.js --global-name=protomapsL",
+    "build-min": "esbuild src/index.ts --bundle --target=es2015 --minify --outfile=dist/protomaps-leaflet.min.js --global-name=protomapsL",
+    "build-module": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps-leaflet.module.js --format=esm",
     "build-tsc": "tsc --declaration --outdir dist",
     "tsc": "tsc --noEmit --watch",
     "test": "node -r esbuild-runner/register test/index.ts",
@@ -49,7 +49,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/protomaps/protomaps.js.git"
+    "url": "git://github.com/protomaps/protomaps-leaflet.git"
   },
   "keywords": [
     "gis",

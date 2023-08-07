@@ -5,8 +5,8 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps@1.23.1/dist/protomaps.min.js"></script>
-        <!-- <script src="../dist/protomaps.js"></script> -->
+        <script src="https://unpkg.com/protomaps-leaflet@1.23.1/dist/protomaps-leaflet.min.js"></script>
+        <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
                 height:100vh;
@@ -39,12 +39,12 @@
             </html>
             `
 
-            let sheet = new protomaps.Sheet(ICONS)
+            let sheet = new protomapsL.Sheet(ICONS)
 
-            var layer = protomaps.leafletLayer({url:url,tasks:[sheet.load()],label_rules:[
+            var layer = protomapsL.leafletLayer({url:url,tasks:[sheet.load()],label_rules:[
                     {
                         dataLayer:"pois",
-                        symbolizer:new protomaps.IconSymbolizer({
+                        symbolizer:new protomapsL.IconSymbolizer({
                             name:"hospital",
                             sheet:sheet
                         })
