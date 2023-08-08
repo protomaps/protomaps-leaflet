@@ -27,6 +27,7 @@ See the docs on [what protomaps-leaflet is, what protomaps-leaflet is not](https
 ## Demos
 
 * [Simple Leaflet demo](https://protomaps.github.io/protomaps-leaflet/examples/leaflet.html)
+* ["Toner" black-and-white style](https://protomaps.github.io/protomaps-leaflet/examples/toner.html)
 * [Multi-language customization](https://protomaps.github.io/protomaps-leaflet/examples/multi_language.html)
 * [Satellite + labels demo](https://protomaps.github.io/protomaps-leaflet/examples/labels.html)
 * [GeoJSON between basemap and labels demo](https://protomaps.github.io/protomaps-leaflet/examples/sandwich.html)
