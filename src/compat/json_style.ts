@@ -66,7 +66,7 @@ export function numberFn(obj: any): (z: number, f?: Feature) => number {
   } else if (
     obj[0] === "interpolate" &&
     obj[1][0] === "exponential" &&
-    obj[2] === "zoom"
+    obj[2] === ["zoom"]
   ) {
     const slice = obj.slice(3);
     const stops: number[][] = [];
