@@ -1,3 +1,9 @@
+# 1.24.1
+* Apply linting rules; fix scoping and equality problems caught by linter.
+
+# 1.24.0
+* library renamed from `protomaps` to `protomaps-leaflet`, including npm package.
+
 # 1.23
 * bump `pmtiles` to 2.6.1.
 
