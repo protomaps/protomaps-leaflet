@@ -1,4 +1,4 @@
-import { Zxy, TileSource, Feature } from "../src/tilecache";
+import { Feature, TileSource, Zxy } from "../src/tilecache";
 
 export class StubSource implements TileSource {
   public async get(c: Zxy): Promise<Map<string, Feature[]>> {

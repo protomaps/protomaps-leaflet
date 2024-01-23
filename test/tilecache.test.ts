@@ -17,7 +17,7 @@ test("basic", async () => {
 test("point to point", async () => {
   assert.equal(
     pointMinDistToPoints({ x: 0, y: 0 }, [[{ x: 8, y: 0 }], [{ x: 4, y: 0 }]]),
-    4
+    4,
   );
 });
 
@@ -29,7 +29,7 @@ test("point to line", async () => {
         { x: 10, y: 0 },
       ],
     ]),
-    4
+    4,
   );
 });
 
@@ -42,7 +42,7 @@ test("is in ring", async () => {
       { x: 10, y: 10 },
       { x: 0, y: 10 },
       { x: 0, y: 0 },
-    ])
+    ]),
   );
 
   // works for CCW
@@ -54,7 +54,7 @@ test("is in ring", async () => {
       { x: 10, y: 10 },
       { x: 10, y: 0 },
       { x: 0, y: 0 },
-    ])
+    ]),
   );
 });
 
@@ -67,7 +67,7 @@ test("is ccw", async () => {
       { x: 10, y: 10 },
       { x: 0, y: 10 },
       { x: 0, y: 0 },
-    ])
+    ]),
   );
   assert.equal(
     true,
@@ -77,7 +77,7 @@ test("is ccw", async () => {
       { x: 10, y: 10 },
       { x: 10, y: 0 },
       { x: 0, y: 0 },
-    ])
+    ]),
   );
 });
 
@@ -93,7 +93,7 @@ test("point in polygon", async () => {
         { x: 0, y: 10 },
         { x: 0, y: 0 },
       ],
-    ])
+    ]),
   );
 
   // multiple exterior rings
@@ -114,7 +114,7 @@ test("point in polygon", async () => {
         { x: 20, y: 30 },
         { x: 20, y: 20 },
       ],
-    ])
+    ]),
   );
 
   // simple case with holes
@@ -135,6 +135,6 @@ test("point in polygon", async () => {
         { x: 3, y: 7 },
         { x: 7, y: 7 },
       ],
-    ])
+    ]),
   );
 });

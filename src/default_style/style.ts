@@ -4,7 +4,6 @@ import { Rule } from "../painter";
 import {
   CenteredTextSymbolizer,
   CircleSymbolizer,
-  exp,
   FlexSymbolizer,
   GroupSymbolizer,
   LabelSymbolizer,
@@ -14,6 +13,7 @@ import {
   PolygonLabelSymbolizer,
   PolygonSymbolizer,
   ShieldSymbolizer,
+  exp,
 } from "../symbolizer";
 import { Feature } from "../tilecache";
 
@@ -53,10 +53,10 @@ export interface DefaultStyleParams {
 }
 
 const doShading = (params: DefaultStyleParams, shade: string) => {
-  let shadeHsl = parseToHsla(shade);
-  let outParams: any = { ...params };
+  const shadeHsl = parseToHsla(shade);
+  const outParams: any = { ...params };
   for (const [key, value] of Object.entries(params)) {
-    let o = parseToHsla(value);
+    const o = parseToHsla(value);
     outParams[key] = hsla(shadeHsl[0], shadeHsl[1], o[2], o[3]);
   }
   return outParams;
@@ -64,7 +64,7 @@ const doShading = (params: DefaultStyleParams, shade: string) => {
 
 export const paintRules = (
   params: DefaultStyleParams,
-  shade?: string
+  shade?: string,
 ): Rule[] => {
   if (shade) params = doShading(params, shade);
   return [
@@ -320,13 +320,13 @@ export const labelRules = (
   params: DefaultStyleParams,
   shade?: string,
   language1?: string[],
-  language2?: string[]
+  language2?: string[],
 ): LabelRule[] => {
   if (shade) params = doShading(params, shade);
   var nametags = ["name"];
   if (language1) nametags = language1;
 
-  let languageStack = (symbolizer: LabelSymbolizer, fill: string) => {
+  const languageStack = (symbolizer: LabelSymbolizer, fill: string) => {
     if (!language2) return symbolizer;
     if (symbolizer instanceof OffsetTextSymbolizer) {
       return new FlexSymbolizer([
@@ -361,7 +361,7 @@ export const labelRules = (
           },
           textTransform: "uppercase",
         }),
-        params.countryLabel
+        params.countryLabel,
       ),
       filter: (z, f) => {
         return f.props["pmap:kind"] == "country";
@@ -375,7 +375,7 @@ export const labelRules = (
           fill: params.stateLabel,
           font: "300 16px sans-serif",
         }),
-        params.stateLabel
+        params.stateLabel,
       ),
       filter: (z, f) => {
         return f.props["pmap:kind"] == "state";
@@ -402,7 +402,7 @@ export const labelRules = (
             }
           },
         }),
-        params.cityLabel
+        params.cityLabel,
       ),
       sort: (a: any, b: any) => {
         return a["pmap:rank"] - b["pmap:rank"];
@@ -436,7 +436,7 @@ export const labelRules = (
               }
             },
           }),
-          params.cityLabel
+          params.cityLabel,
         ),
       ]),
       sort: (a: any, b: any) => {
@@ -453,7 +453,7 @@ export const labelRules = (
           font: "500 10px sans-serif",
           textTransform: "uppercase",
         }),
-        params.neighbourhoodLabel
+        params.neighbourhoodLabel,
       ),
       filter: (z, f) => {
         return f.props["pmap:kind"] == "neighbourhood";
@@ -467,7 +467,7 @@ export const labelRules = (
           fill: params.landuseLabel,
           font: "300 12px sans-serif",
         }),
-        params.landuseLabel
+        params.landuseLabel,
       ),
     },
     {
@@ -478,7 +478,7 @@ export const labelRules = (
           fill: params.waterLabel,
           font: "italic 600 12px sans-serif",
         }),
-        params.waterLabel
+        params.waterLabel,
       ),
     },
     {
@@ -489,7 +489,7 @@ export const labelRules = (
           fill: params.naturalLabel,
           font: "italic 300 12px sans-serif",
         }),
-        params.naturalLabel
+        params.naturalLabel,
       ),
     },
     {
@@ -500,7 +500,7 @@ export const labelRules = (
           fill: params.roadsLabel,
           font: "500 12px sans-serif",
         }),
-        params.roadsLabel
+        params.roadsLabel,
       ),
       minzoom: 12,
     },
@@ -532,7 +532,7 @@ export const labelRules = (
             offsetY: 2,
             font: "300 10px sans-serif",
           }),
-          params.poisLabel
+          params.poisLabel,
         ),
       ]),
     },

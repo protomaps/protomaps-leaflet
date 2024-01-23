@@ -1,9 +1,9 @@
 // TODO should be visual length in pixels, not strlen
 export function linebreak(str: string, maxUnits: number): string[] {
   if (str.length <= maxUnits) return [str];
-  let endIndex = maxUnits - 1;
-  let space_before = str.lastIndexOf(" ", endIndex);
-  let space_after = str.indexOf(" ", endIndex);
+  const endIndex = maxUnits - 1;
+  const space_before = str.lastIndexOf(" ", endIndex);
+  const space_after = str.indexOf(" ", endIndex);
   if (space_before == -1 && space_after == -1) {
     return [str];
   }

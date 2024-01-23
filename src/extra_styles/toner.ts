@@ -1,16 +1,16 @@
-import { Justify } from "../symbolizer";
-import { Rule } from "../painter";
 import { LabelRule } from "../labeler";
-import { Font, Sheet } from "../task";
-import { arr, exp, createPattern } from "../symbolizer";
+import { Rule } from "../painter";
+import { Justify } from "../symbolizer";
+import { arr, createPattern, exp } from "../symbolizer";
 import { CircleSymbolizer, IconSymbolizer } from "../symbolizer";
 import {
-  GroupSymbolizer,
   CenteredTextSymbolizer,
+  GroupSymbolizer,
   OffsetTextSymbolizer,
 } from "../symbolizer";
-import { LineSymbolizer, LineLabelSymbolizer } from "../symbolizer";
-import { PolygonSymbolizer, PolygonLabelSymbolizer } from "../symbolizer";
+import { LineLabelSymbolizer, LineSymbolizer } from "../symbolizer";
+import { PolygonLabelSymbolizer, PolygonSymbolizer } from "../symbolizer";
+import { Font, Sheet } from "../task";
 // import icons from './toner-icons.html'
 
 // https://github.com/stamen/toner-carto/blob/master/map.mss
@@ -31,7 +31,7 @@ import { PolygonSymbolizer, PolygonLabelSymbolizer } from "../symbolizer";
 // }
 
 const Toner = (variant: string) => {
-  let halftone = createPattern(4, 4, (c) => {
+  const halftone = createPattern(4, 4, (c) => {
     var ctx = c.getContext("2d");
     if (ctx) {
       ctx.beginPath();
@@ -47,10 +47,10 @@ const Toner = (variant: string) => {
     background = "#d9d9d9";
   }
 
-  let lang = ["name:en", "name"];
+  const lang = ["name:en", "name"];
   // let sprites = Sprites(icons);
 
-  let paint_rules: Rule[] = [
+  const paint_rules: Rule[] = [
     {
       dataLayer: "earth",
       symbolizer: new PolygonSymbolizer({
@@ -192,7 +192,7 @@ const Toner = (variant: string) => {
     },
   ];
 
-  let label_rules: LabelRule[] = [
+  const label_rules: LabelRule[] = [
     {
       dataLayer: "places",
       symbolizer: new CenteredTextSymbolizer({
@@ -344,7 +344,7 @@ const Toner = (variant: string) => {
       Font(
         "Inter",
         "https://cdn.protomaps.com/fonts/woff2/Inter.var.woff2",
-        "100 900"
+        "100 900",
       ),
     ],
     paint_rules: paint_rules,

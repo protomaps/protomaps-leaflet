@@ -1,10 +1,10 @@
-import { GeomType } from "./tilecache";
+import { Rule } from "./painter";
 import {
   CircleSymbolizer,
   LineSymbolizer,
   PolygonSymbolizer,
 } from "./symbolizer";
-import { Rule } from "./painter";
+import { GeomType } from "./tilecache";
 import { PreparedTile } from "./view";
 
 export interface XraySelection {
@@ -12,10 +12,10 @@ export interface XraySelection {
   dataLayer: string;
 }
 
-let xray_symbolizers = (
+const xray_symbolizers = (
   dataSource: string,
   dataLayer: string,
-  color: string
+  color: string,
 ): Rule[] => {
   return [
     {
@@ -58,9 +58,9 @@ let xray_symbolizers = (
   ];
 };
 
-export let xray_rules = (
+export const xray_rules = (
   prepared_tilemap: Map<string, PreparedTile[]>,
-  xray: XraySelection // the highlighted layer
+  xray: XraySelection, // the highlighted layer
 ): Rule[] => {
   var rules: Rule[] = [];
   for (var [dataSource, tiles] of prepared_tilemap) {
@@ -70,7 +70,7 @@ export let xray_rules = (
           // do nothing since the highlighted layer should go last
         } else {
           rules = rules.concat(
-            xray_symbolizers(dataSource, dataLayer, "steelblue")
+            xray_symbolizers(dataSource, dataLayer, "steelblue"),
           );
         }
       }
@@ -79,7 +79,7 @@ export let xray_rules = (
 
   // the highlighted layer
   rules = rules.concat(
-    xray_symbolizers(xray.dataSource || "", xray.dataLayer, "red")
+    xray_symbolizers(xray.dataSource || "", xray.dataLayer, "red"),
   );
   return rules;
 };

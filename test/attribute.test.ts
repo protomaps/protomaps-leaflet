@@ -125,12 +125,12 @@ test("textattr", async () => {
       ...emptyFeature,
       props: { "name:en": "Taipei", name: "臺北" },
     }),
-    "Taipei"
+    "Taipei",
   );
   t = new TextAttr({ label_props: ["name:en"], textTransform: "uppercase" });
   assert.equal(
     t.get(0, { ...emptyFeature, props: { "name:en": "Taipei" } }),
-    "TAIPEI"
+    "TAIPEI",
   );
   t = new TextAttr({ label_props: ["name:en"], textTransform: "lowercase" });
   assert.equal(
@@ -139,7 +139,7 @@ test("textattr", async () => {
       props: { "name:en": "Taipei" },
       geomType: GeomType.Point,
     }),
-    "taipei"
+    "taipei",
   );
   t = new TextAttr({ label_props: ["name:en"], textTransform: "capitalize" });
   assert.equal(
@@ -148,7 +148,7 @@ test("textattr", async () => {
       props: { "name:en": "from Berga to Taipei" },
       geomType: GeomType.Point,
     }),
-    "From Berga To Taipei"
+    "From Berga To Taipei",
   );
   t = new TextAttr({ label_props: ["name:en"], textTransform: "uppercase" });
   assert.equal(t.get(0, { ...emptyFeature, props: {} }), undefined);
@@ -163,7 +163,7 @@ test("textattr", async () => {
       props: { "name:en": "Taipei" },
       geomType: GeomType.Point,
     }),
-    "TAIPEI"
+    "TAIPEI",
   );
   t = new TextAttr({
     label_props: ["name:en"],
@@ -175,7 +175,7 @@ test("textattr", async () => {
       props: { "name:en": "Taipei" },
       geomType: GeomType.Point,
     }),
-    "taipei"
+    "taipei",
   );
   t = new TextAttr({
     label_props: ["name:en"],
@@ -187,7 +187,7 @@ test("textattr", async () => {
       props: { "name:en": "from Berga to Taipei" },
       geomType: GeomType.Point,
     }),
-    "From Berga To Taipei"
+    "From Berga To Taipei",
   );
 
   t = new TextAttr({
@@ -199,11 +199,11 @@ test("textattr", async () => {
   });
   assert.equal(
     t.get(0, { ...emptyFeature, props: { name: "台北", abbr: "TPE" } }),
-    "TPE"
+    "TPE",
   );
   assert.equal(
     t.get(9, { ...emptyFeature, props: { name: "台北", abbr: "TPE" } }),
-    "台北"
+    "台北",
   );
 });
 
@@ -224,7 +224,7 @@ test("arrayattr", async () => {
     (z, f) => {
       return [z, z];
     },
-    [0]
+    [0],
   );
   assert.equal(n.get(2)[0], 2);
   assert.equal(n.get(2)[1], 2);

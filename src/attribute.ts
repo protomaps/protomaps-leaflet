@@ -24,7 +24,7 @@ export class NumberAttr {
   value: AttrOption<number>;
   per_feature: boolean;
 
-  constructor(c: AttrOption<number> | undefined, defaultValue: number = 1) {
+  constructor(c: AttrOption<number> | undefined, defaultValue = 1) {
     this.value = c ?? defaultValue;
     this.per_feature =
       typeof this.value == "function" && this.value.length == 2;
@@ -62,7 +62,7 @@ export class TextAttr {
     } else {
       label_props = this.label_props;
     }
-    for (let property of label_props) {
+    for (const property of label_props) {
       if (
         f.props.hasOwnProperty(property) &&
         typeof f.props[property] === "string"

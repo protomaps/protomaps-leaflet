@@ -12,7 +12,7 @@ export interface LabelableSegment {
 const linelabel = (
   pts: Point[],
   max_angle_delta: number,
-  targetLen: number
+  targetLen: number,
 ): LabelableSegment[] => {
   var chunks = [];
   var a,
@@ -34,7 +34,7 @@ const linelabel = (
   if (pts.length < 2) return [];
   if (pts.length === 2) {
     d = Math.sqrt(
-      Math.pow(pts[1].x - pts[0].x, 2) + Math.pow(pts[1].y - pts[0].y, 2)
+      Math.pow(pts[1].x - pts[0].x, 2) + Math.pow(pts[1].y - pts[0].y, 2),
     );
 
     return [
@@ -49,7 +49,7 @@ const linelabel = (
   }
 
   abmag = Math.sqrt(
-    Math.pow(pts[1].x - pts[0].x, 2) + Math.pow(pts[1].y - pts[0].y, 2)
+    Math.pow(pts[1].x - pts[0].x, 2) + Math.pow(pts[1].y - pts[0].y, 2),
   );
   for (i = 1, n = pts.length - 1; i < n; i++) {
     a = pts[i - 1];
@@ -98,28 +98,28 @@ export function simpleLabel(
   mls: any,
   minimum: number,
   repeatDistance: number,
-  cellSize: number
+  cellSize: number,
 ): LabelCandidate[] {
   let longestStart;
   let longestEnd;
-  let longestLength = 0;
+  const longestLength = 0;
 
-  let candidates = [];
+  const candidates = [];
 
   var lastLabeledDistance = -Infinity;
 
-  for (let ls of mls) {
-    let segments = linelabel(ls, Math.PI / 45, minimum); // 4 degrees, close to a straight line
-    for (let segment of segments) {
+  for (const ls of mls) {
+    const segments = linelabel(ls, Math.PI / 45, minimum); // 4 degrees, close to a straight line
+    for (const segment of segments) {
       if (segment.length >= minimum + cellSize) {
-        let start = new Point(
+        const start = new Point(
           ls[segment.beginIndex].x,
-          ls[segment.beginIndex].y
+          ls[segment.beginIndex].y,
         );
-        let end = ls[segment.endIndex - 1];
-        let normalized = new Point(
+        const end = ls[segment.endIndex - 1];
+        const normalized = new Point(
           (end.x - start.x) / segment.length,
-          (end.y - start.y) / segment.length
+          (end.y - start.y) / segment.length,
         );
 
         // offset from the start by cellSize to allow streets that meet at right angles
@@ -143,15 +143,15 @@ export function simpleLabel(
 
 export function lineCells(a: Point, b: Point, length: number, spacing: number) {
   // determine function of line
-  let dx = b.x - a.x;
-  let dy = b.y - a.y;
-  let dist = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const dist = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
 
-  let retval = [];
+  const retval = [];
   // starting from the anchor, generate square cells,
   // guaranteeing to cover the endpoint
   for (var i = 0; i < length + spacing; i += 2 * spacing) {
-    let factor = (i * 1) / dist;
+    const factor = (i * 1) / dist;
     retval.push({ x: a.x + factor * dx, y: a.y + factor * dy });
   }
   return retval;
