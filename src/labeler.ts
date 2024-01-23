@@ -197,10 +197,10 @@ export class Index {
     }
     entry.add(indexed_label);
 
-    var wrapsLeft = false;
-    var wrapsRight = false;
+    let wrapsLeft = false;
+    let wrapsRight = false;
     for (const bbox of label.bboxes) {
-      var b: any = bbox;
+      const b: any = bbox;
       b.indexed_label = indexed_label;
       this.tree.insert(b);
 
@@ -209,9 +209,9 @@ export class Index {
     }
 
     if (wrapsLeft || wrapsRight) {
-      var shift = wrapsLeft ? this.dim : -this.dim;
+      const shift = wrapsLeft ? this.dim : -this.dim;
 
-      var new_bboxes = [];
+      const new_bboxes = [];
       for (const bbox of label.bboxes) {
         new_bboxes.push({
           minX: bbox.minX + shift,
@@ -230,7 +230,7 @@ export class Index {
       const entry = this.current.get(tileKey);
       if (entry) entry.add(duplicate_label);
       for (const bbox of new_bboxes) {
-        var b: any = bbox;
+        const b: any = bbox;
         b.indexed_label = duplicate_label;
         this.tree.insert(b);
       }
@@ -243,7 +243,7 @@ export class Index {
     let max_dist = 0;
     let keys_for_ds = 0;
 
-    for (var existing_key of this.current.keys()) {
+    for (const existing_key of this.current.keys()) {
       const existing = existing_key.split(":");
       if (existing[3] === added[3]) {
         keys_for_ds++;
@@ -285,7 +285,7 @@ export class Index {
   public removeLabel(labelToRemove: IndexedLabel): void {
     const entries_to_delete = [];
     for (const entry of this.tree.all()) {
-      if (labelToRemove == entry.indexed_label) {
+      if (labelToRemove === entry.indexed_label) {
         entries_to_delete.push(entry);
       }
     }
@@ -335,7 +335,7 @@ export class Labeler {
 
     const tiles_invalidated = new Set<string>();
     for (const [order, rule] of this.labelRules.entries()) {
-      if (rule.visible == false) continue;
+      if (rule.visible === false) continue;
       if (rule.minzoom && this.z < rule.minzoom) continue;
       if (rule.maxzoom && this.z > rule.maxzoom) continue;
 
@@ -378,7 +378,7 @@ export class Labeler {
           if (!labels) continue;
 
           for (const label of labels) {
-            var label_added = false;
+            let label_added = false;
             if (
               label.deduplicationKey &&
               this.index.deduplicationCollides(label)
@@ -432,7 +432,7 @@ export class Labeler {
       }
     }
 
-    for (var key of keys_adding) {
+    for (const key of keys_adding) {
       this.index.pruneOrNoop(key);
     }
 
@@ -450,14 +450,14 @@ export class Labeler {
   ) {
     const touched = covering(this.z, dim, bbox);
     for (const s of touched) {
-      if (s.key != key && this.index.hasPrefix(s.key)) {
+      if (s.key !== key && this.index.hasPrefix(s.key)) {
         tiles_invalidated.add(s.display);
       }
     }
   }
 
   public add(prepared_tilemap: Map<string, PreparedTile[]>): number {
-    var all_added = true;
+    let all_added = true;
     for (const [k, prepared_tiles] of prepared_tilemap) {
       for (const prepared_tile of prepared_tiles) {
         if (!this.index.has(toIndex(prepared_tile.data_tile) + ":" + k))
@@ -495,7 +495,7 @@ export class Labelers {
   }
 
   public add(z: number, prepared_tilemap: Map<string, PreparedTile[]>): number {
-    var labeler = this.labelers.get(z);
+    let labeler = this.labelers.get(z);
     if (labeler) {
       return labeler.add(prepared_tilemap);
     } else {

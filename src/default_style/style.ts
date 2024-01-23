@@ -80,7 +80,7 @@ export const paintRules = (
         fill: params.glacier,
       }),
       filter: (z, f) => {
-        return f.props.natural == "glacier";
+        return f.props.natural === "glacier";
       },
     },
     {
@@ -90,7 +90,7 @@ export const paintRules = (
       }),
       filter: (z, f) => {
         return (
-          f.props.landuse == "residential" || f.props.place == "neighbourhood"
+          f.props.landuse === "residential" || f.props.place === "neighbourhood"
         );
       },
     },
@@ -100,7 +100,7 @@ export const paintRules = (
         fill: params.hospital,
       }),
       filter: (z, f) => {
-        return f.props.amenity == "hospital";
+        return f.props.amenity === "hospital";
       },
     },
     {
@@ -109,7 +109,7 @@ export const paintRules = (
         fill: params.cemetery,
       }),
       filter: (z, f) => {
-        return f.props.landuse == "cemetery";
+        return f.props.landuse === "cemetery";
       },
     },
     {
@@ -119,10 +119,10 @@ export const paintRules = (
       }),
       filter: (z, f) => {
         return (
-          f.props.amenity == "school" ||
-          f.props.amenity == "kindergarten" ||
-          f.props.amenity == "university" ||
-          f.props.amenity == "college"
+          f.props.amenity === "school" ||
+          f.props.amenity === "kindergarten" ||
+          f.props.amenity === "university" ||
+          f.props.amenity === "college"
         );
       },
     },
@@ -132,7 +132,7 @@ export const paintRules = (
         fill: params.industrial,
       }),
       filter: (z, f) => {
-        return f.props.landuse == "industrial";
+        return f.props.landuse === "industrial";
       },
     },
     {
@@ -141,7 +141,7 @@ export const paintRules = (
         fill: params.wood,
       }),
       filter: (z, f) => {
-        return f.props.natural == "wood";
+        return f.props.natural === "wood";
       },
     },
     {
@@ -150,7 +150,7 @@ export const paintRules = (
         fill: params.grass,
       }),
       filter: (z, f) => {
-        return f.props.landuse == "grass";
+        return f.props.landuse === "grass";
       },
     },
     {
@@ -159,7 +159,7 @@ export const paintRules = (
         fill: params.park,
       }),
       filter: (z, f) => {
-        return f.props.leisure == "park";
+        return f.props.leisure === "park";
       },
     },
     {
@@ -174,7 +174,7 @@ export const paintRules = (
         fill: params.sand,
       }),
       filter: (z, f) => {
-        return f.props.natural == "sand";
+        return f.props.natural === "sand";
       },
     },
     {
@@ -195,7 +195,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "highway";
+        return f.props["pmap:kind"] === "highway";
       },
     },
     {
@@ -210,7 +210,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "major_road";
+        return f.props["pmap:kind"] === "major_road";
       },
     },
     {
@@ -224,7 +224,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "medium_road";
+        return f.props["pmap:kind"] === "medium_road";
       },
     },
     {
@@ -238,7 +238,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "minor_road";
+        return f.props["pmap:kind"] === "minor_road";
       },
     },
     {
@@ -252,7 +252,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "minor_road";
+        return f.props["pmap:kind"] === "minor_road";
       },
     },
     {
@@ -266,7 +266,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "medium_road";
+        return f.props["pmap:kind"] === "medium_road";
       },
     },
     {
@@ -281,7 +281,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "major_road";
+        return f.props["pmap:kind"] === "major_road";
       },
     },
     {
@@ -296,7 +296,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "highway";
+        return f.props["pmap:kind"] === "highway";
       },
     },
     {
@@ -323,7 +323,7 @@ export const labelRules = (
   language2?: string[],
 ): LabelRule[] => {
   if (shade) params = doShading(params, shade);
-  var nametags = ["name"];
+  let nametags = ["name"];
   if (language1) nametags = language1;
 
   const languageStack = (symbolizer: LabelSymbolizer, fill: string) => {

@@ -17,11 +17,11 @@ export function filterFn(arr: any[]): Filter {
   // hack around "$type"
   if (arr.includes("$type")) {
     return (z) => true;
-  } else if (arr[0] == "==") {
+  } else if (arr[0] === "==") {
     return (z, f) => f.props[arr[1]] === arr[2];
-  } else if (arr[0] == "!=") {
+  } else if (arr[0] === "!=") {
     return (z, f) => f.props[arr[1]] !== arr[2];
-  } else if (arr[0] == "!") {
+  } else if (arr[0] === "!") {
     const sub = filterFn(arr[1]);
     return (z, f) => !sub(z, f);
   } else if (arr[0] === "<") {
@@ -64,13 +64,13 @@ export function numberFn(obj: any): (z: number, f?: Feature) => number {
       return exp(obj.base, obj.stops)(z - 1);
     };
   } else if (
-    obj[0] == "interpolate" &&
-    obj[1][0] == "exponential" &&
-    obj[2] == "zoom"
+    obj[0] === "interpolate" &&
+    obj[1][0] === "exponential" &&
+    obj[2] === "zoom"
   ) {
     const slice = obj.slice(3);
     const stops: number[][] = [];
-    for (var i = 0; i < slice.length; i += 2) {
+    for (let i = 0; i < slice.length; i += 2) {
       stops.push([slice[i], slice[i + 1]]);
     }
     return (z: number) => {
@@ -83,7 +83,7 @@ export function numberFn(obj: any): (z: number, f?: Feature) => number {
       const val = f?.props[prop];
       if (typeof val === "number") {
         if (val < slice[1]) return slice[0];
-        for (i = 1; i < slice.length; i += 2) {
+        for (let i = 1; i < slice.length; i += 2) {
           if (val <= slice[i]) return slice[i + 1];
         }
       }
@@ -111,9 +111,9 @@ export function widthFn(width_obj: any, gap_obj: any) {
   const w = numberOrFn(width_obj, 1);
   const g = numberOrFn(gap_obj);
   return (z: number, f?: Feature) => {
-    const tmp = typeof w == "number" ? w : w(z, f);
+    const tmp = typeof w === "number" ? w : w(z, f);
     if (g) {
-      return tmp + (typeof g == "number" ? g : g(z, f));
+      return tmp + (typeof g === "number" ? g : g(z, f));
     }
     return tmp;
   };
@@ -136,10 +136,10 @@ export function getFont(obj: any, fontsubmap: any) {
 
   const text_size = obj["text-size"];
   // for fallbacks, use the weight and style of the first font
-  var weight = "";
+  let weight = "";
   if (fontfaces.length && fontfaces[0].weight)
     weight = fontfaces[0].weight + " ";
-  var style = "";
+  let style = "";
   if (fontfaces.length && fontfaces[0].style) style = fontfaces[0].style + " ";
 
   if (typeof text_size == "number") {
@@ -148,7 +148,7 @@ export function getFont(obj: any, fontsubmap: any) {
         .map((f) => f.face)
         .join(", ")}`;
   } else if (text_size.stops) {
-    var base = 1.4;
+    let base = 1.4;
     if (text_size.base) base = text_size.base;
     else text_size.base = base;
     const t = numberFn(text_size);
@@ -157,7 +157,7 @@ export function getFont(obj: any, fontsubmap: any) {
         .map((f) => f.face)
         .join(", ")}`;
     };
-  } else if (text_size[0] == "step") {
+  } else if (text_size[0] === "step") {
     const t = numberFn(text_size);
     return (z: number, f?: Feature) => {
       return `${style}${weight}${t(z, f)}px ${fontfaces
@@ -175,10 +175,10 @@ export function json_style(obj: any, fontsubmap: Map<string, FontSub>) {
   const label_rules = [];
   const refs = new Map<string, any>();
 
-  for (var layer of obj.layers) {
+  for (const layer of obj.layers) {
     refs.set(layer.id, layer);
 
-    if (layer.layout && layer.layout.visibility == "none") {
+    if (layer.layout && layer.layout.visibility === "none") {
       continue;
     }
 
@@ -191,15 +191,15 @@ export function json_style(obj: any, fontsubmap: Map<string, FontSub>) {
     }
 
     const sourceLayer = layer["source-layer"];
-    var symbolizer;
+    let symbolizer;
 
-    var filter = undefined;
+    let filter = undefined;
     if (layer.filter) {
       filter = filterFn(layer.filter);
     }
 
     // ignore background-color?
-    if (layer.type == "fill") {
+    if (layer.type === "fill") {
       paint_rules.push({
         dataLayer: layer["source-layer"],
         filter: filter,
@@ -208,7 +208,7 @@ export function json_style(obj: any, fontsubmap: Map<string, FontSub>) {
           opacity: layer.paint["fill-opacity"],
         }),
       });
-    } else if (layer.type == "fill-extrusion") {
+    } else if (layer.type === "fill-extrusion") {
       // simulate fill-extrusion with plain fill
       paint_rules.push({
         dataLayer: layer["source-layer"],
@@ -218,7 +218,7 @@ export function json_style(obj: any, fontsubmap: Map<string, FontSub>) {
           opacity: layer.paint["fill-extrusion-opacity"],
         }),
       });
-    } else if (layer.type == "line") {
+    } else if (layer.type === "line") {
       // simulate gap-width
       if (layer.paint["line-dasharray"]) {
         paint_rules.push({
@@ -246,8 +246,8 @@ export function json_style(obj: any, fontsubmap: Map<string, FontSub>) {
           }),
         });
       }
-    } else if (layer.type == "symbol") {
-      if (layer.layout["symbol-placement"] == "line") {
+    } else if (layer.type === "symbol") {
+      if (layer.layout["symbol-placement"] === "line") {
         label_rules.push({
           dataLayer: layer["source-layer"],
           filter: filter,
@@ -278,7 +278,7 @@ export function json_style(obj: any, fontsubmap: Map<string, FontSub>) {
           }),
         });
       }
-    } else if (layer.type == "circle") {
+    } else if (layer.type === "circle") {
       paint_rules.push({
         dataLayer: layer["source-layer"],
         filter: filter,

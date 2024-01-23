@@ -14,22 +14,22 @@ const linelabel = (
   max_angle_delta: number,
   targetLen: number,
 ): LabelableSegment[] => {
-  var chunks = [];
-  var a,
+  const chunks = [];
+  let a,
     b,
     c,
     i = 0,
     n = 0,
     d = 0;
-  var abmag = 0,
+  let abmag = 0,
     bcmag = 0;
-  var abx = 0,
+  let abx = 0,
     aby = 0;
-  var bcx = 0,
+  let bcx = 0,
     bcy = 0;
-  var dt = 0;
-  var i_start = 0;
-  var d_start = 0;
+  let dt = 0;
+  let i_start = 0;
+  let d_start = 0;
 
   if (pts.length < 2) return [];
   if (pts.length === 2) {
@@ -106,7 +106,7 @@ export function simpleLabel(
 
   const candidates = [];
 
-  var lastLabeledDistance = -Infinity;
+  const lastLabeledDistance = -Infinity;
 
   for (const ls of mls) {
     const segments = linelabel(ls, Math.PI / 45, minimum); // 4 degrees, close to a straight line
@@ -125,7 +125,7 @@ export function simpleLabel(
         // offset from the start by cellSize to allow streets that meet at right angles
         // to both be labeled.
         for (
-          var i = cellSize;
+          let i = cellSize;
           i < segment.length - minimum;
           i += repeatDistance
         ) {
@@ -150,7 +150,7 @@ export function lineCells(a: Point, b: Point, length: number, spacing: number) {
   const retval = [];
   // starting from the anchor, generate square cells,
   // guaranteeing to cover the endpoint
-  for (var i = 0; i < length + spacing; i += 2 * spacing) {
+  for (let i = 0; i < length + spacing; i += 2 * spacing) {
     const factor = (i * 1) / dist;
     retval.push({ x: a.x + factor * dx, y: a.y + factor * dy });
   }

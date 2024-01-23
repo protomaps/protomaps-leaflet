@@ -126,11 +126,11 @@ export class PolygonSymbolizer implements PaintSymbolizer {
     z: number,
     f: Feature,
   ) {
-    var do_stroke = false;
+    let do_stroke = false;
     if (this.per_feature) {
       ctx.globalAlpha = this.opacity.get(z, f);
       ctx.fillStyle = this.fill.get(z, f);
-      var width = this.width.get(z, f);
+      const width = this.width.get(z, f);
       if (width) {
         do_stroke = true;
         ctx.strokeStyle = this.stroke.get(z, f);
@@ -145,17 +145,17 @@ export class PolygonSymbolizer implements PaintSymbolizer {
       }
     };
 
-    var vertices_in_path = 0;
+    let vertices_in_path = 0;
     ctx.beginPath();
-    for (var poly of geom) {
+    for (const poly of geom) {
       if (vertices_in_path + poly.length > MAX_VERTICES_PER_DRAW_CALL) {
         drawPath();
         vertices_in_path = 0;
         ctx.beginPath();
       }
-      for (var p = 0; p < poly.length; p++) {
+      for (let p = 0; p < poly.length; p++) {
         const pt = poly[p];
-        if (p == 0) ctx.moveTo(pt.x, pt.y);
+        if (p === 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       }
       vertices_in_path += poly.length;
@@ -342,17 +342,17 @@ export class LineSymbolizer implements PaintSymbolizer {
       }
     };
 
-    var vertices_in_path = 0;
+    let vertices_in_path = 0;
     ctx.beginPath();
-    for (var ls of geom) {
+    for (const ls of geom) {
       if (vertices_in_path + ls.length > MAX_VERTICES_PER_DRAW_CALL) {
         strokePath();
         vertices_in_path = 0;
         ctx.beginPath();
       }
-      for (var p = 0; p < ls.length; p++) {
+      for (let p = 0; p < ls.length; p++) {
         const pt = ls[p];
-        if (p == 0) ctx.moveTo(pt.x, pt.y);
+        if (p === 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       }
       vertices_in_path += ls.length;
@@ -540,9 +540,9 @@ export class FlexSymbolizer implements LabelSymbolizer {
   }
 
   public place(layout: Layout, geom: Point[][], feature: Feature) {
-    var labels = this.list[0].place(layout, geom, feature);
+    let labels = this.list[0].place(layout, geom, feature);
     if (!labels) return undefined;
-    var label = labels[0];
+    let label = labels[0];
     const anchor = label.anchor;
     let bbox = label.bboxes[0];
     const height = bbox.maxY - bbox.minY;
@@ -590,9 +590,9 @@ export class GroupSymbolizer implements LabelSymbolizer {
   public place(layout: Layout, geom: Point[][], feature: Feature) {
     const first = this.list[0];
     if (!first) return undefined;
-    var labels = first.place(layout, geom, feature);
+    let labels = first.place(layout, geom, feature);
     if (!labels) return undefined;
-    var label = labels[0];
+    let label = labels[0];
     const anchor = label.anchor;
     let bbox = label.bboxes[0];
     const draws = [label.draw];
@@ -622,7 +622,7 @@ export class CenteredSymbolizer implements LabelSymbolizer {
   public place(layout: Layout, geom: Point[][], feature: Feature) {
     const a = geom[0][0];
     const placed = this.symbolizer.place(layout, [[new Point(0, 0)]], feature);
-    if (!placed || placed.length == 0) return undefined;
+    if (!placed || placed.length === 0) return undefined;
     const first_label = placed[0];
     const bbox = first_label.bboxes[0];
     const width = bbox.maxX - bbox.minX;
@@ -654,10 +654,10 @@ export class Padding implements LabelSymbolizer {
 
   public place(layout: Layout, geom: Point[][], feature: Feature) {
     const placed = this.symbolizer.place(layout, geom, feature);
-    if (!placed || placed.length == 0) return undefined;
+    if (!placed || placed.length === 0) return undefined;
     const padding = this.padding.get(layout.zoom, feature);
-    for (var label of placed) {
-      for (var bbox of label.bboxes) {
+    for (const label of placed) {
+      for (const bbox of label.bboxes) {
         bbox.minX -= padding;
         bbox.minY -= padding;
         bbox.maxX += padding;
@@ -717,8 +717,8 @@ export class TextSymbolizer implements LabelSymbolizer {
       property,
       this.maxLineCodeUnits.get(layout.zoom, feature),
     );
-    var longestLine = "";
-    var longestLineLen = 0;
+    let longestLine = "";
+    let longestLineLen = 0;
     for (const line of lines) {
       if (line.length > longestLineLen) {
         longestLineLen = line.length;
@@ -750,17 +750,17 @@ export class TextSymbolizer implements LabelSymbolizer {
       ctx.fillStyle = this.fill.get(layout.zoom, feature);
       const textStrokeWidth = this.width.get(layout.zoom, feature);
 
-      var y = 0;
+      let y = 0;
       for (const line of lines) {
-        var startX = 0;
+        let startX = 0;
         if (
-          this.justify == Justify.Center ||
-          (extra && extra.justify == Justify.Center)
+          this.justify === Justify.Center ||
+          (extra && extra.justify === Justify.Center)
         ) {
           startX = (width - ctx.measureText(line).width) / 2;
         } else if (
-          this.justify == Justify.Right ||
-          (extra && extra.justify == Justify.Right)
+          this.justify === Justify.Right ||
+          (extra && extra.justify === Justify.Right)
         ) {
           startX = width - ctx.measureText(line).width;
         }
@@ -768,8 +768,8 @@ export class TextSymbolizer implements LabelSymbolizer {
           ctx.lineWidth = textStrokeWidth * 2; // centered stroke
           ctx.strokeStyle = this.stroke.get(layout.zoom, feature);
           if (letterSpacing > 0) {
-            var xPos = startX;
-            for (var letter of line) {
+            let xPos = startX;
+            for (const letter of line) {
               ctx.strokeText(letter, xPos, y);
               xPos += ctx.measureText(letter).width + letterSpacing;
             }
@@ -778,8 +778,8 @@ export class TextSymbolizer implements LabelSymbolizer {
           }
         }
         if (letterSpacing > 0) {
-          var xPos = startX;
-          for (var letter of line) {
+          let xPos = startX;
+          for (const letter of line) {
             ctx.fillText(letter, xPos, y);
             xPos += ctx.measureText(letter).width + letterSpacing;
           }
@@ -859,7 +859,7 @@ export class OffsetSymbolizer implements LabelSymbolizer {
     if (feature.geomType !== GeomType.Point) return undefined;
     const anchor = geom[0][0];
     const placed = this.symbolizer.place(layout, [[new Point(0, 0)]], feature);
-    if (!placed || placed.length == 0) return undefined;
+    if (!placed || placed.length === 0) return undefined;
     const first_label = placed[0];
     const fb = first_label.bboxes[0];
 
@@ -891,8 +891,8 @@ export class OffsetSymbolizer implements LabelSymbolizer {
       };
     };
 
-    var origin = new Point(offsetX, offsetY);
-    var justify: Justify;
+    let origin = new Point(offsetX, offsetY);
+    let justify: Justify;
     const draw = (ctx: CanvasRenderingContext2D) => {
       ctx.translate(origin.x, origin.y);
       first_label.draw(ctx, { justify: justify });
@@ -1043,7 +1043,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     const height =
       metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 
-    var repeatDistance = this.repeatDistance.get(layout.zoom, feature);
+    let repeatDistance = this.repeatDistance.get(layout.zoom, feature);
     if (layout.overzoom > 4) repeatDistance *= 1 << (layout.overzoom - 4);
 
     const cell_size = height * 2;
@@ -1054,7 +1054,7 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
       repeatDistance,
       cell_size,
     );
-    if (label_candidates.length == 0) return undefined;
+    if (label_candidates.length === 0) return undefined;
 
     const labels = [];
     for (const candidate of label_candidates) {
@@ -1133,7 +1133,7 @@ export class PolygonLabelSymbolizer implements LabelSymbolizer {
     if (area < 20000) return undefined;
 
     const placed = this.symbolizer.place(layout, [[new Point(0, 0)]], feature);
-    if (!placed || placed.length == 0) return undefined;
+    if (!placed || placed.length === 0) return undefined;
     const first_label = placed[0];
     const fb = first_label.bboxes[0];
 

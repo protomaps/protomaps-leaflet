@@ -1,4 +1,4 @@
-declare var L: any;
+declare const L: any;
 
 import Point from "@mapbox/point-geometry";
 
@@ -160,17 +160,17 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         }
       }
 
-      if (element.key != key) return;
+      if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
       await Promise.all(this.tasks.map(reflect));
 
-      if (element.key != key) return;
+      if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
       const layout_time = this.labelers.add(coords.z, prepared_tilemap);
 
-      if (element.key != key) return;
+      if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
       const label_data = this.labelers.getIndex(coords.z);
@@ -185,7 +185,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
 
       await timer(priority);
 
-      if (element.key != key) return;
+      if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
       const BUF = 16;
@@ -210,7 +210,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         ctx.restore();
       }
 
-      var painting_time = 0;
+      let painting_time = 0;
 
       let paint_rules = this.paint_rules;
       if (this.xray) {
@@ -338,7 +338,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
 
     public queryFeatures(lng: number, lat: number) {
       const featuresBySourceName = new Map();
-      for (var [sourceName, view] of this.views) {
+      for (const [sourceName, view] of this.views) {
         featuresBySourceName.set(
           sourceName,
           view.queryFeatures(lng, lat, this._map.getZoom()),
@@ -355,11 +355,11 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
           wrapped.lng,
           wrapped.lat,
         );
-        var content = "";
+        let content = "";
         let firstRow = true;
 
-        for (var [sourceName, results] of resultsBySourceName) {
-          for (var result of results) {
+        for (const [sourceName, results] of resultsBySourceName) {
+          for (const result of results) {
             if (this.xray && this.xray !== true) {
               if (
                 !(

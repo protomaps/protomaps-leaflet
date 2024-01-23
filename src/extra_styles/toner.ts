@@ -32,7 +32,7 @@ import { Font, Sheet } from "../task";
 
 const Toner = (variant: string) => {
   const halftone = createPattern(4, 4, (c) => {
-    var ctx = c.getContext("2d");
+    const ctx = c.getContext("2d");
     if (ctx) {
       ctx.beginPath();
       ctx.rect(0, 0, 1, 1);
@@ -42,7 +42,7 @@ const Toner = (variant: string) => {
     }
   });
 
-  var background = "black";
+  let background = "black";
   if (variant === "lite") {
     background = "#d9d9d9";
   }

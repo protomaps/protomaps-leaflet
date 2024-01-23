@@ -79,8 +79,8 @@ export class View {
     const fractional =
       Math.pow(2, display_zoom) / Math.pow(2, Math.ceil(display_zoom));
     const needed = [];
-    var scale = 1;
-    var dim = this.tileCache.tileSize;
+    let scale = 1;
+    const dim = this.tileCache.tileSize;
     if (display_zoom < this.levelDiff) {
       scale = (1 / (1 << (this.levelDiff - display_zoom))) * fractional;
       needed.push({
@@ -100,8 +100,8 @@ export class View {
       const mintile_y = Math.floor(bounds.minY / f / basetile_size);
       const maxtile_x = Math.floor(bounds.maxX / f / basetile_size);
       const maxtile_y = Math.floor(bounds.maxY / f / basetile_size);
-      for (var tx = mintile_x; tx <= maxtile_x; tx++) {
-        for (var ty = mintile_y; ty <= maxtile_y; ty++) {
+      for (let tx = mintile_x; tx <= maxtile_x; tx++) {
+        for (let ty = mintile_y; ty <= maxtile_y; ty++) {
           const origin = new Point(
             tx * f * basetile_size,
             ty * f * basetile_size,
@@ -127,8 +127,8 @@ export class View {
       const mintile_y = Math.floor(bounds.minY / f / 256 / scale);
       const maxtile_x = Math.floor(bounds.maxX / f / 256 / scale);
       const maxtile_y = Math.floor(bounds.maxY / f / 256 / scale);
-      for (var tx = mintile_x; tx <= maxtile_x; tx++) {
-        for (var ty = mintile_y; ty <= maxtile_y; ty++) {
+      for (let tx = mintile_x; tx <= maxtile_x; tx++) {
+        for (let ty = mintile_y; ty <= maxtile_y; ty++) {
           const origin = new Point(tx * f * 256 * scale, ty * f * 256 * scale);
           needed.push({
             data_tile: {
@@ -147,10 +147,10 @@ export class View {
   }
 
   public dataTileForDisplayTile(display_tile: Zxy): TileTransform {
-    var data_tile: Zxy;
-    var scale = 1;
-    var dim = this.tileCache.tileSize;
-    var origin: Point;
+    let data_tile: Zxy;
+    let scale = 1;
+    let dim = this.tileCache.tileSize;
+    let origin: Point;
     if (display_tile.z < this.levelDiff) {
       data_tile = { z: 0, x: 0, y: 0 };
       scale = 1 / (1 << (this.levelDiff - display_tile.z));

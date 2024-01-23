@@ -80,8 +80,8 @@ export class Sheet {
 
     const serializer = new XMLSerializer();
     for (const ps of icons) {
-      var svg64 = btoa(serializer.serializeToString(ps));
-      var image64 = "data:image/svg+xml;base64," + svg64;
+      const svg64 = btoa(serializer.serializeToString(ps));
+      const image64 = "data:image/svg+xml;base64," + svg64;
       const img = await mkimg(image64);
       boxes.push({
         w: img.width * scale,

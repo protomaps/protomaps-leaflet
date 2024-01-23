@@ -27,7 +27,7 @@ const xray_symbolizers = (
         radius: 4,
       }),
       filter: (z, f) => {
-        return f.geomType == GeomType.Point;
+        return f.geomType === GeomType.Point;
       },
     },
     {
@@ -39,7 +39,7 @@ const xray_symbolizers = (
         width: 2,
       }),
       filter: (z, f) => {
-        return f.geomType == GeomType.Line;
+        return f.geomType === GeomType.Line;
       },
     },
     {
@@ -52,7 +52,7 @@ const xray_symbolizers = (
         width: 1,
       }),
       filter: (z, f) => {
-        return f.geomType == GeomType.Polygon;
+        return f.geomType === GeomType.Polygon;
       },
     },
   ];
@@ -62,10 +62,10 @@ export const xray_rules = (
   prepared_tilemap: Map<string, PreparedTile[]>,
   xray: XraySelection, // the highlighted layer
 ): Rule[] => {
-  var rules: Rule[] = [];
-  for (var [dataSource, tiles] of prepared_tilemap) {
-    for (var tile of tiles) {
-      for (var dataLayer of tile.data.keys()) {
+  let rules: Rule[] = [];
+  for (const [dataSource, tiles] of prepared_tilemap) {
+    for (const tile of tiles) {
+      for (const dataLayer of tile.data.keys()) {
         if (dataSource === xray.dataSource && dataLayer === xray.dataLayer) {
           // do nothing since the highlighted layer should go last
         } else {

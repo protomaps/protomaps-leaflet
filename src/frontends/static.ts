@@ -230,7 +230,7 @@ export class Static {
     const dpr = window.devicePixelRatio;
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    if (!(canvas.width == width * dpr && canvas.height == height * dpr)) {
+    if (!(canvas.width === width * dpr && canvas.height === height * dpr)) {
       canvas.width = width * dpr;
       canvas.height = height * dpr;
     }

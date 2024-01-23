@@ -66,7 +66,7 @@ test("fontattr", async () => {
 
   f = new FontAttr({
     font: (z) => {
-      return z == 1 ? "12px serif" : "14px serif";
+      return z === 1 ? "12px serif" : "14px serif";
     },
   });
   assert.equal(f.get(1), "12px serif");
@@ -85,7 +85,7 @@ test("fontattr", async () => {
 
   f = new FontAttr({
     fontWeight: (z) => {
-      return z == 1 ? 400 : 600;
+      return z === 1 ? 400 : 600;
     },
   });
   assert.equal(f.get(1), "400 12px sans-serif");
@@ -93,7 +93,7 @@ test("fontattr", async () => {
 
   f = new FontAttr({
     fontSize: (z) => {
-      return z == 1 ? 12 : 14;
+      return z === 1 ? 12 : 14;
     },
   });
   assert.equal(f.get(1), "12px sans-serif");
@@ -101,7 +101,7 @@ test("fontattr", async () => {
 
   f = new FontAttr({
     fontStyle: (z) => {
-      return z == 1 ? "normal" : "italic";
+      return z === 1 ? "normal" : "italic";
     },
   });
   assert.equal(f.get(1), "normal 12px sans-serif");
@@ -109,7 +109,7 @@ test("fontattr", async () => {
 
   f = new FontAttr({
     fontFamily: (z) => {
-      return z == 1 ? "sans-serif" : "serif";
+      return z === 1 ? "sans-serif" : "serif";
     },
   });
   assert.equal(f.get(1), "12px sans-serif");

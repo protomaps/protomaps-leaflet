@@ -54,7 +54,7 @@ export interface TileSource {
 // so the general tile rendering case does not need rescaling.
 const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
   pbf.pos = geometry;
-  var end = pbf.readVarint() + pbf.pos,
+  let end = pbf.readVarint() + pbf.pos,
     cmd = 1,
     length = 0,
     x = 0,
@@ -64,11 +64,11 @@ const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
     y1 = Infinity,
     y2 = -Infinity;
 
-  var lines: Point[][] = [];
-  var line: Point[] = [];
+  const lines: Point[][] = [];
+  let line: Point[] = [];
   while (pbf.pos < end) {
     if (length <= 0) {
-      var cmdLen = pbf.readVarint();
+      const cmdLen = pbf.readVarint();
       cmd = cmdLen & 0x7;
       length = cmdLen >> 3;
     }
@@ -130,7 +130,7 @@ export class PmtilesSource implements TileSource {
   shouldCancelZooms: boolean;
 
   constructor(url: string | PMTiles, shouldCancelZooms: boolean) {
-    if (typeof url == "string") {
+    if (typeof url === "string") {
       this.p = new PMTiles(url);
     } else {
       this.p = url;
@@ -142,7 +142,7 @@ export class PmtilesSource implements TileSource {
   public async get(c: Zxy, tileSize: number): Promise<Map<string, Feature[]>> {
     if (this.shouldCancelZooms) {
       this.controllers = this.controllers.filter((cont) => {
-        if (cont[0] != c.z) {
+        if (cont[0] !== c.z) {
           cont[1].abort();
           return false;
         }
@@ -177,7 +177,7 @@ export class ZxySource implements TileSource {
   public async get(c: Zxy, tileSize: number): Promise<Map<string, Feature[]>> {
     if (this.shouldCancelZooms) {
       this.controllers = this.controllers.filter((cont) => {
-        if (cont[0] != c.z) {
+        if (cont[0] !== c.z) {
           cont[1].abort();
           return false;
         }
@@ -238,22 +238,22 @@ function dist2(v: Point, w: Point) {
 }
 
 function distToSegmentSquared(p: Point, v: Point, w: Point) {
-  var l2 = dist2(v, w);
+  const l2 = dist2(v, w);
   if (l2 === 0) return dist2(p, v);
-  var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+  let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
   t = Math.max(0, Math.min(1, t));
   return dist2(p, new Point(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y)));
 }
 
 export function isInRing(point: Point, ring: Point[]): boolean {
-  var inside = false;
-  for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    var xi = ring[i].x,
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i].x,
       yi = ring[i].y;
-    var xj = ring[j].x,
+    const xj = ring[j].x,
       yj = ring[j].y;
-    var intersect =
-      yi > point.y != yj > point.y &&
+    const intersect =
+      yi > point.y !== yj > point.y &&
       point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
     if (intersect) inside = !inside;
   }
@@ -261,8 +261,8 @@ export function isInRing(point: Point, ring: Point[]): boolean {
 }
 
 export function isCCW(ring: Point[]): boolean {
-  var area = 0;
-  for (var i = 0; i < ring.length; i++) {
+  let area = 0;
+  for (let i = 0; i < ring.length; i++) {
     const j = (i + 1) % ring.length;
     area += ring[i].x * ring[j].y;
     area -= ring[j].x * ring[i].y;
@@ -271,7 +271,7 @@ export function isCCW(ring: Point[]): boolean {
 }
 
 export function pointInPolygon(point: Point, geom: Point[][]): boolean {
-  var isInCurrentExterior = false;
+  let isInCurrentExterior = false;
   for (const ring of geom) {
     if (isCCW(ring)) {
       // it is an interior ring
@@ -297,7 +297,7 @@ export function pointMinDistToPoints(point: Point, geom: Point[][]): number {
 export function pointMinDistToLines(point: Point, geom: Point[][]): number {
   let min = Infinity;
   for (const l of geom) {
-    for (var i = 0; i < l.length - 1; i++) {
+    for (let i = 0; i < l.length - 1; i++) {
       const dist = Math.sqrt(distToSegmentSquared(point, l[i], l[i + 1]));
       if (dist < min) min = dist;
     }
@@ -330,7 +330,7 @@ export class TileCache {
     brushSize: number,
   ): PickedFeature[] {
     const projected = project([lat, lng]);
-    var normalized = new Point(
+    const normalized = new Point(
       (projected.x + MAXCOORD) / (MAXCOORD * 2),
       1 - (projected.y + MAXCOORD) / (MAXCOORD * 2),
     );
@@ -354,11 +354,11 @@ export class TileCache {
           //      (query_bbox.maxY >= feature.bbox.minY && feature.bbox.maxY >= query_bbox.minY)) {
           //  }
 
-          if (feature.geomType == GeomType.Point) {
+          if (feature.geomType === GeomType.Point) {
             if (pointMinDistToPoints(center, feature.geom) < brushSize) {
               retval.push({ feature, layerName: layer_name });
             }
-          } else if (feature.geomType == GeomType.Line) {
+          } else if (feature.geomType === GeomType.Line) {
             if (pointMinDistToLines(center, feature.geom) < brushSize) {
               retval.push({ feature, layerName: layer_name });
             }
