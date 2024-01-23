@@ -92,9 +92,9 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
       const scratch = document.createElement("canvas").getContext("2d");
       this.scratch = scratch;
       this.onTilesInvalidated = (tiles: Set<string>) => {
-        tiles.forEach((t) => {
+        for (const t of tiles) {
           this.rerenderTile(t);
-        });
+        }
       };
       this.labelers = new Labelers(
         this.scratch,

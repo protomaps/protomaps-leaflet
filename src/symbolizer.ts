@@ -605,7 +605,9 @@ export class GroupSymbolizer implements LabelSymbolizer {
       draws.push(label.draw);
     }
     const draw = (ctx: CanvasRenderingContext2D) => {
-      draws.forEach((d) => d(ctx));
+      for (const d of draws) {
+        d(ctx);
+      }
     };
 
     return [{ anchor: anchor, bboxes: [bbox], draw: draw }];

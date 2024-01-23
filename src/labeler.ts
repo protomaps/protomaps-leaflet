@@ -271,9 +271,9 @@ export class Index {
         entries_to_delete.push(entry);
       }
     }
-    entries_to_delete.forEach((entry) => {
+    for (const entry of entries_to_delete) {
       this.tree.remove(entry);
-    });
+    }
     this.current.delete(keyToRemove);
   }
 
@@ -288,9 +288,9 @@ export class Index {
         entries_to_delete.push(entry);
       }
     }
-    entries_to_delete.forEach((entry) => {
+    for (const entry of entries_to_delete) {
       this.tree.remove(entry);
-    });
+    }
     const c = this.current.get(labelToRemove.tileKey);
     if (c) c.delete(labelToRemove);
   }

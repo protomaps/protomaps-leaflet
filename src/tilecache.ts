@@ -391,7 +391,11 @@ export class TileCache {
               this.cache.set(idx, { used: performance.now(), data: tile });
 
               const ifentry2 = this.inflight.get(idx);
-              if (ifentry2) ifentry2.forEach((f) => f[0](tile));
+              if (ifentry2) {
+                for (const f of ifentry2) {
+                  f[0](tile);
+                }
+              }
               this.inflight.delete(idx);
               resolve(tile);
 
@@ -409,7 +413,11 @@ export class TileCache {
             })
             .catch((e) => {
               const ifentry2 = this.inflight.get(idx);
-              if (ifentry2) ifentry2.forEach((f) => f[1](e));
+              if (ifentry2) {
+                for (const f of ifentry2) {
+                  f[1](e);
+                }
+              }
               this.inflight.delete(idx);
               reject(e);
             });
