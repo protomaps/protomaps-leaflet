@@ -41,7 +41,7 @@
     "build-module": "esbuild src/index.ts --bundle --target=es2015 --outfile=dist/protomaps-leaflet.module.js --format=esm",
     "build-tsc": "tsc --declaration --outdir dist",
     "tsc": "tsc --noEmit --watch",
-    "test": "node --test -r esbuild-runner/register test/*.test.ts",
+    "test": "node --test --test-reporter spec -r esbuild-runner/register test/*.test.ts",
     "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc",
     "prettier": "npx prettier --write ."
   },
