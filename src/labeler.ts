@@ -248,8 +248,7 @@ export class Index {
       if (existing[3] === added[3]) {
         keys_for_ds++;
         const dist = Math.sqrt(
-          Math.pow(+existing[0] - +added[0], 2) +
-            Math.pow(+existing[1] - +added[1], 2),
+          (+existing[0] - +added[0]) ** 2 + (+existing[1] - +added[1]) ** 2,
         );
         if (dist > max_dist) {
           max_dist = dist;

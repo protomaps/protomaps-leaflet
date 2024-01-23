@@ -76,8 +76,7 @@ export class View {
     display_zoom: number,
     bounds: any,
   ): Array<TileTransform> {
-    const fractional =
-      Math.pow(2, display_zoom) / Math.pow(2, Math.ceil(display_zoom));
+    const fractional = 2 ** display_zoom / 2 ** Math.ceil(display_zoom);
     const needed = [];
     let scale = 1;
     const dim = this.tileCache.tileSize;

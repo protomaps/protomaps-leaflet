@@ -194,7 +194,7 @@ function computeInterpolationFactor(
   const progress = z - stops[idx][0];
   if (difference === 0) return 0;
   if (base === 1) return progress / difference;
-  return (base ** progress - 1) / (Math.pow(base, difference) - 1);
+  return (base ** progress - 1) / (base ** difference - 1);
 }
 
 export function exp(base: number, stops: number[][]): (z: number) => number {

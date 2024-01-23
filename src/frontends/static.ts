@@ -115,7 +115,7 @@ export class Static {
     // the origin of the painter call in global Z coordinates
     const origin = normalized_center
       .clone()
-      .mult(Math.pow(2, display_zoom) * 256)
+      .mult(2 ** display_zoom * 256)
       .sub(new Point(width / 2, height / 2));
 
     // the bounds of the painter call in global Z coordinates
@@ -203,7 +203,7 @@ export class Static {
           );
           const dt = prepared_tile.data_tile;
           ctx.fillText(
-            k + (k ? " " : "") + dt.z + " " + dt.x + " " + dt.y,
+            `${k + (k ? " " : "") + dt.z} ${dt.x} ${dt.y}`,
             prepared_tile.origin.x + 4,
             prepared_tile.origin.y + 14 * (1 + idx),
           );

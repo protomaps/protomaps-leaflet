@@ -15,12 +15,12 @@ const linelabel = (
   targetLen: number,
 ): LabelableSegment[] => {
   const chunks = [];
-  let a,
-    b,
-    c,
-    i = 0,
-    n = 0,
-    d = 0;
+  let a;
+  let b;
+  let c;
+  let i = 0;
+  let n = 0;
+  let d = 0;
   let abmag = 0;
   let bcmag = 0;
   let abx = 0;
@@ -33,9 +33,7 @@ const linelabel = (
 
   if (pts.length < 2) return [];
   if (pts.length === 2) {
-    d = Math.sqrt(
-      Math.pow(pts[1].x - pts[0].x, 2) + Math.pow(pts[1].y - pts[0].y, 2),
-    );
+    d = Math.sqrt((pts[1].x - pts[0].x) ** 2 + (pts[1].y - pts[0].y) ** 2);
 
     return [
       {
@@ -48,9 +46,7 @@ const linelabel = (
     ];
   }
 
-  abmag = Math.sqrt(
-    Math.pow(pts[1].x - pts[0].x, 2) + Math.pow(pts[1].y - pts[0].y, 2),
-  );
+  abmag = Math.sqrt((pts[1].x - pts[0].x) ** 2 + (pts[1].y - pts[0].y) ** 2);
   for (i = 1, n = pts.length - 1; i < n; i++) {
     a = pts[i - 1];
     b = pts[i];
@@ -145,7 +141,7 @@ export function lineCells(a: Point, b: Point, length: number, spacing: number) {
   // determine function of line
   const dx = b.x - a.x;
   const dy = b.y - a.y;
-  const dist = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+  const dist = Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
 
   const retval = [];
   // starting from the anchor, generate square cells,

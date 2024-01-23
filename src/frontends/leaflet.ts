@@ -233,17 +233,13 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         ctx.save();
         ctx.fillStyle = this.debug;
         ctx.font = "600 12px sans-serif";
-        ctx.fillText(coords.z + " " + coords.x + " " + coords.y, 4, 14);
+        ctx.fillText(`${coords.z} ${coords.x} ${coords.y}`, 4, 14);
 
         ctx.font = "12px sans-serif";
         let ypos = 28;
         for (const [k, v] of prepared_tilemap) {
           const dt = v[0].data_tile;
-          ctx.fillText(
-            k + (k ? " " : "") + dt.z + " " + dt.x + " " + dt.y,
-            4,
-            ypos,
-          );
+          ctx.fillText(`${k + (k ? " " : "") + dt.z} ${dt.x} ${dt.y}`, 4, ypos);
           ypos += 14;
         }
 
@@ -376,9 +372,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
               sourceName ? "/" : ""
             } ${result.layerName}</b> ${result.feature.id || ""}</div>`;
             for (const prop in result.feature.props) {
-              content =
-                content +
-                `<div style="font-size:0.9em">${prop} = ${result.feature.props[prop]}</div>`;
+              content = `${content}<div style="font-size:0.9em">${prop} = ${result.feature.props[prop]}</div>`;
             }
             firstRow = false;
           }
