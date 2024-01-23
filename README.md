@@ -4,7 +4,6 @@ Vector tile rendering and labeling for [Leaflet](https://github.com/Leaflet/Leaf
 
 [![npm](https://img.shields.io/npm/v/protomaps-leaflet)](https://www.npmjs.com/package/protomaps-leaflet)
 [![Test suite](https://github.com/protomaps/protomaps-leaflet/actions/workflows/node.js.yml/badge.svg)](https://github.com/protomaps/protomaps-leaflet/actions/workflows/node.js.yml)
-[![minzipped size](https://img.shields.io/bundlephobia/minzip/protomaps-leaflet)](https://bundlephobia.com/package/protomaps-leaflet)
 
 <p float="left">
     <img src="benchmark/example_1.png" width="400">
