@@ -92,9 +92,9 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
       const scratch = document.createElement("canvas").getContext("2d");
       this.scratch = scratch;
       this.onTilesInvalidated = (tiles: Set<string>) => {
-        tiles.forEach((t) => {
+        for (const t of tiles) {
           this.rerenderTile(t);
-        });
+        }
       };
       this.labelers = new Labelers(
         this.scratch,
@@ -178,9 +178,9 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
       if (!this._map) return; // the layer has been removed from the map
 
       const center = this._map.getCenter().wrap();
-      const pixelBounds = this._getTiledPixelBounds(center),
-        tileRange = this._pxBoundsToTileRange(pixelBounds),
-        tileCenter = tileRange.getCenter();
+      const pixelBounds = this._getTiledPixelBounds(center);
+      const tileRange = this._pxBoundsToTileRange(pixelBounds);
+      const tileCenter = tileRange.getCenter();
       const priority = coords.distanceTo(tileCenter) * this.tileDelay;
 
       await timer(priority);
@@ -233,28 +233,24 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         ctx.save();
         ctx.fillStyle = this.debug;
         ctx.font = "600 12px sans-serif";
-        ctx.fillText(coords.z + " " + coords.x + " " + coords.y, 4, 14);
+        ctx.fillText(`${coords.z} ${coords.x} ${coords.y}`, 4, 14);
 
         ctx.font = "12px sans-serif";
         let ypos = 28;
         for (const [k, v] of prepared_tilemap) {
           const dt = v[0].data_tile;
-          ctx.fillText(
-            k + (k ? " " : "") + dt.z + " " + dt.x + " " + dt.y,
-            4,
-            ypos,
-          );
+          ctx.fillText(`${k + (k ? " " : "") + dt.z} ${dt.x} ${dt.y}`, 4, ypos);
           ypos += 14;
         }
 
         ctx.font = "600 10px sans-serif";
         if (painting_time > 8) {
-          ctx.fillText(painting_time.toFixed() + " ms paint", 4, ypos);
+          ctx.fillText(`${painting_time.toFixed()} ms paint`, 4, ypos);
           ypos += 14;
         }
 
         if (layout_time > 8) {
-          ctx.fillText(layout_time.toFixed() + " ms layout", 4, ypos);
+          ctx.fillText(`${layout_time.toFixed()} ms layout`, 4, ypos);
         }
         ctx.strokeStyle = this.debug;
 
@@ -370,17 +366,13 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
                 continue;
               }
             }
-            content =
-              content +
-              `<div style="margin-top:${firstRow ? 0 : 0.5}em">${
-                typeGlyphs[result.feature.geomType - 1]
-              } <b>${sourceName} ${sourceName ? "/" : ""} ${
-                result.layerName
-              }</b> ${result.feature.id || ""}</div>`;
+            content = `${content}<div style="margin-top:${
+              firstRow ? 0 : 0.5
+            }em">${typeGlyphs[result.feature.geomType - 1]} <b>${sourceName} ${
+              sourceName ? "/" : ""
+            } ${result.layerName}</b> ${result.feature.id || ""}</div>`;
             for (const prop in result.feature.props) {
-              content =
-                content +
-                `<div style="font-size:0.9em">${prop} = ${result.feature.props[prop]}</div>`;
+              content = `${content}<div style="font-size:0.9em">${prop} = ${result.feature.props[prop]}</div>`;
             }
             firstRow = false;
           }
@@ -391,9 +383,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         L.popup()
           .setLatLng(ev.latlng)
           .setContent(
-            '<div style="max-height:400px;overflow-y:scroll;padding-right:8px">' +
-              content +
-              "</div>",
+            `<div style="max-height:400px;overflow-y:scroll;padding-right:8px">${content}</div>`,
           )
           .openOn(layer._map);
       };

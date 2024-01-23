@@ -63,7 +63,7 @@ const Toner = (variant: string) => {
         pattern: halftone,
       }),
       filter: (z, f) => {
-        return f.props.leisure == "park";
+        return f.props.leisure === "park";
       },
     },
     {
@@ -206,7 +206,7 @@ const Toner = (variant: string) => {
         justify: Justify.Center,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "country";
+        return f.props["pmap:kind"] === "country";
       },
     },
     {
@@ -222,7 +222,7 @@ const Toner = (variant: string) => {
         justify: Justify.Center,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "state";
+        return f.props["pmap:kind"] === "state";
       },
     },
     {
@@ -243,7 +243,7 @@ const Toner = (variant: string) => {
           fontFamily: "Inter",
           fontWeight: 600,
           fontSize: (z, f) => {
-            if (f!.props["pmap:rank"] == 1) return 15;
+            if (f!.props["pmap:rank"] === 1) return 15;
             return 13;
           },
         }),
@@ -252,7 +252,7 @@ const Toner = (variant: string) => {
         return a["pmap:rank"] - b["pmap:rank"];
       },
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "city";
+        return f.props["pmap:kind"] === "city";
       },
       maxzoom: 8,
     },
@@ -267,7 +267,7 @@ const Toner = (variant: string) => {
         fontFamily: "Inter",
         fontWeight: 600,
         fontSize: (z, f) => {
-          if (f!.props["pmap:rank"] == 1) return 15;
+          if (f!.props["pmap:rank"] === 1) return 15;
           return 13;
         },
       }),
@@ -275,7 +275,7 @@ const Toner = (variant: string) => {
         return a["pmap:rank"] - b["pmap:rank"];
       },
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "city";
+        return f.props["pmap:kind"] === "city";
       },
       minzoom: 9,
     },

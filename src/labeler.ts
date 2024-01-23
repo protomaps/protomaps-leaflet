@@ -248,8 +248,7 @@ export class Index {
       if (existing[3] === added[3]) {
         keys_for_ds++;
         const dist = Math.sqrt(
-          Math.pow(+existing[0] - +added[0], 2) +
-            Math.pow(+existing[1] - +added[1], 2),
+          (+existing[0] - +added[0]) ** 2 + (+existing[1] - +added[1]) ** 2,
         );
         if (dist > max_dist) {
           max_dist = dist;
@@ -272,9 +271,9 @@ export class Index {
         entries_to_delete.push(entry);
       }
     }
-    entries_to_delete.forEach((entry) => {
+    for (const entry of entries_to_delete) {
       this.tree.remove(entry);
-    });
+    }
     this.current.delete(keyToRemove);
   }
 
@@ -289,9 +288,9 @@ export class Index {
         entries_to_delete.push(entry);
       }
     }
-    entries_to_delete.forEach((entry) => {
+    for (const entry of entries_to_delete) {
       this.tree.remove(entry);
-    });
+    }
     const c = this.current.get(labelToRemove.tileKey);
     if (c) c.delete(labelToRemove);
   }
@@ -325,7 +324,7 @@ export class Labeler {
     // if it already exists... short circuit
     for (const [k, prepared_tiles] of prepared_tilemap) {
       for (const prepared_tile of prepared_tiles) {
-        const key = toIndex(prepared_tile.data_tile) + ":" + k;
+        const key = `${toIndex(prepared_tile.data_tile)}:${k}`;
         if (!this.index.has(key)) {
           this.index.makeEntry(key);
           keys_adding.add(key);
@@ -344,7 +343,7 @@ export class Labeler {
       if (!prepared_tiles) continue;
 
       for (const prepared_tile of prepared_tiles) {
-        const key = toIndex(prepared_tile.data_tile) + ":" + dsName;
+        const key = `${toIndex(prepared_tile.data_tile)}:${dsName}`;
         if (!keys_adding.has(key)) continue;
 
         const layer = prepared_tile.data.get(rule.dataLayer);
@@ -460,17 +459,16 @@ export class Labeler {
     let all_added = true;
     for (const [k, prepared_tiles] of prepared_tilemap) {
       for (const prepared_tile of prepared_tiles) {
-        if (!this.index.has(toIndex(prepared_tile.data_tile) + ":" + k))
+        if (!this.index.has(`${toIndex(prepared_tile.data_tile)}:${k}`))
           all_added = false;
       }
     }
 
     if (all_added) {
       return 0;
-    } else {
-      const timing = this.layout(prepared_tilemap);
-      return timing;
     }
+    const timing = this.layout(prepared_tilemap);
+    return timing;
   }
 }
 
@@ -498,17 +496,16 @@ export class Labelers {
     let labeler = this.labelers.get(z);
     if (labeler) {
       return labeler.add(prepared_tilemap);
-    } else {
-      labeler = new Labeler(
-        z,
-        this.scratch,
-        this.labelRules,
-        this.maxLabeledTiles,
-        this.callback,
-      );
-      this.labelers.set(z, labeler);
-      return labeler.add(prepared_tilemap);
     }
+    labeler = new Labeler(
+      z,
+      this.scratch,
+      this.labelRules,
+      this.maxLabeledTiles,
+      this.callback,
+    );
+    this.labelers.set(z, labeler);
+    return labeler.add(prepared_tilemap);
   }
 
   public getIndex(z: number) {

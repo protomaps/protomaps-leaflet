@@ -31,13 +31,13 @@ export function painter(
   ctx.save();
   ctx.miterLimit = 2;
 
-  for (var rule of rules) {
+  for (const rule of rules) {
     if (rule.minzoom && z < rule.minzoom) continue;
     if (rule.maxzoom && z > rule.maxzoom) continue;
     const prepared_tiles = prepared_tilemap.get(rule.dataSource || "");
     if (!prepared_tiles) continue;
     for (const prepared_tile of prepared_tiles) {
-      var layer = prepared_tile.data.get(rule.dataLayer);
+      const layer = prepared_tile.data.get(rule.dataLayer);
       if (layer === undefined) continue;
       if (rule.symbolizer.before) rule.symbolizer.before(ctx, prepared_tile.z);
 
@@ -68,7 +68,7 @@ export function painter(
       //     ctx.translate(-dim / 2, -dim / 2);
       // }
 
-      for (var feature of layer) {
+      for (const feature of layer) {
         let geom = feature.geom;
         const fbox = feature.bbox;
         if (
@@ -80,7 +80,7 @@ export function painter(
           continue;
         }
         if (rule.filter && !rule.filter(prepared_tile.z, feature)) continue;
-        if (ps != 1) {
+        if (ps !== 1) {
           geom = transformGeom(geom, ps, new Point(0, 0));
         }
         rule.symbolizer.draw(ctx, geom, prepared_tile.z, feature);
@@ -102,7 +102,7 @@ export function painter(
 
   if (label_data) {
     const matches = label_data.searchBbox(bbox, Infinity);
-    for (var label of matches) {
+    for (const label of matches) {
       ctx.save();
       ctx.translate(label.anchor.x - origin.x, label.anchor.y - origin.y);
       label.draw(ctx);

@@ -336,15 +336,14 @@ export const labelRules = (
           label_props: language2,
         }),
       ]);
-    } else {
-      return new FlexSymbolizer([
-        symbolizer,
-        new CenteredTextSymbolizer({
-          fill: fill,
-          label_props: language2,
-        }),
-      ]);
     }
+    return new FlexSymbolizer([
+      symbolizer,
+      new CenteredTextSymbolizer({
+        fill: fill,
+        label_props: language2,
+      }),
+    ]);
   };
 
   return [
@@ -364,7 +363,7 @@ export const labelRules = (
         params.countryLabel,
       ),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "country";
+        return f.props["pmap:kind"] === "country";
       },
     },
     {
@@ -378,14 +377,14 @@ export const labelRules = (
         params.stateLabel,
       ),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "state";
+        return f.props["pmap:kind"] === "state";
       },
     },
     {
       id: "cities_high",
       dataLayer: "places",
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "city";
+        return f.props["pmap:kind"] === "city";
       },
       minzoom: 7,
       symbolizer: languageStack(
@@ -396,10 +395,9 @@ export const labelRules = (
             if (f?.props["pmap:rank"] === 1) {
               if (z > 8) return "600 20px sans-serif";
               return "600 12px sans-serif";
-            } else {
-              if (z > 8) return "600 16px sans-serif";
-              return "600 10px sans-serif";
             }
+            if (z > 8) return "600 16px sans-serif";
+            return "600 10px sans-serif";
           },
         }),
         params.cityLabel,
@@ -412,7 +410,7 @@ export const labelRules = (
       id: "cities_low",
       dataLayer: "places",
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "city";
+        return f.props["pmap:kind"] === "city";
       },
       maxzoom: 6,
       symbolizer: new GroupSymbolizer([
@@ -430,10 +428,9 @@ export const labelRules = (
               if (f?.props["pmap:rank"] === 1) {
                 if (z > 8) return "600 20px sans-serif";
                 return "600 12px sans-serif";
-              } else {
-                if (z > 8) return "600 16px sans-serif";
-                return "600 10px sans-serif";
               }
+              if (z > 8) return "600 16px sans-serif";
+              return "600 10px sans-serif";
             },
           }),
           params.cityLabel,
@@ -456,7 +453,7 @@ export const labelRules = (
         params.neighbourhoodLabel,
       ),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "neighbourhood";
+        return f.props["pmap:kind"] === "neighbourhood";
       },
     },
     {
@@ -514,7 +511,7 @@ export const labelRules = (
         fill: params.neighbourhoodLabel,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "highway";
+        return f.props["pmap:kind"] === "highway";
       },
     },
     {

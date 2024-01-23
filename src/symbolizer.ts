@@ -193,8 +193,8 @@ function computeInterpolationFactor(
   const difference = stops[idx + 1][0] - stops[idx][0];
   const progress = z - stops[idx][0];
   if (difference === 0) return 0;
-  else if (base === 1) return progress / difference;
-  else return (Math.pow(base, progress) - 1) / (Math.pow(base, difference) - 1);
+  if (base === 1) return progress / difference;
+  return (base ** progress - 1) / (base ** difference - 1);
 }
 
 export function exp(base: number, stops: number[][]): (z: number) => number {
@@ -605,7 +605,9 @@ export class GroupSymbolizer implements LabelSymbolizer {
       draws.push(label.draw);
     }
     const draw = (ctx: CanvasRenderingContext2D) => {
-      draws.forEach((d) => d(ctx));
+      for (const d of draws) {
+        d(ctx);
+      }
     };
 
     return [{ anchor: anchor, bboxes: [bbox], draw: draw }];
