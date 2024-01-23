@@ -8,7 +8,14 @@ import {
   TextAttr,
 } from "../src/attribute";
 import { GeomType } from "../src/tilecache";
-import { emptyFeature } from "./json_style.test";
+
+export const emptyFeature = {
+  props: {},
+  geomType: GeomType.Point,
+  numVertices: 0,
+  geom: [],
+  bbox: { minX: 0, minY: 0, maxX: 0, maxY: 0 },
+};
 
 test("numberattr", async () => {
   let n = new NumberAttr(undefined, undefined);
