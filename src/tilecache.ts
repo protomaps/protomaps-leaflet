@@ -43,7 +43,7 @@ export interface Zxy {
 }
 
 export function toIndex(c: Zxy): string {
-  return c.x + ":" + c.y + ":" + c.z;
+  return `${c.x}:${c.y}:${c.z}`;
 }
 
 export interface TileSource {
@@ -54,15 +54,15 @@ export interface TileSource {
 // so the general tile rendering case does not need rescaling.
 const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
   pbf.pos = geometry;
-  let end = pbf.readVarint() + pbf.pos,
-    cmd = 1,
-    length = 0,
-    x = 0,
-    y = 0,
-    x1 = Infinity,
-    x2 = -Infinity,
-    y1 = Infinity,
-    y2 = -Infinity;
+  const end = pbf.readVarint() + pbf.pos;
+  let cmd = 1;
+  let length = 0;
+  let x = 0;
+  let y = 0;
+  let x1 = Infinity;
+  let x2 = -Infinity;
+  let y1 = Infinity;
+  let y2 = -Infinity;
 
   const lines: Point[][] = [];
   let line: Point[] = [];
@@ -87,7 +87,7 @@ const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
       line.push(new Point(x, y));
     } else if (cmd === 7) {
       if (line) line.push(line[0].clone());
-    } else throw new Error("unknown command " + cmd);
+    } else throw new Error(`unknown command ${cmd}`);
   }
   if (line) lines.push(line);
   return { geom: lines, bbox: { minX: x1, minY: y1, maxX: x2, maxY: y2 } };
@@ -157,9 +157,8 @@ export class PmtilesSource implements TileSource {
 
     if (result) {
       return parseTile(result.data, tileSize);
-    } else {
-      return new Map<string, Feature[]>();
     }
+    return new Map<string, Feature[]>();
   }
 }
 
@@ -248,10 +247,10 @@ function distToSegmentSquared(p: Point, v: Point, w: Point) {
 export function isInRing(point: Point, ring: Point[]): boolean {
   let inside = false;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const xi = ring[i].x,
-      yi = ring[i].y;
-    const xj = ring[j].x,
-      yj = ring[j].y;
+    const xi = ring[i].x;
+    const yi = ring[i].y;
+    const xj = ring[j].x;
+    const yj = ring[j].y;
     const intersect =
       yi > point.y !== yj > point.y &&
       point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;

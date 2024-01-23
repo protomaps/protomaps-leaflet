@@ -17,45 +17,57 @@ export function filterFn(arr: any[]): Filter {
   // hack around "$type"
   if (arr.includes("$type")) {
     return (z) => true;
-  } else if (arr[0] === "==") {
+  }
+  if (arr[0] === "==") {
     return (z, f) => f.props[arr[1]] === arr[2];
-  } else if (arr[0] === "!=") {
+  }
+  if (arr[0] === "!=") {
     return (z, f) => f.props[arr[1]] !== arr[2];
-  } else if (arr[0] === "!") {
+  }
+  if (arr[0] === "!") {
     const sub = filterFn(arr[1]);
     return (z, f) => !sub(z, f);
-  } else if (arr[0] === "<") {
+  }
+  if (arr[0] === "<") {
     return (z, f) => number(f.props[arr[1]], Infinity) < arr[2];
-  } else if (arr[0] === "<=") {
+  }
+  if (arr[0] === "<=") {
     return (z, f) => number(f.props[arr[1]], Infinity) <= arr[2];
-  } else if (arr[0] === ">") {
+  }
+  if (arr[0] === ">") {
     return (z, f) => number(f.props[arr[1]], -Infinity) > arr[2];
-  } else if (arr[0] === ">=") {
+  }
+  if (arr[0] === ">=") {
     return (z, f) => number(f.props[arr[1]], -Infinity) >= arr[2];
-  } else if (arr[0] === "in") {
+  }
+  if (arr[0] === "in") {
     return (z, f) => arr.slice(2, arr.length).includes(f.props[arr[1]]);
-  } else if (arr[0] === "!in") {
+  }
+  if (arr[0] === "!in") {
     return (z, f) => !arr.slice(2, arr.length).includes(f.props[arr[1]]);
-  } else if (arr[0] === "has") {
+  }
+  if (arr[0] === "has") {
     return (z, f) => f.props.hasOwnProperty(arr[1]);
-  } else if (arr[0] === "!has") {
+  }
+  if (arr[0] === "!has") {
     return (z, f) => !f.props.hasOwnProperty(arr[1]);
-  } else if (arr[0] === "all") {
+  }
+  if (arr[0] === "all") {
     const parts = arr.slice(1, arr.length).map((e) => filterFn(e));
     return (z, f) =>
       parts.every((p) => {
         return p(z, f);
       });
-  } else if (arr[0] === "any") {
+  }
+  if (arr[0] === "any") {
     const parts = arr.slice(1, arr.length).map((e) => filterFn(e));
     return (z, f) =>
       parts.some((p) => {
         return p(z, f);
       });
-  } else {
-    console.log("Unimplemented filter: ", arr[0]);
-    return (f) => false;
   }
+  console.log("Unimplemented filter: ", arr[0]);
+  return (f) => false;
 }
 
 export function numberFn(obj: any): (z: number, f?: Feature) => number {
@@ -63,7 +75,8 @@ export function numberFn(obj: any): (z: number, f?: Feature) => number {
     return (z: number) => {
       return exp(obj.base, obj.stops)(z - 1);
     };
-  } else if (
+  }
+  if (
     obj[0] === "interpolate" &&
     obj[1][0] === "exponential" &&
     obj[2][0] === "zoom"
@@ -76,7 +89,8 @@ export function numberFn(obj: any): (z: number, f?: Feature) => number {
     return (z: number) => {
       return exp(obj[1][1], stops)(z - 1);
     };
-  } else if (obj[0] === "step" && obj[1][0] === "get") {
+  }
+  if (obj[0] === "step" && obj[1][0] === "get") {
     const slice = obj.slice(2);
     const prop = obj[1][1];
     return (z: number, f?: Feature) => {
@@ -89,10 +103,9 @@ export function numberFn(obj: any): (z: number, f?: Feature) => number {
       }
       return slice[slice.length - 1];
     };
-  } else {
-    console.log("Unimplemented numeric fn: ", obj);
-    return (z) => 1;
   }
+  console.log("Unimplemented numeric fn: ", obj);
+  return (z) => 1;
 }
 
 export function numberOrFn(
@@ -138,16 +151,17 @@ export function getFont(obj: any, fontsubmap: any) {
   // for fallbacks, use the weight and style of the first font
   let weight = "";
   if (fontfaces.length && fontfaces[0].weight)
-    weight = fontfaces[0].weight + " ";
+    weight = `${fontfaces[0].weight} `;
   let style = "";
-  if (fontfaces.length && fontfaces[0].style) style = fontfaces[0].style + " ";
+  if (fontfaces.length && fontfaces[0].style) style = `${fontfaces[0].style} `;
 
   if (typeof text_size === "number") {
     return (z: number) =>
       `${style}${weight}${text_size}px ${fontfaces
         .map((f) => f.face)
         .join(", ")}`;
-  } else if (text_size.stops) {
+  }
+  if (text_size.stops) {
     let base = 1.4;
     if (text_size.base) base = text_size.base;
     else text_size.base = base;
@@ -157,17 +171,17 @@ export function getFont(obj: any, fontsubmap: any) {
         .map((f) => f.face)
         .join(", ")}`;
     };
-  } else if (text_size[0] === "step") {
+  }
+  if (text_size[0] === "step") {
     const t = numberFn(text_size);
     return (z: number, f?: Feature) => {
       return `${style}${weight}${t(z, f)}px ${fontfaces
         .map((f) => f.face)
         .join(", ")}`;
     };
-  } else {
-    console.log("Can't parse font: ", obj);
-    return (z: number) => "12px sans-serif";
   }
+  console.log("Can't parse font: ", obj);
+  return (z: number) => "12px sans-serif";
 }
 
 export function json_style(obj: any, fontsubmap: Map<string, FontSub>) {
@@ -186,7 +200,7 @@ export function json_style(obj: any, fontsubmap: Map<string, FontSub>) {
       const referenced = refs.get(layer.ref);
       layer.type = referenced.type;
       layer.filter = referenced.filter;
-      layer.source = referenced["source"];
+      layer.source = referenced.source;
       layer["source-layer"] = referenced["source-layer"];
     }
 

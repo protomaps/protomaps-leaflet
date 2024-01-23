@@ -2,7 +2,7 @@ import potpack from "potpack";
 
 // https://github.com/tangrams/tangram/blob/master/src/styles/text/font_manager.js
 export const Font = (name: string, url: string, weight: string) => {
-  const ff = new FontFace(name, "url(" + url + ")", { weight: weight });
+  const ff = new FontFace(name, `url(${url})`, { weight: weight });
   document.fonts.add(ff);
   return ff.load();
 };
@@ -66,7 +66,7 @@ export class Sheet {
     const icons = Array.from(tree.body.children);
 
     const missingImg = await mkimg(
-      "data:image/svg+xml;base64," + btoa(MISSING),
+      `data:image/svg+xml;base64,${btoa(MISSING)}`,
     );
 
     const boxes: PotPackInput[] = [
@@ -81,7 +81,7 @@ export class Sheet {
     const serializer = new XMLSerializer();
     for (const ps of icons) {
       const svg64 = btoa(serializer.serializeToString(ps));
-      const image64 = "data:image/svg+xml;base64," + svg64;
+      const image64 = `data:image/svg+xml;base64,${svg64}`;
       const img = await mkimg(image64);
       boxes.push({
         w: img.width * scale,

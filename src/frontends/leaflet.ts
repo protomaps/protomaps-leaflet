@@ -178,9 +178,9 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
       if (!this._map) return; // the layer has been removed from the map
 
       const center = this._map.getCenter().wrap();
-      const pixelBounds = this._getTiledPixelBounds(center),
-        tileRange = this._pxBoundsToTileRange(pixelBounds),
-        tileCenter = tileRange.getCenter();
+      const pixelBounds = this._getTiledPixelBounds(center);
+      const tileRange = this._pxBoundsToTileRange(pixelBounds);
+      const tileCenter = tileRange.getCenter();
       const priority = coords.distanceTo(tileCenter) * this.tileDelay;
 
       await timer(priority);
@@ -249,12 +249,12 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
 
         ctx.font = "600 10px sans-serif";
         if (painting_time > 8) {
-          ctx.fillText(painting_time.toFixed() + " ms paint", 4, ypos);
+          ctx.fillText(`${painting_time.toFixed()} ms paint`, 4, ypos);
           ypos += 14;
         }
 
         if (layout_time > 8) {
-          ctx.fillText(layout_time.toFixed() + " ms layout", 4, ypos);
+          ctx.fillText(`${layout_time.toFixed()} ms layout`, 4, ypos);
         }
         ctx.strokeStyle = this.debug;
 
@@ -370,13 +370,11 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
                 continue;
               }
             }
-            content =
-              content +
-              `<div style="margin-top:${firstRow ? 0 : 0.5}em">${
-                typeGlyphs[result.feature.geomType - 1]
-              } <b>${sourceName} ${sourceName ? "/" : ""} ${
-                result.layerName
-              }</b> ${result.feature.id || ""}</div>`;
+            content = `${content}<div style="margin-top:${
+              firstRow ? 0 : 0.5
+            }em">${typeGlyphs[result.feature.geomType - 1]} <b>${sourceName} ${
+              sourceName ? "/" : ""
+            } ${result.layerName}</b> ${result.feature.id || ""}</div>`;
             for (const prop in result.feature.props) {
               content =
                 content +
@@ -391,9 +389,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         L.popup()
           .setLatLng(ev.latlng)
           .setContent(
-            '<div style="max-height:400px;overflow-y:scroll;padding-right:8px">' +
-              content +
-              "</div>",
+            `<div style="max-height:400px;overflow-y:scroll;padding-right:8px">${content}</div>`,
           )
           .openOn(layer._map);
       };

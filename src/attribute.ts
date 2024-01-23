@@ -120,44 +120,42 @@ export class FontAttr {
     if (this.font) {
       if (typeof this.font === "function") {
         return this.font(z, f);
-      } else {
-        return this.font;
       }
-    } else {
-      let style = "";
-      if (this.style) {
-        if (typeof this.style === "function") {
-          style = this.style(z, f) + " ";
-        } else {
-          style = this.style + " ";
-        }
-      }
-
-      let weight = "";
-      if (this.weight) {
-        if (typeof this.weight === "function") {
-          weight = this.weight(z, f) + " ";
-        } else {
-          weight = this.weight + " ";
-        }
-      }
-
-      let size;
-      if (typeof this.size === "function") {
-        size = this.size(z, f);
-      } else {
-        size = this.size;
-      }
-
-      let family;
-      if (typeof this.family === "function") {
-        family = this.family(z, f);
-      } else {
-        family = this.family;
-      }
-
-      return `${style}${weight}${size}px ${family}`;
+      return this.font;
     }
+    let style = "";
+    if (this.style) {
+      if (typeof this.style === "function") {
+        style = `${this.style(z, f)} `;
+      } else {
+        style = `${this.style} `;
+      }
+    }
+
+    let weight = "";
+    if (this.weight) {
+      if (typeof this.weight === "function") {
+        weight = `${this.weight(z, f)} `;
+      } else {
+        weight = `${this.weight} `;
+      }
+    }
+
+    let size;
+    if (typeof this.size === "function") {
+      size = this.size(z, f);
+    } else {
+      size = this.size;
+    }
+
+    let family;
+    if (typeof this.family === "function") {
+      family = this.family(z, f);
+    } else {
+      family = this.family;
+    }
+
+    return `${style}${weight}${size}px ${family}`;
   }
 }
 
@@ -174,8 +172,7 @@ export class ArrayAttr<T = number> {
   public get(z: number, f?: Feature): T[] {
     if (typeof this.value === "function") {
       return this.value(z, f);
-    } else {
-      return this.value;
     }
+    return this.value;
   }
 }

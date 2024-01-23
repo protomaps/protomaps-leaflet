@@ -25,7 +25,7 @@ const project = (latlng: Point): Point => {
 };
 
 const unproject = (point: Point) => {
-  var d = 180 / Math.PI;
+  const d = 180 / Math.PI;
   return {
     lat: (2 * Math.atan(Math.exp(point.y / R)) - Math.PI / 2) * d,
     lng: (point.x * d) / R,
