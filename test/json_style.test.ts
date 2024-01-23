@@ -1,5 +1,5 @@
 import assert from "assert";
-import baretest from "baretest";
+import { test } from "node:test";
 import {
   filterFn,
   getFont,
@@ -9,7 +9,6 @@ import {
 import { Filter } from "../src/painter";
 import { GeomType } from "../src/tilecache";
 
-const test = baretest("Json Style");
 export const emptyFeature = {
   props: {},
   geomType: GeomType.Point,
@@ -200,5 +199,3 @@ test("font size fn zoom props", async () => {
     "10px sans-serif"
   );
 });
-
-export default test;

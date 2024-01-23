@@ -1,5 +1,5 @@
 import assert from "assert";
-import baretest from "baretest";
+import { test } from "node:test";
 import {
   ArrayAttr,
   FontAttr,
@@ -9,8 +9,6 @@ import {
 } from "../src/attribute";
 import { GeomType } from "../src/tilecache";
 import { emptyFeature } from "./json_style.test";
-
-const test = baretest("Attribute");
 
 test("numberattr", async () => {
   let n = new NumberAttr(undefined, undefined);
@@ -244,5 +242,3 @@ test("arrayattr", async () => {
   });
   assert.equal(n.per_feature, true);
 });
-
-export default test;

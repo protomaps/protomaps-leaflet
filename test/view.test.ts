@@ -1,11 +1,9 @@
 import Point from "@mapbox/point-geometry";
 import assert from "assert";
-import baretest from "baretest";
+import { test } from "node:test";
 import { TileCache } from "../src/tilecache";
 import { View, wrap, sourcesToViews } from "../src/view";
 import { StubSource } from "./test_helpers";
-
-let test = baretest("view");
 
 let cache = new TileCache(new StubSource(), 1024);
 
@@ -102,5 +100,3 @@ test("sources to views", async () => {
   }});
   assert.equal(v.get('source1').levelDiff,2);
 });
-
-export default test;
