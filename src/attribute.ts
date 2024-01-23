@@ -14,9 +14,8 @@ export class StringAttr<T extends string = string> {
   public get(z: number, f?: Feature): T {
     if (typeof this.str === "function") {
       return this.str(z, f);
-    } else {
-      return this.str;
     }
+    return this.str;
   }
 }
 
@@ -33,9 +32,8 @@ export class NumberAttr {
   public get(z: number, f?: Feature): number {
     if (typeof this.value === "function") {
       return this.value(z, f);
-    } else {
-      return this.value;
     }
+    return this.value;
   }
 }
 
