@@ -76,7 +76,7 @@ export function numberFn(obj: any): (z: number, f?: Feature) => number {
     return (z: number) => {
       return exp(obj[1][1], stops)(z - 1);
     };
-  } else if (obj[0] == "step" && obj[1][0] == "get") {
+  } else if (obj[0] === "step" && obj[1][0] === "get") {
     const slice = obj.slice(2);
     const prop = obj[1][1];
     return (z: number, f?: Feature) => {
@@ -100,7 +100,7 @@ export function numberOrFn(
   defaultValue = 0,
 ): number | ((z: number, f?: Feature) => number) {
   if (!obj) return defaultValue;
-  if (typeof obj == "number") {
+  if (typeof obj === "number") {
     return obj;
   }
   // If feature f is defined, use numberFn, otherwise use defaultValue
@@ -142,7 +142,7 @@ export function getFont(obj: any, fontsubmap: any) {
   let style = "";
   if (fontfaces.length && fontfaces[0].style) style = fontfaces[0].style + " ";
 
-  if (typeof text_size == "number") {
+  if (typeof text_size === "number") {
     return (z: number) =>
       `${style}${weight}${text_size}px ${fontfaces
         .map((f) => f.face)
