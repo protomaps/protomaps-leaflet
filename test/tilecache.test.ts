@@ -1,5 +1,5 @@
 import assert from "assert";
-import baretest from "baretest";
+import { test } from "node:test";
 import {
   isCCW,
   isInRing,
@@ -7,8 +7,6 @@ import {
   pointMinDistToLines,
   pointMinDistToPoints,
 } from "../src/tilecache";
-
-const test = baretest("Tilecache");
 
 test("basic", async () => {
   // cache.get({z:0,x:0,y:0}).then(f => {
@@ -140,5 +138,3 @@ test("point in polygon", async () => {
     ])
   );
 });
-
-export default test;

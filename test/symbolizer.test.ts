@@ -1,8 +1,6 @@
 import { exp, step, linear, cubicBezier } from "../src/symbolizer";
 import assert from "assert";
-import baretest from "baretest";
-
-const test = baretest("symbolizer");
+import { test } from "node:test";
 
 test("exp", async () => {
   let result = exp(1.4, [])(5);
@@ -98,5 +96,3 @@ test("cubic-bezier", async () => {
   assert(almostEqual(98.0277, f(90)));
   assert(almostEqual(100, f(100)));
 });
-
-export default test;

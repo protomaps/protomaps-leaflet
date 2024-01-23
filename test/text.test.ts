@@ -1,8 +1,6 @@
 import assert from "assert";
-import baretest from "baretest";
+import { test } from "node:test";
 import { linebreak } from "../src/text";
-
-const test = baretest("Text");
 
 test("trivial", async () => {
   let lines = linebreak("foo", 15);
@@ -44,5 +42,3 @@ test("very long break", async () => {
     "Friedhof",
   ]);
 });
-
-export default test;

@@ -1,9 +1,7 @@
 import Point from "@mapbox/point-geometry";
 import { covering, Index } from "../src/labeler";
 import assert from "assert";
-import baretest from "baretest";
-
-let test = baretest("labeler");
+import { test } from "node:test";
 
 test("covering", async () => {
   let result = covering(3, 1024, {
@@ -205,5 +203,3 @@ test("basic label deduplication", async () => {
 
   assert.equal(index.deduplicationCollides(tooclose_label), true);
 });
-
-export default test;

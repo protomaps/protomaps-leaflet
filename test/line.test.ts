@@ -1,8 +1,7 @@
 import assert from "assert";
-import baretest from "baretest";
-import { lineCells, simpleLabel } from "../src/line";
+import { test } from "node:test";
 
-const test = baretest("Lines");
+import { lineCells, simpleLabel } from "../src/line";
 
 test("simple line labeler", async () => {
   const mls = [
@@ -78,5 +77,3 @@ test("line cells", async () => {
     { x: 20, y: 0 },
   ]);
 });
-
-export default test;
