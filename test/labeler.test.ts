@@ -1,10 +1,10 @@
-import Point from "@mapbox/point-geometry";
-import { covering, Index } from "../src/labeler";
 import assert from "assert";
 import { test } from "node:test";
+import Point from "@mapbox/point-geometry";
+import { Index, covering } from "../src/labeler";
 
 test("covering", async () => {
-  let result = covering(3, 1024, {
+  const result = covering(3, 1024, {
     minX: 256,
     minY: 256 * 2,
     maxX: 256 + 1,
@@ -14,7 +14,7 @@ test("covering", async () => {
 });
 
 test("covering with antimeridian crossing", async () => {
-  let result = covering(3, 1024, {
+  const result = covering(3, 1024, {
     minX: 2000,
     minY: 256 * 2,
     maxX: 2050,
@@ -27,7 +27,7 @@ test("covering with antimeridian crossing", async () => {
 });
 
 test("inserting label into index", async () => {
-  let index = new Index(1024);
+  const index = new Index(1024);
   index.insert(
     {
       anchor: new Point(100, 100),
@@ -35,11 +35,11 @@ test("inserting label into index", async () => {
       draw: (c) => {},
     },
     1,
-    "abcd"
+    "abcd",
   );
-  let result = index.searchBbox(
+  const result = index.searchBbox(
     { minX: 90, maxX: 110, minY: 90, maxY: 110 },
-    Infinity
+    Infinity,
   );
   assert.equal(result.size, 1);
 });
@@ -53,11 +53,11 @@ test("inserting label with antimeridian wrapping", async () => {
       draw: (c) => {},
     },
     1,
-    "abcd"
+    "abcd",
   );
   let result = index.searchBbox(
     { minX: 0, maxX: 100, minY: 90, maxY: 110 },
-    Infinity
+    Infinity,
   );
   assert.equal(result.size, 1);
 
@@ -69,17 +69,17 @@ test("inserting label with antimeridian wrapping", async () => {
       draw: (c) => {},
     },
     1,
-    "abcd"
+    "abcd",
   );
   result = index.searchBbox(
     { minX: 1000, maxX: 1024, minY: 90, maxY: 110 },
-    Infinity
+    Infinity,
   );
   assert.equal(result.size, 1);
 });
 
 test("label with multiple bboxes", async () => {
-  let index = new Index(1024);
+  const index = new Index(1024);
   index.insert(
     {
       anchor: new Point(100, 100),
@@ -90,17 +90,17 @@ test("label with multiple bboxes", async () => {
       draw: (c) => {},
     },
     1,
-    "abcd"
+    "abcd",
   );
-  let result = index.searchBbox(
+  const result = index.searchBbox(
     { minX: 90, maxX: 130, minY: 90, maxY: 110 },
-    Infinity
+    Infinity,
   );
   assert.equal(result.size, 1);
 });
 
 test("label order", async () => {
-  let index = new Index(1024);
+  const index = new Index(1024);
   index.insert(
     {
       anchor: new Point(100, 100),
@@ -108,11 +108,11 @@ test("label order", async () => {
       draw: (c) => {},
     },
     2,
-    "abcd"
+    "abcd",
   );
   let result = index.searchBbox(
     { minX: 90, maxX: 110, minY: 90, maxY: 110 },
-    1
+    1,
   );
   assert.equal(result.size, 0);
   result = index.searchBbox({ minX: 90, maxX: 110, minY: 90, maxY: 110 }, 3);
@@ -120,7 +120,7 @@ test("label order", async () => {
 });
 
 test("pruning", async () => {
-  let index = new Index(1024);
+  const index = new Index(1024);
   index.insert(
     {
       anchor: new Point(100, 100),
@@ -128,7 +128,7 @@ test("pruning", async () => {
       draw: (c) => {},
     },
     1,
-    "abcd"
+    "abcd",
   );
   assert.equal(index.tree.all().length, 1);
   assert.equal(index.has("abcd"), true);
@@ -138,7 +138,7 @@ test("pruning", async () => {
 });
 
 test("tile prefixes", async () => {
-  let index = new Index(1024);
+  const index = new Index(1024);
   assert.equal(index.hasPrefix("my_key"), false);
   index.insert(
     {
@@ -147,13 +147,13 @@ test("tile prefixes", async () => {
       draw: (c) => {},
     },
     1,
-    "my_key:123"
+    "my_key:123",
   );
   assert.equal(index.hasPrefix("my_key"), true);
 });
 
 test("remove an individual label", async () => {
-  let index = new Index(1024);
+  const index = new Index(1024);
   index.insert(
     {
       anchor: new Point(100, 100),
@@ -161,11 +161,11 @@ test("remove an individual label", async () => {
       draw: (c) => {},
     },
     1,
-    "abcd"
+    "abcd",
   );
   assert.equal(index.tree.all().length, 1);
   assert.equal(index.current.get("abcd").size, 1);
-  let the_label = index.tree.all()[0].indexed_label;
+  const the_label = index.tree.all()[0].indexed_label;
   index.removeLabel(the_label);
   assert.equal(index.current.size, 1);
   assert.equal(index.current.get("abcd").size, 0);
@@ -173,8 +173,8 @@ test("remove an individual label", async () => {
 });
 
 test("basic label deduplication", async () => {
-  let index = new Index(1024);
-  let label1 = {
+  const index = new Index(1024);
+  const label1 = {
     anchor: new Point(100, 100),
     bboxes: [{ minX: 100, minY: 100, maxX: 110, maxY: 110 }],
     draw: (c) => {},
@@ -183,7 +183,7 @@ test("basic label deduplication", async () => {
   };
   index.insert(label1, 1, "abcd");
 
-  let repeated_label = {
+  const repeated_label = {
     anchor: new Point(200, 100),
     bboxes: [{ minX: 200, minY: 100, maxX: 210, maxY: 110 }],
     draw: (c) => {},
@@ -193,7 +193,7 @@ test("basic label deduplication", async () => {
 
   assert.equal(index.deduplicationCollides(repeated_label), false);
 
-  let tooclose_label = {
+  const tooclose_label = {
     anchor: new Point(199, 100),
     bboxes: [{ minX: 199, minY: 100, maxX: 210, maxY: 110 }],
     draw: (c) => {},

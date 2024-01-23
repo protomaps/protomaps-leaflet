@@ -1,14 +1,14 @@
-import Point from "@mapbox/point-geometry";
 import assert from "assert";
 import { test } from "node:test";
+import Point from "@mapbox/point-geometry";
 import { TileCache } from "../src/tilecache";
-import { View, wrap, sourcesToViews } from "../src/view";
+import { View, sourcesToViews, wrap } from "../src/view";
 import { StubSource } from "./test_helpers";
 
-let cache = new TileCache(new StubSource(), 1024);
+const cache = new TileCache(new StubSource(), 1024);
 
 test("basic, level diff = 0", async () => {
-  let view = new View(cache, 3, 0);
+  const view = new View(cache, 3, 0);
   let result = view.dataTileForDisplayTile({ z: 3, x: 4, y: 1 });
   assert.deepEqual(result.data_tile, { z: 3, x: 4, y: 1 });
   assert.equal(result.scale, 1);
@@ -23,7 +23,7 @@ test("basic, level diff = 0", async () => {
 });
 
 test("level diff = 1", async () => {
-  let view = new View(cache, 3, 1);
+  const view = new View(cache, 3, 1);
   let result = view.dataTileForDisplayTile({ z: 3, x: 4, y: 1 });
   assert.deepEqual(result.data_tile, { z: 2, x: 2, y: 0 });
   assert.equal(result.scale, 1);
@@ -43,16 +43,16 @@ test("level diff = 1", async () => {
 });
 
 test("level diff = 2", async () => {
-  let view = new View(cache, 3, 2);
-  let result = view.dataTileForDisplayTile({ z: 6, x: 9, y: 13 });
+  const view = new View(cache, 3, 2);
+  const result = view.dataTileForDisplayTile({ z: 6, x: 9, y: 13 });
   assert.deepEqual(result.data_tile, { z: 3, x: 1, y: 1 });
   assert.equal(result.scale, 2);
   assert.deepEqual(result.origin, new Point(256 * 8, 256 * 8));
 });
 
 test("get center no level diff", async () => {
-  let view = new View(cache, 3, 0);
-  let result = view.dataTilesForBounds(3, {
+  const view = new View(cache, 3, 0);
+  const result = view.dataTilesForBounds(3, {
     minX: 100,
     minY: 100,
     maxX: 400,
@@ -62,8 +62,8 @@ test("get center no level diff", async () => {
 });
 
 test("get center level diff = 2", async () => {
-  let view = new View(cache, 3, 2);
-  let result = view.dataTilesForBounds(6, {
+  const view = new View(cache, 3, 2);
+  const result = view.dataTilesForBounds(6, {
     minX: 100,
     minY: 100,
     maxX: 400,
@@ -73,8 +73,8 @@ test("get center level diff = 2", async () => {
 });
 
 test("wrap tile coordinates", async () => {
-  let view = new View(cache, 3, 2);
-  let result = view.dataTilesForBounds(6, {
+  const view = new View(cache, 3, 2);
+  const result = view.dataTilesForBounds(6, {
     minX: -100,
     minY: 100,
     maxX: 400,
@@ -91,12 +91,14 @@ test("wrap", async () => {
 });
 
 test("sources to views", async () => {
-  let v = sourcesToViews({url:"http://example.com/{z}/{x}/{y}.mvt"});
-  assert.equal(v.get('').levelDiff,2);
-  v = sourcesToViews({sources:{
-    source1: {
-      url:"http://example.com/{z}/{x}/{y}.mvt"
-    }
-  }});
-  assert.equal(v.get('source1').levelDiff,2);
+  let v = sourcesToViews({ url: "http://example.com/{z}/{x}/{y}.mvt" });
+  assert.equal(v.get("").levelDiff, 2);
+  v = sourcesToViews({
+    sources: {
+      source1: {
+        url: "http://example.com/{z}/{x}/{y}.mvt",
+      },
+    },
+  });
+  assert.equal(v.get("source1").levelDiff, 2);
 });

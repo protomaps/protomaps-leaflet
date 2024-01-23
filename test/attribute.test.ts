@@ -8,7 +8,14 @@ import {
   TextAttr,
 } from "../src/attribute";
 import { GeomType } from "../src/tilecache";
-import { emptyFeature } from "./json_style.test";
+
+export const emptyFeature = {
+  props: {},
+  geomType: GeomType.Point,
+  numVertices: 0,
+  geom: [],
+  bbox: { minX: 0, minY: 0, maxX: 0, maxY: 0 },
+};
 
 test("numberattr", async () => {
   let n = new NumberAttr(undefined, undefined);
@@ -66,7 +73,7 @@ test("fontattr", async () => {
 
   f = new FontAttr({
     font: (z) => {
-      return z == 1 ? "12px serif" : "14px serif";
+      return z === 1 ? "12px serif" : "14px serif";
     },
   });
   assert.equal(f.get(1), "12px serif");
@@ -85,7 +92,7 @@ test("fontattr", async () => {
 
   f = new FontAttr({
     fontWeight: (z) => {
-      return z == 1 ? 400 : 600;
+      return z === 1 ? 400 : 600;
     },
   });
   assert.equal(f.get(1), "400 12px sans-serif");
@@ -93,7 +100,7 @@ test("fontattr", async () => {
 
   f = new FontAttr({
     fontSize: (z) => {
-      return z == 1 ? 12 : 14;
+      return z === 1 ? 12 : 14;
     },
   });
   assert.equal(f.get(1), "12px sans-serif");
@@ -101,7 +108,7 @@ test("fontattr", async () => {
 
   f = new FontAttr({
     fontStyle: (z) => {
-      return z == 1 ? "normal" : "italic";
+      return z === 1 ? "normal" : "italic";
     },
   });
   assert.equal(f.get(1), "normal 12px sans-serif");
@@ -109,7 +116,7 @@ test("fontattr", async () => {
 
   f = new FontAttr({
     fontFamily: (z) => {
-      return z == 1 ? "sans-serif" : "serif";
+      return z === 1 ? "sans-serif" : "serif";
     },
   });
   assert.equal(f.get(1), "12px sans-serif");
@@ -125,12 +132,12 @@ test("textattr", async () => {
       ...emptyFeature,
       props: { "name:en": "Taipei", name: "臺北" },
     }),
-    "Taipei"
+    "Taipei",
   );
   t = new TextAttr({ label_props: ["name:en"], textTransform: "uppercase" });
   assert.equal(
     t.get(0, { ...emptyFeature, props: { "name:en": "Taipei" } }),
-    "TAIPEI"
+    "TAIPEI",
   );
   t = new TextAttr({ label_props: ["name:en"], textTransform: "lowercase" });
   assert.equal(
@@ -139,7 +146,7 @@ test("textattr", async () => {
       props: { "name:en": "Taipei" },
       geomType: GeomType.Point,
     }),
-    "taipei"
+    "taipei",
   );
   t = new TextAttr({ label_props: ["name:en"], textTransform: "capitalize" });
   assert.equal(
@@ -148,7 +155,7 @@ test("textattr", async () => {
       props: { "name:en": "from Berga to Taipei" },
       geomType: GeomType.Point,
     }),
-    "From Berga To Taipei"
+    "From Berga To Taipei",
   );
   t = new TextAttr({ label_props: ["name:en"], textTransform: "uppercase" });
   assert.equal(t.get(0, { ...emptyFeature, props: {} }), undefined);
@@ -163,7 +170,7 @@ test("textattr", async () => {
       props: { "name:en": "Taipei" },
       geomType: GeomType.Point,
     }),
-    "TAIPEI"
+    "TAIPEI",
   );
   t = new TextAttr({
     label_props: ["name:en"],
@@ -175,7 +182,7 @@ test("textattr", async () => {
       props: { "name:en": "Taipei" },
       geomType: GeomType.Point,
     }),
-    "taipei"
+    "taipei",
   );
   t = new TextAttr({
     label_props: ["name:en"],
@@ -187,7 +194,7 @@ test("textattr", async () => {
       props: { "name:en": "from Berga to Taipei" },
       geomType: GeomType.Point,
     }),
-    "From Berga To Taipei"
+    "From Berga To Taipei",
   );
 
   t = new TextAttr({
@@ -199,11 +206,11 @@ test("textattr", async () => {
   });
   assert.equal(
     t.get(0, { ...emptyFeature, props: { name: "台北", abbr: "TPE" } }),
-    "TPE"
+    "TPE",
   );
   assert.equal(
     t.get(9, { ...emptyFeature, props: { name: "台北", abbr: "TPE" } }),
-    "台北"
+    "台北",
   );
 });
 
@@ -224,7 +231,7 @@ test("arrayattr", async () => {
     (z, f) => {
       return [z, z];
     },
-    [0]
+    [0],
   );
   assert.equal(n.get(2)[0], 2);
   assert.equal(n.get(2)[1], 2);

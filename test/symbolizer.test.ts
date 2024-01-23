@@ -1,6 +1,6 @@
-import { exp, step, linear, cubicBezier } from "../src/symbolizer";
 import assert from "assert";
 import { test } from "node:test";
+import { cubicBezier, exp, linear, step } from "../src/symbolizer";
 
 test("exp", async () => {
   let result = exp(1.4, [])(5);

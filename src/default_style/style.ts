@@ -4,7 +4,6 @@ import { Rule } from "../painter";
 import {
   CenteredTextSymbolizer,
   CircleSymbolizer,
-  exp,
   FlexSymbolizer,
   GroupSymbolizer,
   LabelSymbolizer,
@@ -14,6 +13,7 @@ import {
   PolygonLabelSymbolizer,
   PolygonSymbolizer,
   ShieldSymbolizer,
+  exp,
 } from "../symbolizer";
 import { Feature } from "../tilecache";
 
@@ -53,10 +53,10 @@ export interface DefaultStyleParams {
 }
 
 const doShading = (params: DefaultStyleParams, shade: string) => {
-  let shadeHsl = parseToHsla(shade);
-  let outParams: any = { ...params };
+  const shadeHsl = parseToHsla(shade);
+  const outParams: any = { ...params };
   for (const [key, value] of Object.entries(params)) {
-    let o = parseToHsla(value);
+    const o = parseToHsla(value);
     outParams[key] = hsla(shadeHsl[0], shadeHsl[1], o[2], o[3]);
   }
   return outParams;
@@ -64,7 +64,7 @@ const doShading = (params: DefaultStyleParams, shade: string) => {
 
 export const paintRules = (
   params: DefaultStyleParams,
-  shade?: string
+  shade?: string,
 ): Rule[] => {
   if (shade) params = doShading(params, shade);
   return [
@@ -80,7 +80,7 @@ export const paintRules = (
         fill: params.glacier,
       }),
       filter: (z, f) => {
-        return f.props.natural == "glacier";
+        return f.props.natural === "glacier";
       },
     },
     {
@@ -90,7 +90,7 @@ export const paintRules = (
       }),
       filter: (z, f) => {
         return (
-          f.props.landuse == "residential" || f.props.place == "neighbourhood"
+          f.props.landuse === "residential" || f.props.place === "neighbourhood"
         );
       },
     },
@@ -100,7 +100,7 @@ export const paintRules = (
         fill: params.hospital,
       }),
       filter: (z, f) => {
-        return f.props.amenity == "hospital";
+        return f.props.amenity === "hospital";
       },
     },
     {
@@ -109,7 +109,7 @@ export const paintRules = (
         fill: params.cemetery,
       }),
       filter: (z, f) => {
-        return f.props.landuse == "cemetery";
+        return f.props.landuse === "cemetery";
       },
     },
     {
@@ -119,10 +119,10 @@ export const paintRules = (
       }),
       filter: (z, f) => {
         return (
-          f.props.amenity == "school" ||
-          f.props.amenity == "kindergarten" ||
-          f.props.amenity == "university" ||
-          f.props.amenity == "college"
+          f.props.amenity === "school" ||
+          f.props.amenity === "kindergarten" ||
+          f.props.amenity === "university" ||
+          f.props.amenity === "college"
         );
       },
     },
@@ -132,7 +132,7 @@ export const paintRules = (
         fill: params.industrial,
       }),
       filter: (z, f) => {
-        return f.props.landuse == "industrial";
+        return f.props.landuse === "industrial";
       },
     },
     {
@@ -141,7 +141,7 @@ export const paintRules = (
         fill: params.wood,
       }),
       filter: (z, f) => {
-        return f.props.natural == "wood";
+        return f.props.natural === "wood";
       },
     },
     {
@@ -150,7 +150,7 @@ export const paintRules = (
         fill: params.grass,
       }),
       filter: (z, f) => {
-        return f.props.landuse == "grass";
+        return f.props.landuse === "grass";
       },
     },
     {
@@ -159,7 +159,7 @@ export const paintRules = (
         fill: params.park,
       }),
       filter: (z, f) => {
-        return f.props.leisure == "park";
+        return f.props.leisure === "park";
       },
     },
     {
@@ -174,7 +174,7 @@ export const paintRules = (
         fill: params.sand,
       }),
       filter: (z, f) => {
-        return f.props.natural == "sand";
+        return f.props.natural === "sand";
       },
     },
     {
@@ -195,7 +195,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "highway";
+        return f.props["pmap:kind"] === "highway";
       },
     },
     {
@@ -210,7 +210,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "major_road";
+        return f.props["pmap:kind"] === "major_road";
       },
     },
     {
@@ -224,7 +224,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "medium_road";
+        return f.props["pmap:kind"] === "medium_road";
       },
     },
     {
@@ -238,7 +238,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "minor_road";
+        return f.props["pmap:kind"] === "minor_road";
       },
     },
     {
@@ -252,7 +252,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "minor_road";
+        return f.props["pmap:kind"] === "minor_road";
       },
     },
     {
@@ -266,7 +266,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "medium_road";
+        return f.props["pmap:kind"] === "medium_road";
       },
     },
     {
@@ -281,7 +281,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "major_road";
+        return f.props["pmap:kind"] === "major_road";
       },
     },
     {
@@ -296,7 +296,7 @@ export const paintRules = (
         ]),
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] == "highway";
+        return f.props["pmap:kind"] === "highway";
       },
     },
     {
@@ -320,13 +320,13 @@ export const labelRules = (
   params: DefaultStyleParams,
   shade?: string,
   language1?: string[],
-  language2?: string[]
+  language2?: string[],
 ): LabelRule[] => {
   if (shade) params = doShading(params, shade);
-  var nametags = ["name"];
+  let nametags = ["name"];
   if (language1) nametags = language1;
 
-  let languageStack = (symbolizer: LabelSymbolizer, fill: string) => {
+  const languageStack = (symbolizer: LabelSymbolizer, fill: string) => {
     if (!language2) return symbolizer;
     if (symbolizer instanceof OffsetTextSymbolizer) {
       return new FlexSymbolizer([
@@ -361,7 +361,7 @@ export const labelRules = (
           },
           textTransform: "uppercase",
         }),
-        params.countryLabel
+        params.countryLabel,
       ),
       filter: (z, f) => {
         return f.props["pmap:kind"] == "country";
@@ -375,7 +375,7 @@ export const labelRules = (
           fill: params.stateLabel,
           font: "300 16px sans-serif",
         }),
-        params.stateLabel
+        params.stateLabel,
       ),
       filter: (z, f) => {
         return f.props["pmap:kind"] == "state";
@@ -402,7 +402,7 @@ export const labelRules = (
             }
           },
         }),
-        params.cityLabel
+        params.cityLabel,
       ),
       sort: (a: any, b: any) => {
         return a["pmap:rank"] - b["pmap:rank"];
@@ -436,7 +436,7 @@ export const labelRules = (
               }
             },
           }),
-          params.cityLabel
+          params.cityLabel,
         ),
       ]),
       sort: (a: any, b: any) => {
@@ -453,7 +453,7 @@ export const labelRules = (
           font: "500 10px sans-serif",
           textTransform: "uppercase",
         }),
-        params.neighbourhoodLabel
+        params.neighbourhoodLabel,
       ),
       filter: (z, f) => {
         return f.props["pmap:kind"] == "neighbourhood";
@@ -467,7 +467,7 @@ export const labelRules = (
           fill: params.landuseLabel,
           font: "300 12px sans-serif",
         }),
-        params.landuseLabel
+        params.landuseLabel,
       ),
     },
     {
@@ -478,7 +478,7 @@ export const labelRules = (
           fill: params.waterLabel,
           font: "italic 600 12px sans-serif",
         }),
-        params.waterLabel
+        params.waterLabel,
       ),
     },
     {
@@ -489,7 +489,7 @@ export const labelRules = (
           fill: params.naturalLabel,
           font: "italic 300 12px sans-serif",
         }),
-        params.naturalLabel
+        params.naturalLabel,
       ),
     },
     {
@@ -500,7 +500,7 @@ export const labelRules = (
           fill: params.roadsLabel,
           font: "500 12px sans-serif",
         }),
-        params.roadsLabel
+        params.roadsLabel,
       ),
       minzoom: 12,
     },
@@ -532,7 +532,7 @@ export const labelRules = (
             offsetY: 2,
             font: "300 10px sans-serif",
           }),
-          params.poisLabel
+          params.poisLabel,
         ),
       ]),
     },

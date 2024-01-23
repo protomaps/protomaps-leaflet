@@ -1,16 +1,16 @@
-declare var L: any;
+declare const L: any;
 
 import Point from "@mapbox/point-geometry";
 
-import { Zxy, TileCache } from "../tilecache";
-import { View, PreparedTile, sourcesToViews, SourceOptions } from "../view";
-import { painter, Rule } from "../painter";
-import { Labelers, LabelRule } from "../labeler";
-import { light } from "../default_style/light";
-import { dark } from "../default_style/dark";
-import { paintRules, labelRules } from "../default_style/style";
-import { xray_rules, XraySelection } from "../xray";
 import { PMTiles } from "pmtiles";
+import { dark } from "../default_style/dark";
+import { light } from "../default_style/light";
+import { labelRules, paintRules } from "../default_style/style";
+import { LabelRule, Labelers } from "../labeler";
+import { Rule, painter } from "../painter";
+import { TileCache, Zxy } from "../tilecache";
+import { PreparedTile, SourceOptions, View, sourcesToViews } from "../view";
+import { XraySelection, xray_rules } from "../xray";
 
 const timer = (duration: number) => {
   return new Promise<void>((resolve, reject) => {
@@ -35,7 +35,7 @@ const reflect = (promise: Promise<Status>) => {
     },
     (error) => {
       return { status: "rejected", reason: error };
-    }
+    },
   );
 };
 
@@ -75,7 +75,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
           '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>';
       super(options);
 
-      let theme = options.dark ? dark : light;
+      const theme = options.dark ? dark : light;
       this.paint_rules =
         options.paint_rules || paintRules(theme, options.shade);
       this.label_rules =
@@ -89,7 +89,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
       this.views = sourcesToViews(options);
 
       this.debug = options.debug;
-      let scratch = document.createElement("canvas").getContext("2d");
+      const scratch = document.createElement("canvas").getContext("2d");
       this.scratch = scratch;
       this.onTilesInvalidated = (tiles: Set<string>) => {
         tiles.forEach((t) => {
@@ -100,7 +100,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         this.scratch,
         this.label_rules,
         16,
-        this.onTilesInvalidated
+        this.onTilesInvalidated,
       );
       this.tile_size = 256 * window.devicePixelRatio;
       this.tileDelay = options.tileDelay || 3;
@@ -114,9 +114,9 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
       darkOption: boolean,
       shade: string,
       language1: string[],
-      language2: string[]
+      language2: string[],
     ) {
-      let theme = darkOption ? dark : light;
+      const theme = darkOption ? dark : light;
       this.paint_rules = paintRules(theme, shade);
       this.label_rules = labelRules(theme, shade, language1, language2);
     }
@@ -125,16 +125,16 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
       coords: any,
       element: any,
       key: string,
-      done = () => {}
+      done = () => {},
     ) {
       this.lastRequestedZ = coords.z;
 
-      let promises = [];
+      const promises = [];
       for (const [k, v] of this.views) {
-        let promise = v.getDisplayTile(coords);
+        const promise = v.getDisplayTile(coords);
         promises.push({ key: k, promise: promise });
       }
-      let tile_responses = await Promise.all(
+      const tile_responses = await Promise.all(
         promises.map((o) => {
           return o.promise.then(
             (v: PreparedTile[]) => {
@@ -142,12 +142,12 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
             },
             (error: Error) => {
               return { status: "rejected", reason: error, key: o.key };
-            }
+            },
           );
-        })
+        }),
       );
 
-      let prepared_tilemap = new Map<string, PreparedTile[]>();
+      const prepared_tilemap = new Map<string, PreparedTile[]>();
       for (const tile_response of tile_responses) {
         if (tile_response.status === "fulfilled") {
           prepared_tilemap.set(tile_response.key, [tile_response.value]);
@@ -160,46 +160,46 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         }
       }
 
-      if (element.key != key) return;
+      if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
       await Promise.all(this.tasks.map(reflect));
 
-      if (element.key != key) return;
+      if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      let layout_time = this.labelers.add(coords.z, prepared_tilemap);
+      const layout_time = this.labelers.add(coords.z, prepared_tilemap);
 
-      if (element.key != key) return;
+      if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      let label_data = this.labelers.getIndex(coords.z);
+      const label_data = this.labelers.getIndex(coords.z);
 
       if (!this._map) return; // the layer has been removed from the map
 
-      let center = this._map.getCenter().wrap();
-      let pixelBounds = this._getTiledPixelBounds(center),
+      const center = this._map.getCenter().wrap();
+      const pixelBounds = this._getTiledPixelBounds(center),
         tileRange = this._pxBoundsToTileRange(pixelBounds),
         tileCenter = tileRange.getCenter();
-      let priority = coords.distanceTo(tileCenter) * this.tileDelay;
+      const priority = coords.distanceTo(tileCenter) * this.tileDelay;
 
       await timer(priority);
 
-      if (element.key != key) return;
+      if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      let BUF = 16;
-      let bbox = {
+      const BUF = 16;
+      const bbox = {
         minX: 256 * coords.x - BUF,
         minY: 256 * coords.y - BUF,
         maxX: 256 * (coords.x + 1) + BUF,
         maxY: 256 * (coords.y + 1) + BUF,
       };
-      let origin = new Point(256 * coords.x, 256 * coords.y);
+      const origin = new Point(256 * coords.x, 256 * coords.y);
 
       element.width = this.tile_size;
       element.height = this.tile_size;
-      let ctx = element.getContext("2d");
+      const ctx = element.getContext("2d");
       ctx.setTransform(this.tile_size / 256, 0, 0, this.tile_size / 256, 0, 0);
       ctx.clearRect(0, 0, 256, 256);
 
@@ -210,7 +210,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         ctx.restore();
       }
 
-      var painting_time = 0;
+      let painting_time = 0;
 
       let paint_rules = this.paint_rules;
       if (this.xray) {
@@ -226,7 +226,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         bbox,
         origin,
         false,
-        this.debug
+        this.debug,
       );
 
       if (this.debug) {
@@ -237,12 +237,12 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
 
         ctx.font = "12px sans-serif";
         let ypos = 28;
-        for (let [k, v] of prepared_tilemap) {
-          let dt = v[0].data_tile;
+        for (const [k, v] of prepared_tilemap) {
+          const dt = v[0].data_tile;
           ctx.fillText(
             k + (k ? " " : "") + dt.z + " " + dt.x + " " + dt.y,
             4,
-            ypos
+            ypos,
           );
           ypos += 14;
         }
@@ -276,9 +276,9 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
     }
 
     public rerenderTile(key: string) {
-      for (let unwrapped_k in this._tiles) {
-        let wrapped_coord = this._wrapCoords(
-          this._keyToTileCoords(unwrapped_k)
+      for (const unwrapped_k in this._tiles) {
+        const wrapped_coord = this._wrapCoords(
+          this._keyToTileCoords(unwrapped_k),
         );
         if (key === this._tileCoordsToKey(wrapped_coord)) {
           this.renderTile(wrapped_coord, this._tiles[unwrapped_k].el, key);
@@ -291,25 +291,25 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
         this.scratch,
         this.label_rules,
         16,
-        this.onTilesInvalidated
+        this.onTilesInvalidated,
       );
     }
 
     public rerenderTiles() {
-      for (let unwrapped_k in this._tiles) {
-        let wrapped_coord = this._wrapCoords(
-          this._keyToTileCoords(unwrapped_k)
+      for (const unwrapped_k in this._tiles) {
+        const wrapped_coord = this._wrapCoords(
+          this._keyToTileCoords(unwrapped_k),
         );
-        let key = this._tileCoordsToKey(wrapped_coord);
+        const key = this._tileCoordsToKey(wrapped_coord);
         this.renderTile(wrapped_coord, this._tiles[unwrapped_k].el, key);
       }
     }
 
     public createTile(coords: any, showTile: any) {
-      let element = L.DomUtil.create("canvas", "leaflet-tile");
+      const element = L.DomUtil.create("canvas", "leaflet-tile");
       element.lang = this.lang;
 
-      let key = this._tileCoordsToKey(coords);
+      const key = this._tileCoordsToKey(coords);
       element.key = key;
 
       this.renderTile(coords, element, key, () => {
@@ -320,7 +320,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
     }
 
     public _removeTile(key: string) {
-      let tile = this._tiles[key];
+      const tile = this._tiles[key];
       if (!tile) {
         return;
       }
@@ -337,11 +337,11 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
     }
 
     public queryFeatures(lng: number, lat: number) {
-      let featuresBySourceName = new Map();
-      for (var [sourceName, view] of this.views) {
+      const featuresBySourceName = new Map();
+      for (const [sourceName, view] of this.views) {
         featuresBySourceName.set(
           sourceName,
-          view.queryFeatures(lng, lat, this._map.getZoom())
+          view.queryFeatures(lng, lat, this._map.getZoom()),
         );
       }
       return featuresBySourceName;
@@ -349,14 +349,17 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
 
     public inspect(layer: LeafletLayer) {
       return (ev: any) => {
-        let typeGlyphs = ["◎", "⟍", "◻"];
-        let wrapped = layer._map.wrapLatLng(ev.latlng);
-        let resultsBySourceName = layer.queryFeatures(wrapped.lng, wrapped.lat);
-        var content = "";
+        const typeGlyphs = ["◎", "⟍", "◻"];
+        const wrapped = layer._map.wrapLatLng(ev.latlng);
+        const resultsBySourceName = layer.queryFeatures(
+          wrapped.lng,
+          wrapped.lat,
+        );
+        let content = "";
         let firstRow = true;
 
-        for (var [sourceName, results] of resultsBySourceName) {
-          for (var result of results) {
+        for (const [sourceName, results] of resultsBySourceName) {
+          for (const result of results) {
             if (this.xray && this.xray !== true) {
               if (
                 !(
@@ -390,7 +393,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
           .setContent(
             '<div style="max-height:400px;overflow-y:scroll;padding-right:8px">' +
               content +
-              "</div>"
+              "</div>",
           )
           .openOn(layer._map);
       };

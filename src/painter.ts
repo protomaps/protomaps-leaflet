@@ -1,8 +1,8 @@
 import Point from "@mapbox/point-geometry";
-import { Zxy, Bbox, Feature } from "./tilecache";
-import { PreparedTile, transformGeom } from "./view";
-import { PaintSymbolizer } from "./symbolizer";
 import { Index } from "./labeler";
+import { PaintSymbolizer } from "./symbolizer";
+import { Bbox, Feature, Zxy } from "./tilecache";
+import { PreparedTile, transformGeom } from "./view";
 
 export type Filter = (zoom: number, feature: Feature) => boolean;
 
@@ -25,35 +25,35 @@ export function painter(
   bbox: Bbox,
   origin: Point,
   clip: boolean,
-  debug?: string
+  debug?: string,
 ) {
-  let start = performance.now();
+  const start = performance.now();
   ctx.save();
   ctx.miterLimit = 2;
 
   for (var rule of rules) {
     if (rule.minzoom && z < rule.minzoom) continue;
     if (rule.maxzoom && z > rule.maxzoom) continue;
-    let prepared_tiles = prepared_tilemap.get(rule.dataSource || "");
+    const prepared_tiles = prepared_tilemap.get(rule.dataSource || "");
     if (!prepared_tiles) continue;
-    for (let prepared_tile of prepared_tiles) {
+    for (const prepared_tile of prepared_tiles) {
       var layer = prepared_tile.data.get(rule.dataLayer);
       if (layer === undefined) continue;
       if (rule.symbolizer.before) rule.symbolizer.before(ctx, prepared_tile.z);
 
-      let po = prepared_tile.origin;
-      let dim = prepared_tile.dim;
-      let ps = prepared_tile.scale;
+      const po = prepared_tile.origin;
+      const dim = prepared_tile.dim;
+      const ps = prepared_tile.scale;
       ctx.save();
 
       // apply clipping to the tile
       // find the smallest of all the origins
       if (clip) {
         ctx.beginPath();
-        let minX = Math.max(po.x - origin.x, bbox.minX - origin.x); // - 0.5;
-        let minY = Math.max(po.y - origin.y, bbox.minY - origin.y); // - 0.5;
-        let maxX = Math.min(po.x - origin.x + dim, bbox.maxX - origin.x); // + 0.5;
-        let maxY = Math.min(po.y - origin.y + dim, bbox.maxY - origin.y); // + 0.5;
+        const minX = Math.max(po.x - origin.x, bbox.minX - origin.x); // - 0.5;
+        const minY = Math.max(po.y - origin.y, bbox.minY - origin.y); // - 0.5;
+        const maxX = Math.min(po.x - origin.x + dim, bbox.maxX - origin.x); // + 0.5;
+        const maxY = Math.min(po.y - origin.y + dim, bbox.maxY - origin.y); // + 0.5;
         ctx.rect(minX, minY, maxX - minX, maxY - minY);
         ctx.clip();
       }
@@ -70,7 +70,7 @@ export function painter(
 
       for (var feature of layer) {
         let geom = feature.geom;
-        let fbox = feature.bbox;
+        const fbox = feature.bbox;
         if (
           fbox.maxX * ps + po.x < bbox.minX ||
           fbox.minX * ps + po.x > bbox.maxX ||
@@ -95,13 +95,13 @@ export function painter(
       bbox.minX - origin.x,
       bbox.minY - origin.y,
       bbox.maxX - bbox.minX,
-      bbox.maxY - bbox.minY
+      bbox.maxY - bbox.minY,
     );
     ctx.clip();
   }
 
   if (label_data) {
-    let matches = label_data.searchBbox(bbox, Infinity);
+    const matches = label_data.searchBbox(bbox, Infinity);
     for (var label of matches) {
       ctx.save();
       ctx.translate(label.anchor.x - origin.x, label.anchor.y - origin.y);
@@ -116,14 +116,14 @@ export function painter(
           label.anchor.x - origin.x - 2,
           label.anchor.y - origin.y - 2,
           4,
-          4
+          4,
         );
-        for (let bbox of label.bboxes) {
+        for (const bbox of label.bboxes) {
           ctx.strokeRect(
             bbox.minX - origin.x,
             bbox.minY - origin.y,
             bbox.maxX - bbox.minX,
-            bbox.maxY - bbox.minY
+            bbox.maxY - bbox.minY,
           );
         }
       }

@@ -8,7 +8,7 @@ export class StringAttr<T extends string = string> {
 
   constructor(c: AttrOption<T> | undefined, defaultValue: T) {
     this.str = c ?? defaultValue;
-    this.per_feature = typeof this.str == "function" && this.str.length == 2;
+    this.per_feature = typeof this.str === "function" && this.str.length === 2;
   }
 
   public get(z: number, f?: Feature): T {
@@ -24,14 +24,14 @@ export class NumberAttr {
   value: AttrOption<number>;
   per_feature: boolean;
 
-  constructor(c: AttrOption<number> | undefined, defaultValue: number = 1) {
+  constructor(c: AttrOption<number> | undefined, defaultValue = 1) {
     this.value = c ?? defaultValue;
     this.per_feature =
-      typeof this.value == "function" && this.value.length == 2;
+      typeof this.value === "function" && this.value.length === 2;
   }
 
   public get(z: number, f?: Feature): number {
-    if (typeof this.value == "function") {
+    if (typeof this.value === "function") {
       return this.value(z, f);
     } else {
       return this.value;
@@ -57,12 +57,12 @@ export class TextAttr {
     let retval: string | undefined;
 
     let label_props: string[];
-    if (typeof this.label_props == "function") {
+    if (typeof this.label_props === "function") {
       label_props = this.label_props(z, f);
     } else {
       label_props = this.label_props;
     }
-    for (let property of label_props) {
+    for (const property of label_props) {
       if (
         f.props.hasOwnProperty(property) &&
         typeof f.props[property] === "string"
@@ -124,7 +124,7 @@ export class FontAttr {
         return this.font;
       }
     } else {
-      var style = "";
+      let style = "";
       if (this.style) {
         if (typeof this.style === "function") {
           style = this.style(z, f) + " ";
@@ -133,7 +133,7 @@ export class FontAttr {
         }
       }
 
-      var weight = "";
+      let weight = "";
       if (this.weight) {
         if (typeof this.weight === "function") {
           weight = this.weight(z, f) + " ";
@@ -142,14 +142,14 @@ export class FontAttr {
         }
       }
 
-      var size;
+      let size;
       if (typeof this.size === "function") {
         size = this.size(z, f);
       } else {
         size = this.size;
       }
 
-      var family;
+      let family;
       if (typeof this.family === "function") {
         family = this.family(z, f);
       } else {
@@ -168,11 +168,11 @@ export class ArrayAttr<T = number> {
   constructor(c: AttrOption<T[]>, defaultValue: T[] = []) {
     this.value = c ?? defaultValue;
     this.per_feature =
-      typeof this.value == "function" && this.value.length == 2;
+      typeof this.value === "function" && this.value.length === 2;
   }
 
   public get(z: number, f?: Feature): T[] {
-    if (typeof this.value == "function") {
+    if (typeof this.value === "function") {
       return this.value(z, f);
     } else {
       return this.value;

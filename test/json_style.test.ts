@@ -96,7 +96,7 @@ test("numberFn constant", async () => {
 });
 
 test("numberFn function", async () => {
-  let n = numberFn({
+  const n = numberFn({
     base: 1,
     stops: [
       [14, 0],
@@ -110,7 +110,15 @@ test("numberFn function", async () => {
 });
 
 test("numberFn interpolate", async () => {
-  let n = numberFn(["interpolate", ["exponential", 1], ["zoom"], 14, 0, 16, 2]);
+  const n = numberFn([
+    "interpolate",
+    ["exponential", 1],
+    ["zoom"],
+    14,
+    0,
+    16,
+    2,
+  ]);
   assert.equal(n.length, 1);
   assert.equal(n(15), 0);
   assert.equal(n(16), 1);
@@ -118,7 +126,7 @@ test("numberFn interpolate", async () => {
 });
 
 test("numberFn properties", async () => {
-  let n = numberFn(["step", ["get", "scalerank"], 0, 1, 2, 3, 4]);
+  const n = numberFn(["step", ["get", "scalerank"], 0, 1, 2, 3, 4]);
   assert.equal(n.length, 2);
   assert.equal(n(14, { ...emptyFeature, props: { scalerank: 0 } }), 0);
   assert.equal(n(14, { ...emptyFeature, props: { scalerank: 1 } }), 2);
@@ -135,13 +143,13 @@ test("font", async () => {
 
   n = getFont(
     { "text-font": ["Noto"], "text-size": 15 },
-    { Noto: { face: "serif" } }
+    { Noto: { face: "serif" } },
   );
   assert.equal(n(1), "15px serif");
 
   n = getFont(
     { "text-font": ["Boto", "Noto"], "text-size": 15 },
-    { Noto: { face: "serif" }, Boto: { face: "Comic Sans" } }
+    { Noto: { face: "serif" }, Boto: { face: "Comic Sans" } },
   );
   assert.equal(n(1), "15px Comic Sans, serif");
 });
@@ -149,18 +157,18 @@ test("font", async () => {
 test("font weight and style", async () => {
   let n = getFont(
     { "text-font": ["Noto"], "text-size": 15 },
-    { Noto: { face: "serif", weight: 100 } }
+    { Noto: { face: "serif", weight: 100 } },
   );
   assert.equal(n(1), "100 15px serif");
   n = getFont(
     { "text-font": ["Noto"], "text-size": 15 },
-    { Noto: { face: "serif", style: "italic" } }
+    { Noto: { face: "serif", style: "italic" } },
   );
   assert.equal(n(1), "italic 15px serif");
 });
 
 test("font size fn zoom", async () => {
-  let n = getFont(
+  const n = getFont(
     {
       "text-font": ["Noto"],
       "text-size": {
@@ -171,7 +179,7 @@ test("font size fn zoom", async () => {
         ],
       },
     },
-    {}
+    {},
   );
   assert.equal(n(15), "1px sans-serif");
   assert.equal(n(16), "2px sans-serif");
@@ -179,23 +187,23 @@ test("font size fn zoom", async () => {
 });
 
 test("font size fn zoom props", async () => {
-  let n = getFont(
+  const n = getFont(
     {
       "text-font": ["Noto"],
       "text-size": ["step", ["get", "scalerank"], 0, 1, 12, 2, 10],
     },
-    {}
+    {},
   );
   assert.equal(
     n(14, { ...emptyFeature, props: { scalerank: 0 } }),
-    "0px sans-serif"
+    "0px sans-serif",
   );
   assert.equal(
     n(14, { ...emptyFeature, props: { scalerank: 1 } }),
-    "12px sans-serif"
+    "12px sans-serif",
   );
   assert.equal(
     n(14, { ...emptyFeature, props: { scalerank: 2 } }),
-    "10px sans-serif"
+    "10px sans-serif",
   );
 });

@@ -2,7 +2,7 @@ import potpack from "potpack";
 
 // https://github.com/tangrams/tangram/blob/master/src/styles/text/font_manager.js
 export const Font = (name: string, url: string, weight: string) => {
-  let ff = new FontFace(name, "url(" + url + ")", { weight: weight });
+  const ff = new FontFace(name, "url(" + url + ")", { weight: weight });
   document.fonts.add(ff);
   return ff.load();
 };
@@ -23,9 +23,9 @@ interface PotPackInput {
   img: HTMLImageElement;
 }
 
-let mkimg = async (src: string): Promise<HTMLImageElement> => {
+const mkimg = async (src: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
-    let img = new Image();
+    const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => reject("Invalid SVG");
     img.src = src;
@@ -57,17 +57,19 @@ export class Sheet {
 
   async load() {
     let src = this.src;
-    let scale = window.devicePixelRatio;
+    const scale = window.devicePixelRatio;
     if (src.endsWith(".html")) {
-      let c = await fetch(src);
+      const c = await fetch(src);
       src = await c.text();
     }
-    let tree = new window.DOMParser().parseFromString(src, "text/html");
-    let icons = Array.from(tree.body.children);
+    const tree = new window.DOMParser().parseFromString(src, "text/html");
+    const icons = Array.from(tree.body.children);
 
-    let missingImg = await mkimg("data:image/svg+xml;base64," + btoa(MISSING));
+    const missingImg = await mkimg(
+      "data:image/svg+xml;base64," + btoa(MISSING),
+    );
 
-    let boxes: PotPackInput[] = [
+    const boxes: PotPackInput[] = [
       {
         w: missingImg.width * scale,
         h: missingImg.height * scale,
@@ -76,11 +78,11 @@ export class Sheet {
       },
     ];
 
-    let serializer = new XMLSerializer();
-    for (let ps of icons) {
-      var svg64 = btoa(serializer.serializeToString(ps));
-      var image64 = "data:image/svg+xml;base64," + svg64;
-      let img = await mkimg(image64);
+    const serializer = new XMLSerializer();
+    for (const ps of icons) {
+      const svg64 = btoa(serializer.serializeToString(ps));
+      const image64 = "data:image/svg+xml;base64," + svg64;
+      const img = await mkimg(image64);
       boxes.push({
         w: img.width * scale,
         h: img.height * scale,
@@ -89,12 +91,12 @@ export class Sheet {
       });
     }
 
-    let packresult = potpack(boxes);
+    const packresult = potpack(boxes);
     this.canvas.width = packresult.w;
     this.canvas.height = packresult.h;
-    let ctx = this.canvas.getContext("2d");
+    const ctx = this.canvas.getContext("2d");
     if (ctx) {
-      for (let box of boxes) {
+      for (const box of boxes) {
         if (box.x !== undefined && box.y !== undefined) {
           ctx.drawImage(box.img, box.x, box.y, box.w, box.h);
           if (box.id)

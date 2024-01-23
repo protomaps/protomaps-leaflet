@@ -54,7 +54,7 @@ export interface TileSource {
 // so the general tile rendering case does not need rescaling.
 const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
   pbf.pos = geometry;
-  var end = pbf.readVarint() + pbf.pos,
+  let end = pbf.readVarint() + pbf.pos,
     cmd = 1,
     length = 0,
     x = 0,
@@ -64,11 +64,11 @@ const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
     y1 = Infinity,
     y2 = -Infinity;
 
-  var lines: Point[][] = [];
-  var line: Point[] = [];
+  const lines: Point[][] = [];
+  let line: Point[] = [];
   while (pbf.pos < end) {
     if (length <= 0) {
-      var cmdLen = pbf.readVarint();
+      const cmdLen = pbf.readVarint();
       cmd = cmdLen & 0x7;
       length = cmdLen >> 3;
     }
@@ -95,21 +95,21 @@ const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
 
 function parseTile(
   buffer: ArrayBuffer,
-  tileSize: number
+  tileSize: number,
 ): Map<string, Feature[]> {
-  let v = new VectorTile(new Protobuf(buffer));
-  let result = new Map<string, Feature[]>();
-  for (let [key, value] of Object.entries(v.layers)) {
-    let features = [];
-    let layer = value as any;
+  const v = new VectorTile(new Protobuf(buffer));
+  const result = new Map<string, Feature[]>();
+  for (const [key, value] of Object.entries(v.layers)) {
+    const features = [];
+    const layer = value as any;
     for (let i = 0; i < layer.length; i++) {
-      let loaded = loadGeomAndBbox(
+      const loaded = loadGeomAndBbox(
         layer.feature(i)._pbf,
         layer.feature(i)._geometry,
-        tileSize / layer.extent
+        tileSize / layer.extent,
       );
       let numVertices = 0;
-      for (let part of loaded.geom) numVertices += part.length;
+      for (const part of loaded.geom) numVertices += part.length;
       features.push({
         id: layer.feature(i).id,
         geomType: layer.feature(i).type,
@@ -130,7 +130,7 @@ export class PmtilesSource implements TileSource {
   shouldCancelZooms: boolean;
 
   constructor(url: string | PMTiles, shouldCancelZooms: boolean) {
-    if (typeof url == "string") {
+    if (typeof url === "string") {
       this.p = new PMTiles(url);
     } else {
       this.p = url;
@@ -142,7 +142,7 @@ export class PmtilesSource implements TileSource {
   public async get(c: Zxy, tileSize: number): Promise<Map<string, Feature[]>> {
     if (this.shouldCancelZooms) {
       this.controllers = this.controllers.filter((cont) => {
-        if (cont[0] != c.z) {
+        if (cont[0] !== c.z) {
           cont[1].abort();
           return false;
         }
@@ -153,7 +153,7 @@ export class PmtilesSource implements TileSource {
     this.controllers.push([c.z, controller]);
     const signal = controller.signal;
 
-    let result = await this.p.getZxy(c.z, c.x, c.y, signal);
+    const result = await this.p.getZxy(c.z, c.x, c.y, signal);
 
     if (result) {
       return parseTile(result.data, tileSize);
@@ -177,14 +177,14 @@ export class ZxySource implements TileSource {
   public async get(c: Zxy, tileSize: number): Promise<Map<string, Feature[]>> {
     if (this.shouldCancelZooms) {
       this.controllers = this.controllers.filter((cont) => {
-        if (cont[0] != c.z) {
+        if (cont[0] !== c.z) {
           cont[1].abort();
           return false;
         }
         return true;
       });
     }
-    let url = this.url
+    const url = this.url
       .replace("{z}", c.z.toString())
       .replace("{x}", c.x.toString())
       .replace("{y}", c.y.toString());
@@ -197,7 +197,7 @@ export class ZxySource implements TileSource {
           return resp.arrayBuffer();
         })
         .then((buffer) => {
-          let result = parseTile(buffer, tileSize);
+          const result = parseTile(buffer, tileSize);
           resolve(result);
         })
         .catch((e) => {
@@ -212,20 +212,20 @@ export interface CacheEntry {
   data: Map<string, Feature[]>;
 }
 
-let R = 6378137;
-let MAX_LATITUDE = 85.0511287798;
-let MAXCOORD = R * Math.PI;
+const R = 6378137;
+const MAX_LATITUDE = 85.0511287798;
+const MAXCOORD = R * Math.PI;
 
-let project = (latlng: number[]) => {
-  let d = Math.PI / 180;
-  let constrained_lat = Math.max(
+const project = (latlng: number[]) => {
+  const d = Math.PI / 180;
+  const constrained_lat = Math.max(
     Math.min(MAX_LATITUDE, latlng[0]),
-    -MAX_LATITUDE
+    -MAX_LATITUDE,
   );
-  let sin = Math.sin(constrained_lat * d);
+  const sin = Math.sin(constrained_lat * d);
   return new Point(
     R * latlng[1] * d,
-    (R * Math.log((1 + sin) / (1 - sin))) / 2
+    (R * Math.log((1 + sin) / (1 - sin))) / 2,
   );
 };
 
@@ -238,22 +238,22 @@ function dist2(v: Point, w: Point) {
 }
 
 function distToSegmentSquared(p: Point, v: Point, w: Point) {
-  var l2 = dist2(v, w);
+  const l2 = dist2(v, w);
   if (l2 === 0) return dist2(p, v);
-  var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+  let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
   t = Math.max(0, Math.min(1, t));
   return dist2(p, new Point(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y)));
 }
 
 export function isInRing(point: Point, ring: Point[]): boolean {
-  var inside = false;
-  for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    var xi = ring[i].x,
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i].x,
       yi = ring[i].y;
-    var xj = ring[j].x,
+    const xj = ring[j].x,
       yj = ring[j].y;
-    var intersect =
-      yi > point.y != yj > point.y &&
+    const intersect =
+      yi > point.y !== yj > point.y &&
       point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
     if (intersect) inside = !inside;
   }
@@ -261,9 +261,9 @@ export function isInRing(point: Point, ring: Point[]): boolean {
 }
 
 export function isCCW(ring: Point[]): boolean {
-  var area = 0;
-  for (var i = 0; i < ring.length; i++) {
-    let j = (i + 1) % ring.length;
+  let area = 0;
+  for (let i = 0; i < ring.length; i++) {
+    const j = (i + 1) % ring.length;
     area += ring[i].x * ring[j].y;
     area -= ring[j].x * ring[i].y;
   }
@@ -271,8 +271,8 @@ export function isCCW(ring: Point[]): boolean {
 }
 
 export function pointInPolygon(point: Point, geom: Point[][]): boolean {
-  var isInCurrentExterior = false;
-  for (let ring of geom) {
+  let isInCurrentExterior = false;
+  for (const ring of geom) {
     if (isCCW(ring)) {
       // it is an interior ring
       if (isInRing(point, ring)) isInCurrentExterior = false;
@@ -287,8 +287,8 @@ export function pointInPolygon(point: Point, geom: Point[][]): boolean {
 
 export function pointMinDistToPoints(point: Point, geom: Point[][]): number {
   let min = Infinity;
-  for (let l of geom) {
-    let dist = Math.sqrt(dist2(point, l[0]));
+  for (const l of geom) {
+    const dist = Math.sqrt(dist2(point, l[0]));
     if (dist < min) min = dist;
   }
   return min;
@@ -296,9 +296,9 @@ export function pointMinDistToPoints(point: Point, geom: Point[][]): number {
 
 export function pointMinDistToLines(point: Point, geom: Point[][]): number {
   let min = Infinity;
-  for (let l of geom) {
-    for (var i = 0; i < l.length - 1; i++) {
-      let dist = Math.sqrt(distToSegmentSquared(point, l[i], l[i + 1]));
+  for (const l of geom) {
+    for (let i = 0; i < l.length - 1; i++) {
+      const dist = Math.sqrt(distToSegmentSquared(point, l[i], l[i + 1]));
       if (dist < min) min = dist;
     }
   }
@@ -327,38 +327,38 @@ export class TileCache {
     lng: number,
     lat: number,
     zoom: number,
-    brushSize: number
+    brushSize: number,
   ): PickedFeature[] {
-    let projected = project([lat, lng]);
-    var normalized = new Point(
+    const projected = project([lat, lng]);
+    const normalized = new Point(
       (projected.x + MAXCOORD) / (MAXCOORD * 2),
-      1 - (projected.y + MAXCOORD) / (MAXCOORD * 2)
+      1 - (projected.y + MAXCOORD) / (MAXCOORD * 2),
     );
     if (normalized.x > 1)
       normalized.x = normalized.x - Math.floor(normalized.x);
-    let on_zoom = normalized.mult(1 << zoom);
-    let tile_x = Math.floor(on_zoom.x);
-    let tile_y = Math.floor(on_zoom.y);
+    const on_zoom = normalized.mult(1 << zoom);
+    const tile_x = Math.floor(on_zoom.x);
+    const tile_y = Math.floor(on_zoom.y);
     const idx = toIndex({ z: zoom, x: tile_x, y: tile_y });
-    let retval: PickedFeature[] = [];
-    let entry = this.cache.get(idx);
+    const retval: PickedFeature[] = [];
+    const entry = this.cache.get(idx);
     if (entry) {
       const center = new Point(
         (on_zoom.x - tile_x) * this.tileSize,
-        (on_zoom.y - tile_y) * this.tileSize
+        (on_zoom.y - tile_y) * this.tileSize,
       );
-      for (let [layer_name, layer_arr] of entry.data.entries()) {
-        for (let feature of layer_arr) {
+      for (const [layer_name, layer_arr] of entry.data.entries()) {
+        for (const feature of layer_arr) {
           // rough check by bbox
           //  if ((query_bbox.maxX >= feature.bbox.minX && feature.bbox.maxX >= query_bbox.minX) &&
           //      (query_bbox.maxY >= feature.bbox.minY && feature.bbox.maxY >= query_bbox.minY)) {
           //  }
 
-          if (feature.geomType == GeomType.Point) {
+          if (feature.geomType === GeomType.Point) {
             if (pointMinDistToPoints(center, feature.geom) < brushSize) {
               retval.push({ feature, layerName: layer_name });
             }
-          } else if (feature.geomType == GeomType.Line) {
+          } else if (feature.geomType === GeomType.Line) {
             if (pointMinDistToLines(center, feature.geom) < brushSize) {
               retval.push({ feature, layerName: layer_name });
             }
@@ -376,12 +376,12 @@ export class TileCache {
   public async get(c: Zxy): Promise<Map<string, Feature[]>> {
     const idx = toIndex(c);
     return new Promise((resolve, reject) => {
-      let entry = this.cache.get(idx);
+      const entry = this.cache.get(idx);
       if (entry) {
         entry.used = performance.now();
         resolve(entry.data);
       } else {
-        let ifentry = this.inflight.get(idx);
+        const ifentry = this.inflight.get(idx);
         if (ifentry) {
           ifentry.push([resolve, reject]);
         } else {
@@ -391,7 +391,7 @@ export class TileCache {
             .then((tile) => {
               this.cache.set(idx, { used: performance.now(), data: tile });
 
-              let ifentry2 = this.inflight.get(idx);
+              const ifentry2 = this.inflight.get(idx);
               if (ifentry2) ifentry2.forEach((f) => f[0](tile));
               this.inflight.delete(idx);
               resolve(tile);
@@ -409,7 +409,7 @@ export class TileCache {
               }
             })
             .catch((e) => {
-              let ifentry2 = this.inflight.get(idx);
+              const ifentry2 = this.inflight.get(idx);
               if (ifentry2) ifentry2.forEach((f) => f[1](e));
               this.inflight.delete(idx);
               reject(e);
