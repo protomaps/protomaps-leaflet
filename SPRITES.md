@@ -54,3 +54,7 @@ sheet.load().then(() => {
   ctx.drawImage(s.canvas, s.x, s.y, s.w, s.h, 0, 0, s.w, s.h);
 });
 ```
+
+## Limitations
+
+SVGs in a spritesheet should avoid advanced SVG features like drop shadows, because these are unlikely to be rendered correctly and consistently across web browsers.
