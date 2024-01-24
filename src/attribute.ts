@@ -69,7 +69,7 @@ export class TextAttr {
         break;
       }
     }
-    let transform;
+    let transform: string | ((z: number, f: Feature) => string) | undefined;
     if (typeof this.textTransform === "function") {
       transform = this.textTransform(z, f);
     } else {
@@ -139,14 +139,14 @@ export class FontAttr {
       }
     }
 
-    let size;
+    let size: number | ((z: number, f: Feature) => number) | undefined;
     if (typeof this.size === "function") {
       size = this.size(z, f);
     } else {
       size = this.size;
     }
 
-    let family;
+    let family: string | ((z: number, f: Feature) => string) | undefined;
     if (typeof this.family === "function") {
       family = this.family(z, f);
     } else {
