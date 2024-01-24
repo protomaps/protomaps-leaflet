@@ -39,17 +39,16 @@ See the docs on [what protomaps-leaflet is, what protomaps-leaflet is not](https
 <script src="https://unpkg.com/protomaps-leaflet@latest/dist/protomaps-leaflet.min.js"></script>
 <script>
     const map = L.map('map')
-    var layer = protomapsL.leafletLayer({url:'FILE.pmtiles OR ENDPOINT/{z}/{x}/{y}.pbf'})
+    var layer = protomapsL.leafletLayer({url:'FILE.pmtiles OR ENDPOINT/{z}/{x}/{y}.mvt'})
     layer.addTo(map)
 </script>
 ```
-
-Exports of OpenStreetMap data in PMTiles format can be obtained from [https://protomaps.com/bundles](https://protomaps.com/bundles).
 
 ## Project Status
 
 The design is still evolving rapidly, so do not expect any kind of stable internal or external-facing API between minor versions. But please do report bugs and discuss requirements in the Issues.
 
 ## See Also
-* [KothicJS](https://github.com/kothic/kothic-js)
 * [Tangram](https://github.com/tangrams/tangram)
+* [KothicJS](https://github.com/kothic/kothic-js)
+* [Leaflet.VectorGrid](https://github.com/Leaflet/Leaflet.VectorGrid)
