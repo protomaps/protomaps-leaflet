@@ -1,6 +1,6 @@
 ## Overview
 
-Protomaps.js includes a sprite-like system for sheets of icons. A sheet is just a single-file HTML document containing SVGs; sheets are loaded and baked into bitmaps on a canvas, where they can be sampled efficiently via Canvas 2D `drawImage`. This is useful for resolution-independent map symbology inside web browsers.
+protomaps-leaflet includes a sprite-like system for sheets of icons. A sheet is just a single-file HTML document containing SVGs; sheets are loaded and baked into bitmaps on a canvas, where they can be sampled efficiently via Canvas 2D `drawImage`. This is useful for resolution-independent map symbology inside web browsers.
 
 ## Format
 

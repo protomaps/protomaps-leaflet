@@ -31,7 +31,6 @@ See the docs on [what protomaps-leaflet is, what protomaps-leaflet is not](https
 * [Satellite + labels demo](https://protomaps.github.io/protomaps-leaflet/examples/labels.html)
 * [GeoJSON between basemap and labels demo](https://protomaps.github.io/protomaps-leaflet/examples/sandwich.html)
 * [Map inset](https://protomaps.github.io/protomaps-leaflet/examples/inset.html)
-* [PostGIS](https://protomaps.github.io/protomaps-leaflet/examples/postgis.html)
 * [Custom fonts](https://protomaps.github.io/protomaps-leaflet/examples/fonts.html)
 
 ## How to use
