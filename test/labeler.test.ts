@@ -165,7 +165,7 @@ test("remove an individual label", async () => {
   );
   assert.equal(index.tree.all().length, 1);
   assert.equal(index.current.get("abcd").size, 1);
-  const the_label = index.tree.all()[0].indexed_label;
+  const the_label = index.tree.all()[0].indexedLabel;
   index.removeLabel(the_label);
   assert.equal(index.current.size, 1);
   assert.equal(index.current.get("abcd").size, 0);

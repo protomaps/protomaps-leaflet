@@ -50,6 +50,11 @@ export interface TileSource {
   get(c: Zxy, tileSize: number): Promise<Map<string, Feature[]>>;
 }
 
+interface ZoomAbort {
+  z: number;
+  controller: AbortController;
+}
+
 // reimplement loadGeometry with a scalefactor
 // so the general tile rendering case does not need rescaling.
 const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
@@ -126,7 +131,7 @@ function parseTile(
 
 export class PmtilesSource implements TileSource {
   p: PMTiles;
-  controllers: any[];
+  zoomaborts: ZoomAbort[];
   shouldCancelZooms: boolean;
 
   constructor(url: string | PMTiles, shouldCancelZooms: boolean) {
@@ -135,22 +140,22 @@ export class PmtilesSource implements TileSource {
     } else {
       this.p = url;
     }
-    this.controllers = [];
+    this.zoomaborts = [];
     this.shouldCancelZooms = shouldCancelZooms;
   }
 
   public async get(c: Zxy, tileSize: number): Promise<Map<string, Feature[]>> {
     if (this.shouldCancelZooms) {
-      this.controllers = this.controllers.filter((cont) => {
-        if (cont[0] !== c.z) {
-          cont[1].abort();
+      this.zoomaborts = this.zoomaborts.filter((za) => {
+        if (za.z !== c.z) {
+          za.controller.abort();
           return false;
         }
         return true;
       });
     }
     const controller = new AbortController();
-    this.controllers.push([c.z, controller]);
+    this.zoomaborts.push({ z: c.z, controller: controller });
     const signal = controller.signal;
 
     const result = await this.p.getZxy(c.z, c.x, c.y, signal);
@@ -164,20 +169,20 @@ export class PmtilesSource implements TileSource {
 
 export class ZxySource implements TileSource {
   url: string;
-  controllers: any[];
+  zoomaborts: ZoomAbort[];
   shouldCancelZooms: boolean;
 
   constructor(url: string, shouldCancelZooms: boolean) {
     this.url = url;
-    this.controllers = [];
+    this.zoomaborts = [];
     this.shouldCancelZooms = shouldCancelZooms;
   }
 
   public async get(c: Zxy, tileSize: number): Promise<Map<string, Feature[]>> {
     if (this.shouldCancelZooms) {
-      this.controllers = this.controllers.filter((cont) => {
-        if (cont[0] !== c.z) {
-          cont[1].abort();
+      this.zoomaborts = this.zoomaborts.filter((za) => {
+        if (za.z !== c.z) {
+          za.controller.abort();
           return false;
         }
         return true;
@@ -188,7 +193,7 @@ export class ZxySource implements TileSource {
       .replace("{x}", c.x.toString())
       .replace("{y}", c.y.toString());
     const controller = new AbortController();
-    this.controllers.push([c.z, controller]);
+    this.zoomaborts.push({ z: c.z, controller: controller });
     const signal = controller.signal;
     return new Promise((resolve, reject) => {
       fetch(url, { signal: signal })

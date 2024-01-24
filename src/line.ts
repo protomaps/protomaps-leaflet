@@ -96,8 +96,6 @@ export function simpleLabel(
   repeatDistance: number,
   cellSize: number,
 ): LabelCandidate[] {
-  let longestStart;
-  let longestEnd;
   const longestLength = 0;
 
   const candidates = [];
