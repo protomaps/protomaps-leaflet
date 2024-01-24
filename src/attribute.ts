@@ -139,7 +139,7 @@ export class FontAttr {
       }
     }
 
-    let size: string | ((z: number, f: Feature) => string) | undefined;
+    let size: number | ((z: number, f: Feature) => number) | undefined;
     if (typeof this.size === "function") {
       size = this.size(z, f);
     } else {

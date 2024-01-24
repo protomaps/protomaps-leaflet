@@ -248,8 +248,8 @@ export function cubicBezier(
   };
 }
 
-function isFunction(obj: any) {
-  return !!(obj && obj.constructor && obj.call && obj.apply);
+function isFunction(obj: unknown) {
+  return !!(obj?.constructor && obj.call && obj.apply);
 }
 
 export class LineSymbolizer implements PaintSymbolizer {
