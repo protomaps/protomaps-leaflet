@@ -248,10 +248,6 @@ export function cubicBezier(
   };
 }
 
-function isFunction(obj: unknown) {
-  return !!(obj?.constructor && obj.call && obj.apply);
-}
-
 export class LineSymbolizer implements PaintSymbolizer {
   color: StringAttr;
   width: NumberAttr;
