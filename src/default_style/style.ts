@@ -1,4 +1,3 @@
-import { hsla, parseToHsla } from "color2k";
 import { LabelRule } from "../labeler";
 import { Rule } from "../painter";
 import {
@@ -10,7 +9,6 @@ import {
   LineLabelSymbolizer,
   LineSymbolizer,
   OffsetTextSymbolizer,
-  PolygonLabelSymbolizer,
   PolygonSymbolizer,
   ShieldSymbolizer,
   exp,
@@ -52,26 +50,11 @@ export interface DefaultStyleParams {
   poisLabel: string;
 }
 
-const doShading = (params: DefaultStyleParams, shade: string) => {
-  const shadeHsl = parseToHsla(shade);
-  const outParams: any = { ...params };
-  for (const [key, value] of Object.entries(params)) {
-    const o = parseToHsla(value);
-    outParams[key] = hsla(shadeHsl[0], shadeHsl[1], o[2], o[3]);
-  }
-  return outParams;
-};
-
 interface PlacesFeature {
   "pmap:rank": number;
 }
 
-export const paintRules = (
-  originalParams: DefaultStyleParams,
-  shade?: string,
-): Rule[] => {
-  let params = originalParams;
-  if (shade) params = doShading(originalParams, shade);
+export const paintRules = (params: DefaultStyleParams): Rule[] => {
   return [
     {
       dataLayer: "earth",
@@ -322,13 +305,10 @@ export const paintRules = (
 };
 
 export const labelRules = (
-  originalParams: DefaultStyleParams,
-  shade?: string,
+  params: DefaultStyleParams,
   language1?: string[],
   language2?: string[],
 ): LabelRule[] => {
-  let params = originalParams;
-  if (shade) params = doShading(originalParams, shade);
   let nametags = ["name"];
   if (language1) nametags = language1;
 
@@ -466,39 +446,39 @@ export const labelRules = (
         return f.props["pmap:kind"] === "neighbourhood";
       },
     },
-    {
-      dataLayer: "landuse",
-      symbolizer: languageStack(
-        new PolygonLabelSymbolizer({
-          label_props: nametags,
-          fill: params.landuseLabel,
-          font: "300 12px sans-serif",
-        }),
-        params.landuseLabel,
-      ),
-    },
-    {
-      dataLayer: "water",
-      symbolizer: languageStack(
-        new PolygonLabelSymbolizer({
-          label_props: nametags,
-          fill: params.waterLabel,
-          font: "italic 600 12px sans-serif",
-        }),
-        params.waterLabel,
-      ),
-    },
-    {
-      dataLayer: "natural",
-      symbolizer: languageStack(
-        new PolygonLabelSymbolizer({
-          label_props: nametags,
-          fill: params.naturalLabel,
-          font: "italic 300 12px sans-serif",
-        }),
-        params.naturalLabel,
-      ),
-    },
+    // {
+    //   dataLayer: "landuse",
+    //   symbolizer: languageStack(
+    //     new PolygonLabelSymbolizer({
+    //       label_props: nametags,
+    //       fill: params.landuseLabel,
+    //       font: "300 12px sans-serif",
+    //     }),
+    //     params.landuseLabel,
+    //   ),
+    // },
+    // {
+    //   dataLayer: "water",
+    //   symbolizer: languageStack(
+    //     new PolygonLabelSymbolizer({
+    //       label_props: nametags,
+    //       fill: params.waterLabel,
+    //       font: "italic 600 12px sans-serif",
+    //     }),
+    //     params.waterLabel,
+    //   ),
+    // },
+    // {
+    //   dataLayer: "natural",
+    //   symbolizer: languageStack(
+    //     new PolygonLabelSymbolizer({
+    //       label_props: nametags,
+    //       fill: params.naturalLabel,
+    //       font: "italic 300 12px sans-serif",
+    //     }),
+    //     params.naturalLabel,
+    //   ),
+    // },
     {
       dataLayer: "roads",
       symbolizer: languageStack(

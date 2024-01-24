@@ -214,16 +214,6 @@ export class View {
       dim: tt.dim,
     };
   }
-
-  public queryFeatures(lng: number, lat: number, display_zoom: number) {
-    const rounded_zoom = Math.round(display_zoom);
-    const data_zoom = Math.min(
-      rounded_zoom - this.levelDiff,
-      this.maxDataLevel,
-    );
-    const brush_size = 16 / (1 << (rounded_zoom - data_zoom));
-    return this.tileCache.queryFeatures(lng, lat, data_zoom, brush_size);
-  }
 }
 
 export interface SourceOptions {

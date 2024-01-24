@@ -11,7 +11,6 @@ import { LabelRule, Labelers } from "../labeler";
 import { Rule, painter } from "../painter";
 import { TileCache, Zxy } from "../tilecache";
 import { PreparedTile, SourceOptions, View, sourcesToViews } from "../view";
-import { XraySelection, xray_rules } from "../xray";
 
 const timer = (duration: number) => {
   return new Promise<void>((resolve, reject) => {
@@ -53,12 +52,10 @@ interface LeafletLayerOptions {
   backgroundColor?: string;
   language1?: string[];
   language2?: string[];
-  shade?: string;
   dark?: boolean;
   noWrap?: boolean;
   paint_rules?: Rule[];
   label_rules?: LabelRule[];
-  xray?: XraySelection;
   tasks?: Promise<Status>[];
 
   levelDiff?: number;
@@ -81,14 +78,12 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
       super(options);
 
       const theme = options.dark ? dark : light;
-      this.paint_rules =
-        options.paint_rules || paintRules(theme, options.shade);
+      this.paint_rules = options.paint_rules || paintRules(theme);
       this.label_rules =
         options.label_rules ||
-        labelRules(theme, options.shade, options.language1, options.language2);
+        labelRules(theme, options.language1, options.language2);
       this.backgroundColor = options.backgroundColor;
       this.lastRequestedZ = undefined;
-      this.xray = options.xray;
       this.tasks = options.tasks || [];
 
       this.views = sourcesToViews(options);
@@ -110,20 +105,16 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
       this.tile_size = 256 * window.devicePixelRatio;
       this.tileDelay = options.tileDelay || 3;
       this.lang = options.lang;
-
-      // bound instance of function
-      this.inspector = this.inspect(this);
     }
 
     public setDefaultStyle(
       darkOption: boolean,
-      shade: string,
       language1: string[],
       language2: string[],
     ) {
       const theme = darkOption ? dark : light;
-      this.paint_rules = paintRules(theme, shade);
-      this.label_rules = labelRules(theme, shade, language1, language2);
+      this.paint_rules = paintRules(theme);
+      this.label_rules = labelRules(theme, language1, language2);
     }
 
     public async renderTile(
@@ -221,10 +212,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
 
       let painting_time = 0;
 
-      let paint_rules = this.paint_rules;
-      if (this.xray) {
-        paint_rules = xray_rules(prepared_tilemap, this.xray);
-      }
+      const paint_rules = this.paint_rules;
 
       painting_time = painter(
         ctx,
@@ -339,71 +327,6 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
         tile: tile.el,
         coords: this._keyToTileCoords(key),
       });
-    }
-
-    public queryFeatures(lng: number, lat: number) {
-      const featuresBySourceName = new Map();
-      for (const [sourceName, view] of this.views) {
-        featuresBySourceName.set(
-          sourceName,
-          view.queryFeatures(lng, lat, this._map.getZoom()),
-        );
-      }
-      return featuresBySourceName;
-    }
-
-    public inspect(layer: LeafletLayer) {
-      return (ev: any) => {
-        const typeGlyphs = ["◎", "⟍", "◻"];
-        const wrapped = layer._map.wrapLatLng(ev.latlng);
-        const resultsBySourceName = layer.queryFeatures(
-          wrapped.lng,
-          wrapped.lat,
-        );
-        let content = "";
-        let firstRow = true;
-
-        for (const [sourceName, results] of resultsBySourceName) {
-          for (const result of results) {
-            if (this.xray && this.xray !== true) {
-              if (
-                !(
-                  (this.xray.dataSource || "") === sourceName &&
-                  this.xray.dataLayer === result.layerName
-                )
-              ) {
-                continue;
-              }
-            }
-            content = `${content}<div style="margin-top:${
-              firstRow ? 0 : 0.5
-            }em">${typeGlyphs[result.feature.geomType - 1]} <b>${sourceName} ${
-              sourceName ? "/" : ""
-            } ${result.layerName}</b> ${result.feature.id || ""}</div>`;
-            for (const prop in result.feature.props) {
-              content = `${content}<div style="font-size:0.9em">${prop} = ${result.feature.props[prop]}</div>`;
-            }
-            firstRow = false;
-          }
-        }
-        if (firstRow) {
-          content = "No features.";
-        }
-        L.popup()
-          .setLatLng(ev.latlng)
-          .setContent(
-            `<div style="max-height:400px;overflow-y:scroll;padding-right:8px">${content}</div>`,
-          )
-          .openOn(layer._map);
-      };
-    }
-
-    public addInspector(map: any) {
-      return map.on("click", this.inspector);
-    }
-
-    public removeInspector(map: any) {
-      return map.off("click", this.inspector);
     }
   }
   return new LeafletLayer(options);

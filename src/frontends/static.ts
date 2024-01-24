@@ -8,7 +8,6 @@ import { LabelRule, Labeler } from "../labeler";
 import { Rule, painter } from "../painter";
 import { PmtilesSource, TileCache, ZxySource } from "../tilecache";
 import { PreparedTile, SourceOptions, View, sourcesToViews } from "../view";
-import { XraySelection, xray_rules } from "../xray";
 
 const R = 6378137;
 const MAX_LATITUDE = 85.0511287798;
@@ -64,7 +63,6 @@ export const getZoom = (degrees_lng: number, css_pixels: number): number => {
 interface StaticOptions {
   debug?: string;
   lang?: string;
-  shade?: string;
   levelDiff?: number;
   maxDataZoom?: number;
   url?: PMTiles | string;
@@ -75,7 +73,6 @@ interface StaticOptions {
   language1?: string[];
   language2?: string[];
   backgroundColor?: string;
-  xray?: XraySelection;
 }
 
 export class Static {
@@ -84,19 +81,17 @@ export class Static {
   views: Map<string, View>;
   debug?: string;
   backgroundColor?: string;
-  xray?: XraySelection;
 
   constructor(options: StaticOptions) {
     const theme = options.dark ? dark : light;
-    this.paint_rules = options.paint_rules || paintRules(theme, options.shade);
+    this.paint_rules = options.paint_rules || paintRules(theme);
     this.label_rules =
       options.label_rules ||
-      labelRules(theme, options.shade, options.language1, options.language2);
+      labelRules(theme, options.language1, options.language2);
     this.backgroundColor = options.backgroundColor;
 
     this.views = sourcesToViews(options);
     this.debug = options.debug || "";
-    this.xray = options.xray;
   }
 
   async drawContext(
@@ -169,16 +164,13 @@ export class Static {
       ctx.restore();
     }
 
-    let paint_rules = this.paint_rules;
-    if (this.xray) {
-      paint_rules = xray_rules(prepared_tilemap, this.xray);
-    }
+    const paint_rules = this.paint_rules;
 
     const p = painter(
       ctx,
       display_zoom,
       prepared_tilemap,
-      this.xray ? null : labeler.index,
+      labeler.index,
       paint_rules,
       bbox,
       origin,
