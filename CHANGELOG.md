@@ -1,3 +1,6 @@
+# 1.24.2
+* Continue internal refactors in preparation of 2.0.0 major revision.
+
 # 1.24.1
 * Apply linting rules; fix scoping and equality problems caught by linter.
 
