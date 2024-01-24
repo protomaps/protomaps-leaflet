@@ -243,7 +243,7 @@ const Toner = (variant: string) => {
           fontFamily: "Inter",
           fontWeight: 600,
           fontSize: (z, f) => {
-            if (f!.props["pmap:rank"] === 1) return 15;
+            if (f?.props["pmap:rank"] === 1) return 15;
             return 13;
           },
         }),
@@ -267,7 +267,7 @@ const Toner = (variant: string) => {
         fontFamily: "Inter",
         fontWeight: 600,
         fontSize: (z, f) => {
-          if (f!.props["pmap:rank"] === 1) return 15;
+          if (f?.props["pmap:rank"] === 1) return 15;
           return 13;
         },
       }),

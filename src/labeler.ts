@@ -28,6 +28,8 @@ export interface IndexedLabel {
   deduplicationDistance?: number;
 }
 
+type TreeItem = Bbox & { indexedLabel: IndexedLabel };
+
 export interface Layout {
   index: Index;
   order: number;
@@ -80,7 +82,7 @@ export const covering = (
 };
 
 export class Index {
-  tree: RBush<any>;
+  tree: RBush<TreeItem>;
   current: Map<string, Set<IndexedLabel>>;
   dim: number;
   maxLabeledTiles: number;
@@ -114,8 +116,8 @@ export class Index {
   public searchBbox(bbox: Bbox, order: number): Set<IndexedLabel> {
     const labels = new Set<IndexedLabel>();
     for (const match of this.tree.search(bbox)) {
-      if (match.indexed_label.order <= order) {
-        labels.add(match.indexed_label);
+      if (match.indexedLabel.order <= order) {
+        labels.add(match.indexedLabel);
       }
     }
     return labels;
@@ -125,8 +127,8 @@ export class Index {
     const labels = new Set<IndexedLabel>();
     for (const bbox of label.bboxes) {
       for (const match of this.tree.search(bbox)) {
-        if (match.indexed_label.order <= order) {
-          labels.add(match.indexed_label);
+        if (match.indexedLabel.order <= order) {
+          labels.add(match.indexedLabel);
         }
       }
     }
@@ -135,7 +137,7 @@ export class Index {
 
   public bboxCollides(bbox: Bbox, order: number): boolean {
     for (const match of this.tree.search(bbox)) {
-      if (match.indexed_label.order <= order) return true;
+      if (match.indexedLabel.order <= order) return true;
     }
     return false;
   }
@@ -143,7 +145,7 @@ export class Index {
   public labelCollides(label: Label, order: number): boolean {
     for (const bbox of label.bboxes) {
       for (const match of this.tree.search(bbox)) {
-        if (match.indexed_label.order <= order) return true;
+        if (match.indexedLabel.order <= order) return true;
       }
     }
     return false;
@@ -161,8 +163,8 @@ export class Index {
       maxY: label.anchor.y + dist,
     };
     for (const collision of this.tree.search(test_bbox)) {
-      if (collision.indexed_label.deduplicationKey === label.deduplicationKey) {
-        if (collision.indexed_label.anchor.dist(label.anchor) < dist) {
+      if (collision.indexedLabel.deduplicationKey === label.deduplicationKey) {
+        if (collision.indexedLabel.anchor.dist(label.anchor) < dist) {
           return true;
         }
       }
@@ -180,7 +182,7 @@ export class Index {
 
   // can put in multiple due to antimeridian wrapping
   public insert(label: Label, order: number, tileKey: string): void {
-    const indexed_label = {
+    const indexedLabel = {
       anchor: label.anchor,
       bboxes: label.bboxes,
       draw: label.draw,
@@ -195,15 +197,18 @@ export class Index {
       this.current.set(tileKey, newSet);
       entry = newSet;
     }
-    entry.add(indexed_label);
+    entry.add(indexedLabel);
 
     let wrapsLeft = false;
     let wrapsRight = false;
     for (const bbox of label.bboxes) {
-      const b: any = bbox;
-      b.indexed_label = indexed_label;
-      this.tree.insert(b);
-
+      this.tree.insert({
+        minX: bbox.minX,
+        minY: bbox.minY,
+        maxX: bbox.maxX,
+        maxY: bbox.maxY,
+        indexedLabel: indexedLabel,
+      });
       if (bbox.minX < 0) wrapsLeft = true;
       if (bbox.maxX > this.dim) wrapsRight = true;
     }
@@ -230,9 +235,13 @@ export class Index {
       const entry = this.current.get(tileKey);
       if (entry) entry.add(duplicate_label);
       for (const bbox of new_bboxes) {
-        const b: any = bbox;
-        b.indexed_label = duplicate_label;
-        this.tree.insert(b);
+        this.tree.insert({
+          minX: bbox.minX,
+          minY: bbox.minY,
+          maxX: bbox.maxX,
+          maxY: bbox.maxY,
+          indexedLabel: duplicate_label,
+        });
       }
     }
   }
@@ -267,7 +276,7 @@ export class Index {
     if (!indexed_labels) return; // TODO: not that clean...
     const entries_to_delete = [];
     for (const entry of this.tree.all()) {
-      if (indexed_labels.has(entry.indexed_label)) {
+      if (indexed_labels.has(entry.indexedLabel)) {
         entries_to_delete.push(entry);
       }
     }
@@ -284,7 +293,7 @@ export class Index {
   public removeLabel(labelToRemove: IndexedLabel): void {
     const entries_to_delete = [];
     for (const entry of this.tree.all()) {
-      if (labelToRemove === entry.indexed_label) {
+      if (labelToRemove === entry.indexedLabel) {
         entries_to_delete.push(entry);
       }
     }

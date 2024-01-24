@@ -15,9 +15,9 @@ const linelabel = (
   targetLen: number,
 ): LabelableSegment[] => {
   const chunks = [];
-  let a;
-  let b;
-  let c;
+  let a: Point;
+  let b: Point;
+  let c: Point;
   let i = 0;
   let n = 0;
   let d = 0;
@@ -91,13 +91,11 @@ export interface LabelCandidate {
 }
 
 export function simpleLabel(
-  mls: any,
+  mls: Point[][],
   minimum: number,
   repeatDistance: number,
   cellSize: number,
 ): LabelCandidate[] {
-  let longestStart;
-  let longestEnd;
   const longestLength = 0;
 
   const candidates = [];

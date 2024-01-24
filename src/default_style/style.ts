@@ -63,10 +63,11 @@ const doShading = (params: DefaultStyleParams, shade: string) => {
 };
 
 export const paintRules = (
-  params: DefaultStyleParams,
+  originalParams: DefaultStyleParams,
   shade?: string,
 ): Rule[] => {
-  if (shade) params = doShading(params, shade);
+  let params = originalParams;
+  if (shade) params = doShading(originalParams, shade);
   return [
     {
       dataLayer: "earth",
@@ -317,12 +318,13 @@ export const paintRules = (
 };
 
 export const labelRules = (
-  params: DefaultStyleParams,
+  originalParams: DefaultStyleParams,
   shade?: string,
   language1?: string[],
   language2?: string[],
 ): LabelRule[] => {
-  if (shade) params = doShading(params, shade);
+  let params = originalParams;
+  if (shade) params = doShading(originalParams, shade);
   let nametags = ["name"];
   if (language1) nametags = language1;
 
