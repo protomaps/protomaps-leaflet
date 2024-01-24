@@ -235,7 +235,11 @@ export class Static {
       canvas.height = height * dpr;
     }
     if (options.lang) canvas.lang = options.lang;
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      console.error("Failed to initialize canvas2d context.");
+      return;
+    }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return this.drawContext(ctx, width, height, latlng, display_zoom);
   }

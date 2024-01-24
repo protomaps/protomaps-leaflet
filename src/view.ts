@@ -74,7 +74,7 @@ export class View {
 
   public dataTilesForBounds(
     display_zoom: number,
-    bounds: any,
+    bounds: Bbox,
   ): Array<TileTransform> {
     const fractional = 2 ** display_zoom / 2 ** Math.ceil(display_zoom);
     const needed = [];
