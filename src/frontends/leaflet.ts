@@ -2,6 +2,7 @@ declare const L: any;
 
 import Point from "@mapbox/point-geometry";
 
+import type { Coords } from "leaflet";
 import { PMTiles } from "pmtiles";
 import { dark } from "../default_style/dark";
 import { light } from "../default_style/light";
@@ -25,9 +26,10 @@ const timer = (duration: number) => {
 // so ensure font loading failure does not make map rendering fail
 type Status = {
   status: string;
-  value?: any;
+  value?: unknown;
   reason: Error;
 };
+
 const reflect = (promise: Promise<Status>) => {
   return promise.then(
     (v) => {
@@ -38,6 +40,9 @@ const reflect = (promise: Promise<Status>) => {
     },
   );
 };
+
+type DoneCallback = (error?: Error, tile?: HTMLElement) => void;
+type KeyedHTMLCanvasElement = HTMLCanvasElement & { key: string };
 
 interface LeafletLayerOptions {
   bounds?: number[][];
@@ -62,7 +67,7 @@ interface LeafletLayerOptions {
   sources?: Record<string, SourceOptions>;
 }
 
-const leafletLayer = (options: LeafletLayerOptions = {}): any => {
+const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
   class LeafletLayer extends L.GridLayer {
     constructor(options: LeafletLayerOptions = {}) {
       if (options.noWrap && !options.bounds)
@@ -122,8 +127,8 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
     }
 
     public async renderTile(
-      coords: any,
-      element: any,
+      coords: Coords,
+      element: KeyedHTMLCanvasElement,
       key: string,
       done = () => {},
     ) {
@@ -200,6 +205,10 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
       element.width = this.tile_size;
       element.height = this.tile_size;
       const ctx = element.getContext("2d");
+      if (!ctx) {
+        console.error("Failed to get Canvas context");
+        return;
+      }
       ctx.setTransform(this.tile_size / 256, 0, 0, this.tile_size / 256, 0, 0);
       ctx.clearRect(0, 0, 256, 256);
 
@@ -301,7 +310,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
       }
     }
 
-    public createTile(coords: any, showTile: any) {
+    public createTile(coords: Coords, showTile: DoneCallback) {
       const element = L.DomUtil.create("canvas", "leaflet-tile");
       element.lang = this.lang;
 
@@ -309,7 +318,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): any => {
       element.key = key;
 
       this.renderTile(coords, element, key, () => {
-        showTile(null, element);
+        showTile(undefined, element);
       });
 
       return element;

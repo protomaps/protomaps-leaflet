@@ -62,7 +62,7 @@ export class TextAttr {
     }
     for (const property of label_props) {
       if (
-        f.props.hasOwnProperty(property) &&
+        Object.prototype.hasOwnProperty.call(f.props, property) &&
         typeof f.props[property] === "string"
       ) {
         retval = f.props[property] as string;

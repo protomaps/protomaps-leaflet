@@ -47,7 +47,7 @@ export interface LabelRule {
   symbolizer: LabelSymbolizer;
   filter?: Filter;
   visible?: boolean;
-  sort?: (a: any, b: any) => number;
+  sort?: (a: unknown, b: unknown) => number;
 }
 
 export const covering = (

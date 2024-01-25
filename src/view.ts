@@ -5,6 +5,7 @@ import {
   Feature,
   PmtilesSource,
   TileCache,
+  TileSource,
   Zxy,
   ZxySource,
 } from "./tilecache";
@@ -236,15 +237,17 @@ export const sourcesToViews = (options: SourceOptions) => {
   const sourceToViews = (o: SourceOptions): View => {
     const level_diff = o.levelDiff === undefined ? 2 : o.levelDiff;
     const maxDataZoom = o.maxDataZoom || 14;
-    let source;
+    let source: TileSource;
     if (typeof o.url === "string") {
       if (o.url.endsWith(".pmtiles")) {
         source = new PmtilesSource(o.url, true);
       } else {
         source = new ZxySource(o.url, true);
       }
+    } else if (o.url) {
+      source = new PmtilesSource(o.url, true);
     } else {
-      source = new PmtilesSource(o.url!, true);
+      throw new Error(`Invalid source ${o.url}`);
     }
 
     const cache = new TileCache(source, (256 * 1) << level_diff);

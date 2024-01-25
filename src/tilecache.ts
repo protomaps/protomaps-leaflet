@@ -57,7 +57,7 @@ interface ZoomAbort {
 
 // reimplement loadGeometry with a scalefactor
 // so the general tile rendering case does not need rescaling.
-const loadGeomAndBbox = (pbf: any, geometry: number, scale: number) => {
+const loadGeomAndBbox = (pbf: Protobuf, geometry: number, scale: number) => {
   pbf.pos = geometry;
   const end = pbf.readVarint() + pbf.pos;
   let cmd = 1;
@@ -314,16 +314,21 @@ export interface PickedFeature {
   layerName: string;
 }
 
+interface PromiseOptions {
+  resolve: (result: Map<string, Feature[]>) => void;
+  reject: (e: Error) => void;
+}
+
 export class TileCache {
   source: TileSource;
   cache: Map<string, CacheEntry>;
-  inflight: Map<string, any[]>;
+  inflight: Map<string, PromiseOptions[]>;
   tileSize: number;
 
   constructor(source: TileSource, tileSize: number) {
     this.source = source;
     this.cache = new Map<string, CacheEntry>();
-    this.inflight = new Map<string, any[]>();
+    this.inflight = new Map<string, PromiseOptions[]>();
     this.tileSize = tileSize;
   }
 
@@ -387,7 +392,7 @@ export class TileCache {
       } else {
         const ifentry = this.inflight.get(idx);
         if (ifentry) {
-          ifentry.push([resolve, reject]);
+          ifentry.push({ resolve: resolve, reject: reject });
         } else {
           this.inflight.set(idx, []);
           this.source
@@ -398,7 +403,7 @@ export class TileCache {
               const ifentry2 = this.inflight.get(idx);
               if (ifentry2) {
                 for (const f of ifentry2) {
-                  f[0](tile);
+                  f.resolve(tile);
                 }
               }
               this.inflight.delete(idx);
@@ -420,7 +425,7 @@ export class TileCache {
               const ifentry2 = this.inflight.get(idx);
               if (ifentry2) {
                 for (const f of ifentry2) {
-                  f[1](e);
+                  f.reject(e);
                 }
               }
               this.inflight.delete(idx);
