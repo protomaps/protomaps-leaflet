@@ -30,6 +30,10 @@ import { Font, Sheet } from "../task";
 //     }
 // }
 
+interface PlacesFeature {
+  "pmap:rank": number;
+}
+
 const Toner = (variant: string) => {
   const halftone = createPattern(4, 4, (c) => {
     const ctx = c.getContext("2d");
@@ -249,7 +253,7 @@ const Toner = (variant: string) => {
         }),
       ]),
       sort: (a, b) => {
-        return a["pmap:rank"] - b["pmap:rank"];
+        return (a as PlacesFeature)["pmap:rank"] - (b as PlacesFeature)["pmap:rank"];
       },
       filter: (z, f) => {
         return f.props["pmap:kind"] === "city";
@@ -272,7 +276,7 @@ const Toner = (variant: string) => {
         },
       }),
       sort: (a, b) => {
-        return a["pmap:rank"] - b["pmap:rank"];
+        return (a as PlacesFeature)["pmap:rank"] - (b as PlacesFeature)["pmap:rank"];
       },
       filter: (z, f) => {
         return f.props["pmap:kind"] === "city";

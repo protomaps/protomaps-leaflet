@@ -62,6 +62,10 @@ const doShading = (params: DefaultStyleParams, shade: string) => {
   return outParams;
 };
 
+interface PlacesFeature {
+  "pmap:rank": number;
+}
+
 export const paintRules = (
   originalParams: DefaultStyleParams,
   shade?: string,
@@ -404,8 +408,10 @@ export const labelRules = (
         }),
         params.cityLabel,
       ),
-      sort: (a: any, b: any) => {
-        return a["pmap:rank"] - b["pmap:rank"];
+      sort: (a, b) => {
+        return (
+          (a as PlacesFeature)["pmap:rank"] - (b as PlacesFeature)["pmap:rank"]
+        );
       },
     },
     {
@@ -438,8 +444,10 @@ export const labelRules = (
           params.cityLabel,
         ),
       ]),
-      sort: (a: any, b: any) => {
-        return a["pmap:rank"] - b["pmap:rank"];
+      sort: (a, b) => {
+        return (
+          (a as PlacesFeature)["pmap:rank"] - (b as PlacesFeature)["pmap:rank"]
+        );
       },
     },
     {
