@@ -1,3 +1,4 @@
+// biome-ignore lint: leaflet 1.x
 declare const L: any;
 
 import Point from "@mapbox/point-geometry";

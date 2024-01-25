@@ -106,6 +106,7 @@ function parseTile(
   const result = new Map<string, Feature[]>();
   for (const [key, value] of Object.entries(v.layers)) {
     const features = [];
+    // biome-ignore lint: need to use private fields of vector-tile
     const layer = value as any;
     for (let i = 0; i < layer.length; i++) {
       const loaded = loadGeomAndBbox(

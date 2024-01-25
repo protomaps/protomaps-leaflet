@@ -41,7 +41,6 @@ const MISSING = `
 </svg>
 `;
 
-// TODO support traditional bitmap spritesheets
 export class Sheet {
   src: string;
   canvas: HTMLCanvasElement;

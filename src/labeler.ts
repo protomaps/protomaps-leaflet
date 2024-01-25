@@ -362,7 +362,6 @@ export class Labeler {
         if (rule.sort)
           feats.sort((a, b) => {
             if (rule.sort) {
-              // TODO ugly hack for type checking
               return rule.sort(a.props, b.props);
             }
             return 0;
