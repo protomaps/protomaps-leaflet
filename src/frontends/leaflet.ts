@@ -9,12 +9,11 @@ import { dark } from "../default_style/dark";
 import { light } from "../default_style/light";
 import { labelRules, paintRules } from "../default_style/style";
 import { LabelRule, Labelers } from "../labeler";
-import { Rule, painter } from "../painter";
-import { TileCache, Zxy } from "../tilecache";
-import { PreparedTile, SourceOptions, View, sourcesToViews } from "../view";
+import { PaintRule, paint } from "../painter";
+import { PreparedTile, SourceOptions, sourcesToViews } from "../view";
 
 const timer = (duration: number) => {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve) => {
     setTimeout(() => {
       resolve();
     }, duration);
@@ -42,7 +41,7 @@ const reflect = (promise: Promise<Status>) => {
 };
 
 type DoneCallback = (error?: Error, tile?: HTMLElement) => void;
-type KeyedHTMLCanvasElement = HTMLCanvasElement & { key: string };
+type KeyedHtmlCanvasElement = HTMLCanvasElement & { key: string };
 
 interface LeafletLayerOptions {
   bounds?: number[][];
@@ -55,8 +54,8 @@ interface LeafletLayerOptions {
   language2?: string[];
   dark?: boolean;
   noWrap?: boolean;
-  paint_rules?: Rule[];
-  label_rules?: LabelRule[];
+  paintRules?: PaintRule[];
+  labelRules?: LabelRule[];
   tasks?: Promise<Status>[];
 
   levelDiff?: number;
@@ -79,9 +78,9 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
       super(options);
 
       const theme = options.dark ? dark : light;
-      this.paint_rules = options.paint_rules || paintRules(theme);
-      this.label_rules =
-        options.label_rules ||
+      this.paintRules = options.paintRules || paintRules(theme);
+      this.labelRules =
+        options.labelRules ||
         labelRules(theme, options.language1, options.language2);
       this.backgroundColor = options.backgroundColor;
       this.lastRequestedZ = undefined;
@@ -99,11 +98,11 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
       };
       this.labelers = new Labelers(
         this.scratch,
-        this.label_rules,
+        this.labelRules,
         16,
         this.onTilesInvalidated,
       );
-      this.tile_size = 256 * window.devicePixelRatio;
+      this.tileSize = 256 * window.devicePixelRatio;
       this.tileDelay = options.tileDelay || 3;
       this.lang = options.lang;
     }
@@ -114,13 +113,13 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
       language2: string[],
     ) {
       const theme = darkOption ? dark : light;
-      this.paint_rules = paintRules(theme);
-      this.label_rules = labelRules(theme, language1, language2);
+      this.paintRules = paintRules(theme);
+      this.labelRules = labelRules(theme, language1, language2);
     }
 
     public async renderTile(
       coords: Coords,
-      element: KeyedHTMLCanvasElement,
+      element: KeyedHtmlCanvasElement,
       key: string,
       done = () => {},
     ) {
@@ -131,7 +130,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
         const promise = v.getDisplayTile(coords);
         promises.push({ key: k, promise: promise });
       }
-      const tile_responses = await Promise.all(
+      const tileResponses = await Promise.all(
         promises.map((o) => {
           return o.promise.then(
             (v: PreparedTile[]) => {
@@ -144,15 +143,15 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
         }),
       );
 
-      const prepared_tilemap = new Map<string, PreparedTile[]>();
-      for (const tile_response of tile_responses) {
-        if (tile_response.status === "fulfilled") {
-          prepared_tilemap.set(tile_response.key, [tile_response.value]);
+      const preparedTilemap = new Map<string, PreparedTile[]>();
+      for (const tileResponse of tileResponses) {
+        if (tileResponse.status === "fulfilled") {
+          preparedTilemap.set(tileResponse.key, [tileResponse.value]);
         } else {
-          if (tile_response.reason.name === "AbortError") {
+          if (tileResponse.reason.name === "AbortError") {
             // do nothing
           } else {
-            console.error(tile_response.reason);
+            console.error(tileResponse.reason);
           }
         }
       }
@@ -165,12 +164,12 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
       if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      const layout_time = this.labelers.add(coords.z, prepared_tilemap);
+      const layoutTime = this.labelers.add(coords.z, preparedTilemap);
 
       if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      const label_data = this.labelers.getIndex(coords.z);
+      const labelData = this.labelers.getIndex(coords.z);
 
       if (!this._map) return; // the layer has been removed from the map
 
@@ -185,23 +184,23 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
       if (element.key !== key) return;
       if (this.lastRequestedZ !== coords.z) return;
 
-      const BUF = 16;
+      const buf = 16;
       const bbox = {
-        minX: 256 * coords.x - BUF,
-        minY: 256 * coords.y - BUF,
-        maxX: 256 * (coords.x + 1) + BUF,
-        maxY: 256 * (coords.y + 1) + BUF,
+        minX: 256 * coords.x - buf,
+        minY: 256 * coords.y - buf,
+        maxX: 256 * (coords.x + 1) + buf,
+        maxY: 256 * (coords.y + 1) + buf,
       };
       const origin = new Point(256 * coords.x, 256 * coords.y);
 
-      element.width = this.tile_size;
-      element.height = this.tile_size;
+      element.width = this.tileSize;
+      element.height = this.tileSize;
       const ctx = element.getContext("2d");
       if (!ctx) {
         console.error("Failed to get Canvas context");
         return;
       }
-      ctx.setTransform(this.tile_size / 256, 0, 0, this.tile_size / 256, 0, 0);
+      ctx.setTransform(this.tileSize / 256, 0, 0, this.tileSize / 256, 0, 0);
       ctx.clearRect(0, 0, 256, 256);
 
       if (this.backgroundColor) {
@@ -211,16 +210,16 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
         ctx.restore();
       }
 
-      let painting_time = 0;
+      let paintingTime = 0;
 
-      const paint_rules = this.paint_rules;
+      const paintRules = this.paintRules;
 
-      painting_time = painter(
+      paintingTime = paint(
         ctx,
         coords.z,
-        prepared_tilemap,
-        this.xray ? null : label_data,
-        paint_rules,
+        preparedTilemap,
+        this.xray ? null : labelData,
+        paintRules,
         bbox,
         origin,
         false,
@@ -235,20 +234,20 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
 
         ctx.font = "12px sans-serif";
         let ypos = 28;
-        for (const [k, v] of prepared_tilemap) {
-          const dt = v[0].data_tile;
+        for (const [k, v] of preparedTilemap) {
+          const dt = v[0].dataTile;
           ctx.fillText(`${k + (k ? " " : "") + dt.z} ${dt.x} ${dt.y}`, 4, ypos);
           ypos += 14;
         }
 
         ctx.font = "600 10px sans-serif";
-        if (painting_time > 8) {
-          ctx.fillText(`${painting_time.toFixed()} ms paint`, 4, ypos);
+        if (paintingTime > 8) {
+          ctx.fillText(`${paintingTime.toFixed()} ms paint`, 4, ypos);
           ypos += 14;
         }
 
-        if (layout_time > 8) {
-          ctx.fillText(`${layout_time.toFixed()} ms layout`, 4, ypos);
+        if (layoutTime > 8) {
+          ctx.fillText(`${layoutTime.toFixed()} ms layout`, 4, ypos);
         }
         ctx.strokeStyle = this.debug;
 
@@ -270,12 +269,12 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
     }
 
     public rerenderTile(key: string) {
-      for (const unwrapped_k in this._tiles) {
-        const wrapped_coord = this._wrapCoords(
-          this._keyToTileCoords(unwrapped_k),
+      for (const unwrappedK in this._tiles) {
+        const wrappedCoord = this._wrapCoords(
+          this._keyToTileCoords(unwrappedK),
         );
-        if (key === this._tileCoordsToKey(wrapped_coord)) {
-          this.renderTile(wrapped_coord, this._tiles[unwrapped_k].el, key);
+        if (key === this._tileCoordsToKey(wrappedCoord)) {
+          this.renderTile(wrappedCoord, this._tiles[unwrappedK].el, key);
         }
       }
     }
@@ -283,19 +282,19 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
     public clearLayout() {
       this.labelers = new Labelers(
         this.scratch,
-        this.label_rules,
+        this.labelRules,
         16,
         this.onTilesInvalidated,
       );
     }
 
     public rerenderTiles() {
-      for (const unwrapped_k in this._tiles) {
-        const wrapped_coord = this._wrapCoords(
-          this._keyToTileCoords(unwrapped_k),
+      for (const unwrappedK in this._tiles) {
+        const wrappedCoord = this._wrapCoords(
+          this._keyToTileCoords(unwrappedK),
         );
-        const key = this._tileCoordsToKey(wrapped_coord);
-        this.renderTile(wrapped_coord, this._tiles[unwrapped_k].el, key);
+        const key = this._tileCoordsToKey(wrappedCoord);
+        this.renderTile(wrappedCoord, this._tiles[unwrappedK].el, key);
       }
     }
 

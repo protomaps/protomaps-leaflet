@@ -1,0 +1,15 @@
+{
+  "formatter": {
+    "indentStyle": "space"
+  },
+  "linter": {
+    "rules": {
+      "style": {
+        "useNamingConvention": {}
+      },
+      "nursery": {
+        "noUnusedImports": {}
+      }
+    }
+  }
+}

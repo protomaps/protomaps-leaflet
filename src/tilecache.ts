@@ -212,14 +212,9 @@ export class ZxySource implements TileSource {
   }
 }
 
-export interface CacheEntry {
+interface CacheEntry {
   used: number;
   data: Map<string, Feature[]>;
-}
-
-export interface PickedFeature {
-  feature: Feature;
-  layerName: string;
 }
 
 interface PromiseOptions {
@@ -268,15 +263,15 @@ export class TileCache {
               resolve(tile);
 
               if (this.cache.size >= 64) {
-                let min_used = +Infinity;
-                let min_key = undefined;
+                let minUsed = +Infinity;
+                let minKey = undefined;
                 this.cache.forEach((value, key) => {
-                  if (value.used < min_used) {
-                    min_used = value.used;
-                    min_key = key;
+                  if (value.used < minUsed) {
+                    minUsed = value.used;
+                    minKey = key;
                   }
                 });
-                if (min_key) this.cache.delete(min_key);
+                if (minKey) this.cache.delete(minKey);
               }
             })
             .catch((e) => {

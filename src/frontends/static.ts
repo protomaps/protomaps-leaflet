@@ -5,8 +5,7 @@ import { dark } from "../default_style/dark";
 import { light } from "../default_style/light";
 import { labelRules, paintRules } from "../default_style/style";
 import { LabelRule, Labeler } from "../labeler";
-import { Rule, painter } from "../painter";
-import { PmtilesSource, TileCache, ZxySource } from "../tilecache";
+import { PaintRule, paint } from "../painter";
 import { PreparedTile, SourceOptions, View, sourcesToViews } from "../view";
 
 const R = 6378137;
@@ -15,11 +14,11 @@ const MAXCOORD = R * Math.PI;
 
 const project = (latlng: Point): Point => {
   const d = Math.PI / 180;
-  const constrained_lat = Math.max(
+  const constrainedLat = Math.max(
     Math.min(MAX_LATITUDE, latlng.y),
     -MAX_LATITUDE,
   );
-  const sin = Math.sin(constrained_lat * d);
+  const sin = Math.sin(constrainedLat * d);
   return new Point(R * latlng.x * d, (R * Math.log((1 + sin) / (1 - sin))) / 2);
 };
 
@@ -31,22 +30,22 @@ const unproject = (point: Point) => {
   };
 };
 
-const instancedProject = (origin: Point, display_zoom: number) => {
+const instancedProject = (origin: Point, displayZoom: number) => {
   return (latlng: Point) => {
     const projected = project(latlng);
     const normalized = new Point(
       (projected.x + MAXCOORD) / (MAXCOORD * 2),
       1 - (projected.y + MAXCOORD) / (MAXCOORD * 2),
     );
-    return normalized.mult((1 << display_zoom) * 256).sub(origin);
+    return normalized.mult((1 << displayZoom) * 256).sub(origin);
   };
 };
 
-const instancedUnproject = (origin: Point, display_zoom: number) => {
+const instancedUnproject = (origin: Point, displayZoom: number) => {
   return (point: Point) => {
     const normalized = new Point(point.x, point.y)
       .add(origin)
-      .div((1 << display_zoom) * 256);
+      .div((1 << displayZoom) * 256);
     const projected = new Point(
       normalized.x * (MAXCOORD * 2) - MAXCOORD,
       (1 - normalized.y) * (MAXCOORD * 2) - MAXCOORD,
@@ -55,8 +54,8 @@ const instancedUnproject = (origin: Point, display_zoom: number) => {
   };
 };
 
-export const getZoom = (degrees_lng: number, css_pixels: number): number => {
-  const d = css_pixels * (360 / degrees_lng);
+export const getZoom = (degreesLng: number, cssPixels: number): number => {
+  const d = cssPixels * (360 / degreesLng);
   return Math.log2(d / 256);
 };
 
@@ -67,26 +66,26 @@ interface StaticOptions {
   maxDataZoom?: number;
   url?: PMTiles | string;
   sources?: Record<string, SourceOptions>;
-  paint_rules?: Rule[];
+  paintRules?: PaintRule[];
   dark?: boolean;
-  label_rules?: LabelRule[];
+  labelRules?: LabelRule[];
   language1?: string[];
   language2?: string[];
   backgroundColor?: string;
 }
 
 export class Static {
-  paint_rules: Rule[];
-  label_rules: LabelRule[];
+  paintRules: PaintRule[];
+  labelRules: LabelRule[];
   views: Map<string, View>;
   debug?: string;
   backgroundColor?: string;
 
   constructor(options: StaticOptions) {
     const theme = options.dark ? dark : light;
-    this.paint_rules = options.paint_rules || paintRules(theme);
-    this.label_rules =
-      options.label_rules ||
+    this.paintRules = options.paintRules || paintRules(theme);
+    this.labelRules =
+      options.labelRules ||
       labelRules(theme, options.language1, options.language2);
     this.backgroundColor = options.backgroundColor;
 
@@ -99,18 +98,18 @@ export class Static {
     width: number,
     height: number,
     latlng: Point,
-    display_zoom: number,
+    displayZoom: number,
   ) {
     const center = project(latlng);
-    const normalized_center = new Point(
+    const normalizedCenter = new Point(
       (center.x + MAXCOORD) / (MAXCOORD * 2),
       1 - (center.y + MAXCOORD) / (MAXCOORD * 2),
     );
 
     // the origin of the painter call in global Z coordinates
-    const origin = normalized_center
+    const origin = normalizedCenter
       .clone()
-      .mult(2 ** display_zoom * 256)
+      .mult(2 ** displayZoom * 256)
       .sub(new Point(width / 2, height / 2));
 
     // the bounds of the painter call in global Z coordinates
@@ -123,10 +122,10 @@ export class Static {
 
     const promises = [];
     for (const [k, v] of this.views) {
-      const promise = v.getBbox(display_zoom, bbox);
+      const promise = v.getBbox(displayZoom, bbox);
       promises.push({ key: k, promise: promise });
     }
-    const tile_responses = await Promise.all(
+    const tileResponses = await Promise.all(
       promises.map((o) => {
         return o.promise.then(
           (v: PreparedTile[]) => {
@@ -139,23 +138,23 @@ export class Static {
       }),
     );
 
-    const prepared_tilemap = new Map<string, PreparedTile[]>();
-    for (const tile_response of tile_responses) {
-      if (tile_response.status === "fulfilled") {
-        prepared_tilemap.set(tile_response.key, tile_response.value);
+    const preparedTilemap = new Map<string, PreparedTile[]>();
+    for (const tileResponse of tileResponses) {
+      if (tileResponse.status === "fulfilled") {
+        preparedTilemap.set(tileResponse.key, tileResponse.value);
       }
     }
 
     const start = performance.now();
     const labeler = new Labeler(
-      display_zoom,
+      displayZoom,
       ctx,
-      this.label_rules,
+      this.labelRules,
       16,
       undefined,
     ); // because need ctx to measure
 
-    const layout_time = labeler.add(prepared_tilemap);
+    const layoutTime = labeler.add(preparedTilemap);
 
     if (this.backgroundColor) {
       ctx.save();
@@ -164,14 +163,14 @@ export class Static {
       ctx.restore();
     }
 
-    const paint_rules = this.paint_rules;
+    const paintRules = this.paintRules;
 
-    const p = painter(
+    const p = paint(
       ctx,
-      display_zoom,
-      prepared_tilemap,
+      displayZoom,
+      preparedTilemap,
       labeler.index,
-      paint_rules,
+      paintRules,
       bbox,
       origin,
       true,
@@ -185,19 +184,19 @@ export class Static {
       ctx.fillStyle = this.debug;
       ctx.font = "12px sans-serif";
       let idx = 0;
-      for (const [k, v] of prepared_tilemap) {
-        for (const prepared_tile of v) {
+      for (const [k, v] of preparedTilemap) {
+        for (const preparedTile of v) {
           ctx.strokeRect(
-            prepared_tile.origin.x,
-            prepared_tile.origin.y,
-            prepared_tile.dim,
-            prepared_tile.dim,
+            preparedTile.origin.x,
+            preparedTile.origin.y,
+            preparedTile.dim,
+            preparedTile.dim,
           );
-          const dt = prepared_tile.data_tile;
+          const dt = preparedTile.dataTile;
           ctx.fillText(
             `${k + (k ? " " : "") + dt.z} ${dt.x} ${dt.y}`,
-            prepared_tile.origin.x + 4,
-            prepared_tile.origin.y + 14 * (1 + idx),
+            preparedTile.origin.x + 4,
+            preparedTile.origin.y + 14 * (1 + idx),
           );
         }
         idx++;
@@ -208,15 +207,15 @@ export class Static {
     // TODO this API isn't so elegant
     return {
       elapsed: performance.now() - start,
-      project: instancedProject(origin, display_zoom),
-      unproject: instancedUnproject(origin, display_zoom),
+      project: instancedProject(origin, displayZoom),
+      unproject: instancedUnproject(origin, displayZoom),
     };
   }
 
   async drawCanvas(
     canvas: HTMLCanvasElement,
     latlng: Point,
-    display_zoom: number,
+    displayZoom: number,
     options: StaticOptions = {},
   ) {
     const dpr = window.devicePixelRatio;
@@ -233,46 +232,46 @@ export class Static {
       return;
     }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    return this.drawContext(ctx, width, height, latlng, display_zoom);
+    return this.drawContext(ctx, width, height, latlng, displayZoom);
   }
 
   async drawContextBounds(
     ctx: CanvasRenderingContext2D,
-    top_left: Point,
-    bottom_right: Point,
+    topLeft: Point,
+    bottomRight: Point,
     width: number,
     height: number,
   ) {
-    const delta_degrees = bottom_right.x - top_left.x;
+    const deltaDegrees = bottomRight.x - topLeft.x;
     const center = new Point(
-      (top_left.x + bottom_right.x) / 2,
-      (top_left.y + bottom_right.y) / 2,
+      (topLeft.x + bottomRight.x) / 2,
+      (topLeft.y + bottomRight.y) / 2,
     );
     return this.drawContext(
       ctx,
       width,
       height,
       center,
-      getZoom(delta_degrees, width),
+      getZoom(deltaDegrees, width),
     );
   }
 
   async drawCanvasBounds(
     canvas: HTMLCanvasElement,
-    top_left: Point,
-    bottom_right: Point,
+    topLeft: Point,
+    bottomRight: Point,
     width: number,
     options: StaticOptions = {},
   ) {
-    const delta_degrees = bottom_right.x - top_left.x;
+    const deltaDegrees = bottomRight.x - topLeft.x;
     const center = new Point(
-      (top_left.x + bottom_right.x) / 2,
-      (top_left.y + bottom_right.y) / 2,
+      (topLeft.x + bottomRight.x) / 2,
+      (topLeft.y + bottomRight.y) / 2,
     );
     return this.drawCanvas(
       canvas,
       center,
-      getZoom(delta_degrees, width),
+      getZoom(deltaDegrees, width),
       options,
     );
   }

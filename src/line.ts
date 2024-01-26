@@ -11,7 +11,7 @@ export interface LabelableSegment {
 // code from https://github.com/naturalatlas/linelabel (Apache2)
 const linelabel = (
   pts: Point[],
-  max_angle_delta: number,
+  maxAngleDelta: number,
   targetLen: number,
 ): LabelableSegment[] => {
   const chunks = [];
@@ -28,8 +28,8 @@ const linelabel = (
   let bcx = 0;
   let bcy = 0;
   let dt = 0;
-  let i_start = 0;
-  let d_start = 0;
+  let iStart = 0;
+  let dStart = 0;
 
   if (pts.length < 2) return [];
   if (pts.length === 2) {
@@ -59,25 +59,25 @@ const linelabel = (
     d += abmag;
 
     dt = Math.acos((abx * bcx + aby * bcy) / (abmag * bcmag));
-    if (dt > max_angle_delta || d - d_start > targetLen) {
+    if (dt > maxAngleDelta || d - dStart > targetLen) {
       chunks.push({
-        length: d - d_start,
-        beginDistance: d_start,
-        beginIndex: i_start,
+        length: d - dStart,
+        beginDistance: dStart,
+        beginIndex: iStart,
         endIndex: i + 1,
         endDistance: d,
       });
-      i_start = i;
-      d_start = d;
+      iStart = i;
+      dStart = d;
     }
     abmag = bcmag;
   }
 
-  if (i - i_start > 0) {
+  if (i - iStart > 0) {
     chunks.push({
-      length: d - d_start + bcmag,
-      beginIndex: i_start,
-      beginDistance: d_start,
+      length: d - dStart + bcmag,
+      beginIndex: iStart,
+      beginDistance: dStart,
       endIndex: i + 1,
       endDistance: d + bcmag,
     });
@@ -96,11 +96,7 @@ export function simpleLabel(
   repeatDistance: number,
   cellSize: number,
 ): LabelCandidate[] {
-  const longestLength = 0;
-
   const candidates = [];
-
-  const lastLabeledDistance = -Infinity;
 
   for (const ls of mls) {
     const segments = linelabel(ls, Math.PI / 45, minimum); // 4 degrees, close to a straight line

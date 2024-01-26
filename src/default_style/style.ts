@@ -1,5 +1,5 @@
 import { LabelRule } from "../labeler";
-import { Rule } from "../painter";
+import { PaintRule } from "../painter";
 import {
   CenteredTextSymbolizer,
   CircleSymbolizer,
@@ -54,7 +54,7 @@ interface PlacesFeature {
   "pmap:rank": number;
 }
 
-export const paintRules = (params: DefaultStyleParams): Rule[] => {
+export const paintRules = (params: DefaultStyleParams): PaintRule[] => {
   return [
     {
       dataLayer: "earth",
@@ -319,7 +319,7 @@ export const labelRules = (
         symbolizer,
         new OffsetTextSymbolizer({
           fill: fill,
-          label_props: language2,
+          labelProps: language2,
         }),
       ]);
     }
@@ -327,7 +327,7 @@ export const labelRules = (
       symbolizer,
       new CenteredTextSymbolizer({
         fill: fill,
-        label_props: language2,
+        labelProps: language2,
       }),
     ]);
   };
@@ -337,7 +337,7 @@ export const labelRules = (
       dataLayer: "places",
       symbolizer: languageStack(
         new CenteredTextSymbolizer({
-          label_props: nametags,
+          labelProps: nametags,
           fill: params.countryLabel,
           lineHeight: 1.5,
           font: (z: number, f?: Feature) => {
@@ -356,7 +356,7 @@ export const labelRules = (
       dataLayer: "places",
       symbolizer: languageStack(
         new CenteredTextSymbolizer({
-          label_props: nametags,
+          labelProps: nametags,
           fill: params.stateLabel,
           font: "300 16px sans-serif",
         }),
@@ -375,7 +375,7 @@ export const labelRules = (
       minzoom: 7,
       symbolizer: languageStack(
         new CenteredTextSymbolizer({
-          label_props: nametags,
+          labelProps: nametags,
           fill: params.cityLabel,
           font: (z: number, f?: Feature) => {
             if (f?.props["pmap:rank"] === 1) {
@@ -408,7 +408,7 @@ export const labelRules = (
         }),
         languageStack(
           new OffsetTextSymbolizer({
-            label_props: nametags,
+            labelProps: nametags,
             fill: params.cityLabel,
             offsetX: 2,
             offsetY: 2,
@@ -435,7 +435,7 @@ export const labelRules = (
       dataLayer: "places",
       symbolizer: languageStack(
         new CenteredTextSymbolizer({
-          label_props: nametags,
+          labelProps: nametags,
           fill: params.neighbourhoodLabel,
           font: "500 10px sans-serif",
           textTransform: "uppercase",
@@ -483,7 +483,7 @@ export const labelRules = (
       dataLayer: "roads",
       symbolizer: languageStack(
         new LineLabelSymbolizer({
-          label_props: nametags,
+          labelProps: nametags,
           fill: params.roadsLabel,
           font: "500 12px sans-serif",
         }),
@@ -494,7 +494,7 @@ export const labelRules = (
     {
       dataLayer: "roads",
       symbolizer: new ShieldSymbolizer({
-        label_props: ["ref"],
+        labelProps: ["ref"],
         font: "600 9px sans-serif",
         background: params.highway,
         padding: 2,
@@ -513,7 +513,7 @@ export const labelRules = (
         }),
         languageStack(
           new OffsetTextSymbolizer({
-            label_props: nametags,
+            labelProps: nametags,
             fill: params.poisLabel,
             offsetX: 2,
             offsetY: 2,

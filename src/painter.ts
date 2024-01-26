@@ -1,12 +1,12 @@
 import Point from "@mapbox/point-geometry";
 import { Index } from "./labeler";
 import { PaintSymbolizer } from "./symbolizer";
-import { Bbox, Feature, Zxy } from "./tilecache";
+import { Bbox, Feature } from "./tilecache";
 import { PreparedTile, transformGeom } from "./view";
 
 export type Filter = (zoom: number, feature: Feature) => boolean;
 
-export interface Rule {
+export interface PaintRule {
   id?: string;
   minzoom?: number;
   maxzoom?: number;
@@ -16,12 +16,12 @@ export interface Rule {
   filter?: Filter;
 }
 
-export function painter(
+export function paint(
   ctx: CanvasRenderingContext2D,
   z: number,
-  prepared_tilemap: Map<string, PreparedTile[]>,
-  label_data: Index | null,
-  rules: Rule[],
+  preparedTilemap: Map<string, PreparedTile[]>,
+  labelData: Index | null,
+  rules: PaintRule[],
   bbox: Bbox,
   origin: Point,
   clip: boolean,
@@ -34,16 +34,16 @@ export function painter(
   for (const rule of rules) {
     if (rule.minzoom && z < rule.minzoom) continue;
     if (rule.maxzoom && z > rule.maxzoom) continue;
-    const prepared_tiles = prepared_tilemap.get(rule.dataSource || "");
-    if (!prepared_tiles) continue;
-    for (const prepared_tile of prepared_tiles) {
-      const layer = prepared_tile.data.get(rule.dataLayer);
+    const preparedTiles = preparedTilemap.get(rule.dataSource || "");
+    if (!preparedTiles) continue;
+    for (const preparedTile of preparedTiles) {
+      const layer = preparedTile.data.get(rule.dataLayer);
       if (layer === undefined) continue;
-      if (rule.symbolizer.before) rule.symbolizer.before(ctx, prepared_tile.z);
+      if (rule.symbolizer.before) rule.symbolizer.before(ctx, preparedTile.z);
 
-      const po = prepared_tile.origin;
-      const dim = prepared_tile.dim;
-      const ps = prepared_tile.scale;
+      const po = preparedTile.origin;
+      const dim = preparedTile.dim;
+      const ps = preparedTile.scale;
       ctx.save();
 
       // apply clipping to the tile
@@ -79,11 +79,11 @@ export function painter(
         ) {
           continue;
         }
-        if (rule.filter && !rule.filter(prepared_tile.z, feature)) continue;
+        if (rule.filter && !rule.filter(preparedTile.z, feature)) continue;
         if (ps !== 1) {
           geom = transformGeom(geom, ps, new Point(0, 0));
         }
-        rule.symbolizer.draw(ctx, geom, prepared_tile.z, feature);
+        rule.symbolizer.draw(ctx, geom, preparedTile.z, feature);
       }
       ctx.restore();
     }
@@ -100,8 +100,8 @@ export function painter(
     ctx.clip();
   }
 
-  if (label_data) {
-    const matches = label_data.searchBbox(bbox, Infinity);
+  if (labelData) {
+    const matches = labelData.searchBbox(bbox, Infinity);
     for (const label of matches) {
       ctx.save();
       ctx.translate(label.anchor.x - origin.x, label.anchor.y - origin.y);

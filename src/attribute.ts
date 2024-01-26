@@ -4,11 +4,11 @@ export type AttrOption<T> = T | ((z: number, f?: Feature) => T);
 
 export class StringAttr<T extends string = string> {
   str: AttrOption<T>;
-  per_feature: boolean;
+  perFeature: boolean;
 
   constructor(c: AttrOption<T> | undefined, defaultValue: T) {
     this.str = c ?? defaultValue;
-    this.per_feature = typeof this.str === "function" && this.str.length === 2;
+    this.perFeature = typeof this.str === "function" && this.str.length === 2;
   }
 
   public get(z: number, f?: Feature): T {
@@ -21,11 +21,11 @@ export class StringAttr<T extends string = string> {
 
 export class NumberAttr {
   value: AttrOption<number>;
-  per_feature: boolean;
+  perFeature: boolean;
 
   constructor(c: AttrOption<number> | undefined, defaultValue = 1) {
     this.value = c ?? defaultValue;
-    this.per_feature =
+    this.perFeature =
       typeof this.value === "function" && this.value.length === 2;
   }
 
@@ -38,29 +38,29 @@ export class NumberAttr {
 }
 
 export interface TextAttrOptions {
-  label_props?: AttrOption<string[]>;
+  labelProps?: AttrOption<string[]>;
   textTransform?: AttrOption<string>;
 }
 
 export class TextAttr {
-  label_props: AttrOption<string[]>;
+  labelProps: AttrOption<string[]>;
   textTransform?: AttrOption<string>;
 
   constructor(options?: TextAttrOptions) {
-    this.label_props = options?.label_props ?? ["name"];
+    this.labelProps = options?.labelProps ?? ["name"];
     this.textTransform = options?.textTransform;
   }
 
   public get(z: number, f: Feature): string | undefined {
     let retval: string | undefined;
 
-    let label_props: string[];
-    if (typeof this.label_props === "function") {
-      label_props = this.label_props(z, f);
+    let labelProps: string[];
+    if (typeof this.labelProps === "function") {
+      labelProps = this.labelProps(z, f);
     } else {
-      label_props = this.label_props;
+      labelProps = this.labelProps;
     }
-    for (const property of label_props) {
+    for (const property of labelProps) {
       if (
         Object.prototype.hasOwnProperty.call(f.props, property) &&
         typeof f.props[property] === "string"
@@ -159,11 +159,11 @@ export class FontAttr {
 
 export class ArrayAttr<T = number> {
   value: AttrOption<T[]>;
-  per_feature: boolean;
+  perFeature: boolean;
 
   constructor(c: AttrOption<T[]>, defaultValue: T[] = []) {
     this.value = c ?? defaultValue;
-    this.per_feature =
+    this.perFeature =
       typeof this.value === "function" && this.value.length === 2;
   }
 
