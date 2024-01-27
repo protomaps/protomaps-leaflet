@@ -37,15 +37,15 @@ test("numberattr", async () => {
   assert.equal(n.get(3), 3);
 
   n = new NumberAttr(1);
-  assert.equal(n.per_feature, false);
+  assert.equal(n.perFeature, false);
   n = new NumberAttr((z) => {
     return z;
   });
-  assert.equal(n.per_feature, false);
+  assert.equal(n.perFeature, false);
   n = new NumberAttr((z, f) => {
     return z;
   });
-  assert.equal(n.per_feature, true);
+  assert.equal(n.perFeature, true);
 });
 
 test("stringattr", async () => {
@@ -64,7 +64,7 @@ test("stringattr", async () => {
   }, undefined);
   assert.equal(c4.get(3), "green");
   assert.equal(c4.get(5), "aquamarine");
-  assert.equal(c4.per_feature, true);
+  assert.equal(c4.perFeature, true);
 });
 
 test("fontattr", async () => {
@@ -126,7 +126,7 @@ test("fontattr", async () => {
 test("textattr", async () => {
   let t = new TextAttr();
   assert.equal(t.get(0, { ...emptyFeature, props: { name: "臺北" } }), "臺北");
-  t = new TextAttr({ label_props: ["name:en"] });
+  t = new TextAttr({ labelProps: ["name:en"] });
   assert.equal(
     t.get(0, {
       ...emptyFeature,
@@ -134,12 +134,12 @@ test("textattr", async () => {
     }),
     "Taipei",
   );
-  t = new TextAttr({ label_props: ["name:en"], textTransform: "uppercase" });
+  t = new TextAttr({ labelProps: ["name:en"], textTransform: "uppercase" });
   assert.equal(
     t.get(0, { ...emptyFeature, props: { "name:en": "Taipei" } }),
     "TAIPEI",
   );
-  t = new TextAttr({ label_props: ["name:en"], textTransform: "lowercase" });
+  t = new TextAttr({ labelProps: ["name:en"], textTransform: "lowercase" });
   assert.equal(
     t.get(0, {
       ...emptyFeature,
@@ -148,7 +148,7 @@ test("textattr", async () => {
     }),
     "taipei",
   );
-  t = new TextAttr({ label_props: ["name:en"], textTransform: "capitalize" });
+  t = new TextAttr({ labelProps: ["name:en"], textTransform: "capitalize" });
   assert.equal(
     t.get(0, {
       ...emptyFeature,
@@ -157,11 +157,11 @@ test("textattr", async () => {
     }),
     "From Berga To Taipei",
   );
-  t = new TextAttr({ label_props: ["name:en"], textTransform: "uppercase" });
+  t = new TextAttr({ labelProps: ["name:en"], textTransform: "uppercase" });
   assert.equal(t.get(0, { ...emptyFeature, props: {} }), undefined);
 
   t = new TextAttr({
-    label_props: ["name:en"],
+    labelProps: ["name:en"],
     textTransform: (z) => "uppercase",
   });
   assert.equal(
@@ -173,7 +173,7 @@ test("textattr", async () => {
     "TAIPEI",
   );
   t = new TextAttr({
-    label_props: ["name:en"],
+    labelProps: ["name:en"],
     textTransform: (z) => "lowercase",
   });
   assert.equal(
@@ -185,7 +185,7 @@ test("textattr", async () => {
     "taipei",
   );
   t = new TextAttr({
-    label_props: ["name:en"],
+    labelProps: ["name:en"],
     textTransform: (z) => "capitalize",
   });
   assert.equal(
@@ -198,7 +198,7 @@ test("textattr", async () => {
   );
 
   t = new TextAttr({
-    label_props: (z, f) => {
+    labelProps: (z, f) => {
       if (z < 8) return ["abbr", "name"];
       return ["name"];
     },
@@ -239,13 +239,13 @@ test("arrayattr", async () => {
   assert.equal(n.get(3)[1], 3);
 
   n = new ArrayAttr([1]);
-  assert.equal(n.per_feature, false);
+  assert.equal(n.perFeature, false);
   n = new ArrayAttr((z) => {
     return [z];
   });
-  assert.equal(n.per_feature, false);
+  assert.equal(n.perFeature, false);
   n = new ArrayAttr((z, f) => {
     return [z];
   });
-  assert.equal(n.per_feature, true);
+  assert.equal(n.perFeature, true);
 });

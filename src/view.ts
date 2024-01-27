@@ -51,7 +51,7 @@ export const transformGeom = (
   return retval;
 };
 
-const wrap = (val: number, z: number) => {
+export const wrap = (val: number, z: number) => {
   const dim = 1 << z;
   if (val < 0) return dim + val;
   if (val >= dim) return val % dim;
