@@ -1,6 +1,5 @@
-import { hsla, parseToHsla } from "color2k";
 import { LabelRule } from "../labeler";
-import { Rule } from "../painter";
+import { PaintRule } from "../painter";
 import {
   CenteredTextSymbolizer,
   CircleSymbolizer,
@@ -10,7 +9,6 @@ import {
   LineLabelSymbolizer,
   LineSymbolizer,
   OffsetTextSymbolizer,
-  PolygonLabelSymbolizer,
   PolygonSymbolizer,
   ShieldSymbolizer,
   exp,
@@ -52,26 +50,11 @@ export interface DefaultStyleParams {
   poisLabel: string;
 }
 
-const doShading = (params: DefaultStyleParams, shade: string) => {
-  const shadeHsl = parseToHsla(shade);
-  const outParams: any = { ...params };
-  for (const [key, value] of Object.entries(params)) {
-    const o = parseToHsla(value);
-    outParams[key] = hsla(shadeHsl[0], shadeHsl[1], o[2], o[3]);
-  }
-  return outParams;
-};
-
 interface PlacesFeature {
   "pmap:rank": number;
 }
 
-export const paintRules = (
-  originalParams: DefaultStyleParams,
-  shade?: string,
-): Rule[] => {
-  let params = originalParams;
-  if (shade) params = doShading(originalParams, shade);
+export const paintRules = (params: DefaultStyleParams): PaintRule[] => {
   return [
     {
       dataLayer: "earth",
@@ -322,13 +305,10 @@ export const paintRules = (
 };
 
 export const labelRules = (
-  originalParams: DefaultStyleParams,
-  shade?: string,
+  params: DefaultStyleParams,
   language1?: string[],
   language2?: string[],
 ): LabelRule[] => {
-  let params = originalParams;
-  if (shade) params = doShading(originalParams, shade);
   let nametags = ["name"];
   if (language1) nametags = language1;
 
@@ -339,7 +319,7 @@ export const labelRules = (
         symbolizer,
         new OffsetTextSymbolizer({
           fill: fill,
-          label_props: language2,
+          labelProps: language2,
         }),
       ]);
     }
@@ -347,7 +327,7 @@ export const labelRules = (
       symbolizer,
       new CenteredTextSymbolizer({
         fill: fill,
-        label_props: language2,
+        labelProps: language2,
       }),
     ]);
   };
@@ -357,7 +337,7 @@ export const labelRules = (
       dataLayer: "places",
       symbolizer: languageStack(
         new CenteredTextSymbolizer({
-          label_props: nametags,
+          labelProps: nametags,
           fill: params.countryLabel,
           lineHeight: 1.5,
           font: (z: number, f?: Feature) => {
@@ -376,7 +356,7 @@ export const labelRules = (
       dataLayer: "places",
       symbolizer: languageStack(
         new CenteredTextSymbolizer({
-          label_props: nametags,
+          labelProps: nametags,
           fill: params.stateLabel,
           font: "300 16px sans-serif",
         }),
@@ -395,7 +375,7 @@ export const labelRules = (
       minzoom: 7,
       symbolizer: languageStack(
         new CenteredTextSymbolizer({
-          label_props: nametags,
+          labelProps: nametags,
           fill: params.cityLabel,
           font: (z: number, f?: Feature) => {
             if (f?.props["pmap:rank"] === 1) {
@@ -428,7 +408,7 @@ export const labelRules = (
         }),
         languageStack(
           new OffsetTextSymbolizer({
-            label_props: nametags,
+            labelProps: nametags,
             fill: params.cityLabel,
             offsetX: 2,
             offsetY: 2,
@@ -455,7 +435,7 @@ export const labelRules = (
       dataLayer: "places",
       symbolizer: languageStack(
         new CenteredTextSymbolizer({
-          label_props: nametags,
+          labelProps: nametags,
           fill: params.neighbourhoodLabel,
           font: "500 10px sans-serif",
           textTransform: "uppercase",
@@ -466,44 +446,44 @@ export const labelRules = (
         return f.props["pmap:kind"] === "neighbourhood";
       },
     },
-    {
-      dataLayer: "landuse",
-      symbolizer: languageStack(
-        new PolygonLabelSymbolizer({
-          label_props: nametags,
-          fill: params.landuseLabel,
-          font: "300 12px sans-serif",
-        }),
-        params.landuseLabel,
-      ),
-    },
-    {
-      dataLayer: "water",
-      symbolizer: languageStack(
-        new PolygonLabelSymbolizer({
-          label_props: nametags,
-          fill: params.waterLabel,
-          font: "italic 600 12px sans-serif",
-        }),
-        params.waterLabel,
-      ),
-    },
-    {
-      dataLayer: "natural",
-      symbolizer: languageStack(
-        new PolygonLabelSymbolizer({
-          label_props: nametags,
-          fill: params.naturalLabel,
-          font: "italic 300 12px sans-serif",
-        }),
-        params.naturalLabel,
-      ),
-    },
+    // {
+    //   dataLayer: "landuse",
+    //   symbolizer: languageStack(
+    //     new PolygonLabelSymbolizer({
+    //       label_props: nametags,
+    //       fill: params.landuseLabel,
+    //       font: "300 12px sans-serif",
+    //     }),
+    //     params.landuseLabel,
+    //   ),
+    // },
+    // {
+    //   dataLayer: "water",
+    //   symbolizer: languageStack(
+    //     new PolygonLabelSymbolizer({
+    //       label_props: nametags,
+    //       fill: params.waterLabel,
+    //       font: "italic 600 12px sans-serif",
+    //     }),
+    //     params.waterLabel,
+    //   ),
+    // },
+    // {
+    //   dataLayer: "natural",
+    //   symbolizer: languageStack(
+    //     new PolygonLabelSymbolizer({
+    //       label_props: nametags,
+    //       fill: params.naturalLabel,
+    //       font: "italic 300 12px sans-serif",
+    //     }),
+    //     params.naturalLabel,
+    //   ),
+    // },
     {
       dataLayer: "roads",
       symbolizer: languageStack(
         new LineLabelSymbolizer({
-          label_props: nametags,
+          labelProps: nametags,
           fill: params.roadsLabel,
           font: "500 12px sans-serif",
         }),
@@ -514,7 +494,7 @@ export const labelRules = (
     {
       dataLayer: "roads",
       symbolizer: new ShieldSymbolizer({
-        label_props: ["ref"],
+        labelProps: ["ref"],
         font: "600 9px sans-serif",
         background: params.highway,
         padding: 2,
@@ -533,7 +513,7 @@ export const labelRules = (
         }),
         languageStack(
           new OffsetTextSymbolizer({
-            label_props: nametags,
+            labelProps: nametags,
             fill: params.poisLabel,
             offsetX: 2,
             offsetY: 2,

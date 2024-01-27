@@ -10,13 +10,13 @@ const cache = new TileCache(new StubSource(), 1024);
 test("basic, level diff = 0", async () => {
   const view = new View(cache, 3, 0);
   let result = view.dataTileForDisplayTile({ z: 3, x: 4, y: 1 });
-  assert.deepEqual(result.data_tile, { z: 3, x: 4, y: 1 });
+  assert.deepEqual(result.dataTile, { z: 3, x: 4, y: 1 });
   assert.equal(result.scale, 1);
   assert.deepEqual(result.origin, new Point(256 * 4, 256 * 1));
   assert.equal(result.dim, 1024);
 
   result = view.dataTileForDisplayTile({ z: 4, x: 4, y: 2 });
-  assert.deepEqual(result.data_tile, { z: 3, x: 2, y: 1 });
+  assert.deepEqual(result.dataTile, { z: 3, x: 2, y: 1 });
   assert.equal(result.scale, 2);
   assert.deepEqual(result.origin, new Point(256 * 4, 256 * 2));
   assert.equal(result.dim, 2048);
@@ -25,18 +25,18 @@ test("basic, level diff = 0", async () => {
 test("level diff = 1", async () => {
   const view = new View(cache, 3, 1);
   let result = view.dataTileForDisplayTile({ z: 3, x: 4, y: 1 });
-  assert.deepEqual(result.data_tile, { z: 2, x: 2, y: 0 });
+  assert.deepEqual(result.dataTile, { z: 2, x: 2, y: 0 });
   assert.equal(result.scale, 1);
   assert.deepEqual(result.origin, new Point(256 * 4, 256 * 0));
   assert.equal(result.dim, 1024);
 
   result = view.dataTileForDisplayTile({ z: 1, x: 0, y: 0 });
-  assert.deepEqual(result.data_tile, { z: 0, x: 0, y: 0 });
+  assert.deepEqual(result.dataTile, { z: 0, x: 0, y: 0 });
   assert.equal(result.scale, 1);
   assert.deepEqual(result.origin, new Point(256 * 0, 256 * 0));
 
   result = view.dataTileForDisplayTile({ z: 0, x: 0, y: 0 });
-  assert.deepEqual(result.data_tile, { z: 0, x: 0, y: 0 });
+  assert.deepEqual(result.dataTile, { z: 0, x: 0, y: 0 });
   assert.equal(result.scale, 0.5);
   assert.deepEqual(result.origin, new Point(256 * 0, 256 * 0));
   assert.equal(result.dim, 512);
@@ -45,7 +45,7 @@ test("level diff = 1", async () => {
 test("level diff = 2", async () => {
   const view = new View(cache, 3, 2);
   const result = view.dataTileForDisplayTile({ z: 6, x: 9, y: 13 });
-  assert.deepEqual(result.data_tile, { z: 3, x: 1, y: 1 });
+  assert.deepEqual(result.dataTile, { z: 3, x: 1, y: 1 });
   assert.equal(result.scale, 2);
   assert.deepEqual(result.origin, new Point(256 * 8, 256 * 8));
 });
@@ -81,8 +81,8 @@ test("wrap tile coordinates", async () => {
     maxY: 400,
   });
   assert.equal(result.length, 2);
-  assert.deepEqual(result[0].data_tile, { z: 3, x: 7, y: 0 });
-  assert.deepEqual(result[1].data_tile, { z: 3, x: 0, y: 0 });
+  assert.deepEqual(result[0].dataTile, { z: 3, x: 7, y: 0 });
+  assert.deepEqual(result[1].dataTile, { z: 3, x: 0, y: 0 });
 });
 
 test("wrap", async () => {

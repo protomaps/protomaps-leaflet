@@ -171,10 +171,6 @@
                         <option value="name:se">se</option>
                     </select>
                 </span>
-                <span class="control">
-                    <label for="shade">Shade</label>
-                    <input id="shade" type="color"></input>
-                </span>
                 <span class="comment">multilingual demo of <a href="https://github.com/protomaps/protomaps-leaflet">protomaps-leaflet</a></span>
             </div>
         </div>
@@ -191,27 +187,20 @@
             })
 
             var language1 = ["name"]
-            var language2, shade
-
-            document.getElementById("shade").addEventListener('change', e => {
-                shade = e.target.value
-                layer.setDefaultStyle(false,shade,language1,language2)
-                layer.clearLayout()
-                layer.rerenderTiles()
-            })
+            var language2
 
             document.getElementById("language1").addEventListener('change', e=> {
                 language1 = e.target.value.split(',')
                 if (language1 === [""]) language1 = []
                 if (e.target.value !== "none") language1.push("name")
-                layer.setDefaultStyle(false,shade,language1,language2)
+                layer.setDefaultStyle(false,language1,language2)
                 layer.clearLayout()
                 layer.rerenderTiles()
             })
 
             document.getElementById("language2").addEventListener('change', e=> {
                 language2 = e.target.value.split(',')
-                layer.setDefaultStyle(false,shade,language1,language2)
+                layer.setDefaultStyle(false,language1,language2)
                 layer.clearLayout()
                 layer.rerenderTiles()
             })

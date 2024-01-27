@@ -106,6 +106,7 @@ function parseTile(
   const result = new Map<string, Feature[]>();
   for (const [key, value] of Object.entries(v.layers)) {
     const features = [];
+    // biome-ignore lint: need to use private fields of vector-tile
     const layer = value as any;
     for (let i = 0; i < layer.length; i++) {
       const loaded = loadGeomAndBbox(
@@ -211,107 +212,9 @@ export class ZxySource implements TileSource {
   }
 }
 
-export interface CacheEntry {
+interface CacheEntry {
   used: number;
   data: Map<string, Feature[]>;
-}
-
-const R = 6378137;
-const MAX_LATITUDE = 85.0511287798;
-const MAXCOORD = R * Math.PI;
-
-const project = (latlng: number[]) => {
-  const d = Math.PI / 180;
-  const constrained_lat = Math.max(
-    Math.min(MAX_LATITUDE, latlng[0]),
-    -MAX_LATITUDE,
-  );
-  const sin = Math.sin(constrained_lat * d);
-  return new Point(
-    R * latlng[1] * d,
-    (R * Math.log((1 + sin) / (1 - sin))) / 2,
-  );
-};
-
-function sqr(x: number) {
-  return x * x;
-}
-
-function dist2(v: Point, w: Point) {
-  return sqr(v.x - w.x) + sqr(v.y - w.y);
-}
-
-function distToSegmentSquared(p: Point, v: Point, w: Point) {
-  const l2 = dist2(v, w);
-  if (l2 === 0) return dist2(p, v);
-  let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-  t = Math.max(0, Math.min(1, t));
-  return dist2(p, new Point(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y)));
-}
-
-export function isInRing(point: Point, ring: Point[]): boolean {
-  let inside = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const xi = ring[i].x;
-    const yi = ring[i].y;
-    const xj = ring[j].x;
-    const yj = ring[j].y;
-    const intersect =
-      yi > point.y !== yj > point.y &&
-      point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
-    if (intersect) inside = !inside;
-  }
-  return inside;
-}
-
-export function isCCW(ring: Point[]): boolean {
-  let area = 0;
-  for (let i = 0; i < ring.length; i++) {
-    const j = (i + 1) % ring.length;
-    area += ring[i].x * ring[j].y;
-    area -= ring[j].x * ring[i].y;
-  }
-  return area < 0;
-}
-
-export function pointInPolygon(point: Point, geom: Point[][]): boolean {
-  let isInCurrentExterior = false;
-  for (const ring of geom) {
-    if (isCCW(ring)) {
-      // it is an interior ring
-      if (isInRing(point, ring)) isInCurrentExterior = false;
-    } else {
-      // it is an exterior ring
-      if (isInCurrentExterior) return true;
-      if (isInRing(point, ring)) isInCurrentExterior = true;
-    }
-  }
-  return isInCurrentExterior;
-}
-
-export function pointMinDistToPoints(point: Point, geom: Point[][]): number {
-  let min = Infinity;
-  for (const l of geom) {
-    const dist = Math.sqrt(dist2(point, l[0]));
-    if (dist < min) min = dist;
-  }
-  return min;
-}
-
-export function pointMinDistToLines(point: Point, geom: Point[][]): number {
-  let min = Infinity;
-  for (const l of geom) {
-    for (let i = 0; i < l.length - 1; i++) {
-      const dist = Math.sqrt(distToSegmentSquared(point, l[i], l[i + 1]));
-      if (dist < min) min = dist;
-    }
-  }
-  return min;
-}
-
-export interface PickedFeature {
-  feature: Feature;
-  layerName: string;
 }
 
 interface PromiseOptions {
@@ -330,56 +233,6 @@ export class TileCache {
     this.cache = new Map<string, CacheEntry>();
     this.inflight = new Map<string, PromiseOptions[]>();
     this.tileSize = tileSize;
-  }
-
-  public queryFeatures(
-    lng: number,
-    lat: number,
-    zoom: number,
-    brushSize: number,
-  ): PickedFeature[] {
-    const projected = project([lat, lng]);
-    const normalized = new Point(
-      (projected.x + MAXCOORD) / (MAXCOORD * 2),
-      1 - (projected.y + MAXCOORD) / (MAXCOORD * 2),
-    );
-    if (normalized.x > 1)
-      normalized.x = normalized.x - Math.floor(normalized.x);
-    const on_zoom = normalized.mult(1 << zoom);
-    const tile_x = Math.floor(on_zoom.x);
-    const tile_y = Math.floor(on_zoom.y);
-    const idx = toIndex({ z: zoom, x: tile_x, y: tile_y });
-    const retval: PickedFeature[] = [];
-    const entry = this.cache.get(idx);
-    if (entry) {
-      const center = new Point(
-        (on_zoom.x - tile_x) * this.tileSize,
-        (on_zoom.y - tile_y) * this.tileSize,
-      );
-      for (const [layer_name, layer_arr] of entry.data.entries()) {
-        for (const feature of layer_arr) {
-          // rough check by bbox
-          //  if ((query_bbox.maxX >= feature.bbox.minX && feature.bbox.maxX >= query_bbox.minX) &&
-          //      (query_bbox.maxY >= feature.bbox.minY && feature.bbox.maxY >= query_bbox.minY)) {
-          //  }
-
-          if (feature.geomType === GeomType.Point) {
-            if (pointMinDistToPoints(center, feature.geom) < brushSize) {
-              retval.push({ feature, layerName: layer_name });
-            }
-          } else if (feature.geomType === GeomType.Line) {
-            if (pointMinDistToLines(center, feature.geom) < brushSize) {
-              retval.push({ feature, layerName: layer_name });
-            }
-          } else {
-            if (pointInPolygon(center, feature.geom)) {
-              retval.push({ feature, layerName: layer_name });
-            }
-          }
-        }
-      }
-    }
-    return retval;
   }
 
   public async get(c: Zxy): Promise<Map<string, Feature[]>> {
@@ -410,15 +263,15 @@ export class TileCache {
               resolve(tile);
 
               if (this.cache.size >= 64) {
-                let min_used = +Infinity;
-                let min_key = undefined;
+                let minUsed = +Infinity;
+                let minKey = undefined;
                 this.cache.forEach((value, key) => {
-                  if (value.used < min_used) {
-                    min_used = value.used;
-                    min_key = key;
+                  if (value.used < minUsed) {
+                    minUsed = value.used;
+                    minKey = key;
                   }
                 });
-                if (min_key) this.cache.delete(min_key);
+                if (minKey) this.cache.delete(minKey);
               }
             })
             .catch((e) => {

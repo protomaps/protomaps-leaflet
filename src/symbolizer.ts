@@ -1,7 +1,5 @@
 import Point from "@mapbox/point-geometry";
 import UnitBezier from "@mapbox/unitbezier";
-// @ts-ignore
-import polylabel from "polylabel";
 import {
   ArrayAttr,
   AttrOption,
@@ -39,13 +37,13 @@ export enum Justify {
 
 export enum TextPlacements {
   N = 1,
-  NE = 2,
+  Ne = 2,
   E = 3,
-  SE = 4,
+  Se = 4,
   S = 5,
-  SW = 6,
+  Sw = 6,
   W = 7,
-  NW = 8,
+  Nw = 8,
 }
 
 export interface DrawExtra {
@@ -79,8 +77,8 @@ export class PolygonSymbolizer implements PaintSymbolizer {
   opacity: NumberAttr;
   stroke: StringAttr;
   width: NumberAttr;
-  per_feature: boolean;
-  do_stroke: boolean;
+  perFeature: boolean;
+  doStroke: boolean;
 
   constructor(options: {
     pattern?: CanvasImageSource;
@@ -88,30 +86,30 @@ export class PolygonSymbolizer implements PaintSymbolizer {
     opacity?: AttrOption<number>;
     stroke?: AttrOption<string>;
     width?: AttrOption<number>;
-    per_feature?: boolean;
+    perFeature?: boolean;
   }) {
     this.pattern = options.pattern;
     this.fill = new StringAttr(options.fill, "black");
     this.opacity = new NumberAttr(options.opacity, 1);
     this.stroke = new StringAttr(options.stroke, "black");
     this.width = new NumberAttr(options.width, 0);
-    this.per_feature =
-      (this.fill.per_feature ||
-        this.opacity.per_feature ||
-        this.stroke.per_feature ||
-        this.width.per_feature ||
-        options.per_feature) ??
+    this.perFeature =
+      (this.fill.perFeature ||
+        this.opacity.perFeature ||
+        this.stroke.perFeature ||
+        this.width.perFeature ||
+        options.perFeature) ??
       false;
-    this.do_stroke = false;
+    this.doStroke = false;
   }
 
   public before(ctx: CanvasRenderingContext2D, z: number) {
-    if (!this.per_feature) {
+    if (!this.perFeature) {
       ctx.globalAlpha = this.opacity.get(z);
       ctx.fillStyle = this.fill.get(z);
       ctx.strokeStyle = this.stroke.get(z);
       const width = this.width.get(z);
-      if (width > 0) this.do_stroke = true;
+      if (width > 0) this.doStroke = true;
       ctx.lineWidth = width;
     }
     if (this.pattern) {
@@ -126,13 +124,13 @@ export class PolygonSymbolizer implements PaintSymbolizer {
     z: number,
     f: Feature,
   ) {
-    let do_stroke = false;
-    if (this.per_feature) {
+    let doStroke = false;
+    if (this.perFeature) {
       ctx.globalAlpha = this.opacity.get(z, f);
       ctx.fillStyle = this.fill.get(z, f);
       const width = this.width.get(z, f);
       if (width) {
-        do_stroke = true;
+        doStroke = true;
         ctx.strokeStyle = this.stroke.get(z, f);
         ctx.lineWidth = width;
       }
@@ -140,17 +138,17 @@ export class PolygonSymbolizer implements PaintSymbolizer {
 
     const drawPath = () => {
       ctx.fill();
-      if (do_stroke || this.do_stroke) {
+      if (doStroke || this.doStroke) {
         ctx.stroke();
       }
     };
 
-    let vertices_in_path = 0;
+    let verticesInPath = 0;
     ctx.beginPath();
     for (const poly of geom) {
-      if (vertices_in_path + poly.length > MAX_VERTICES_PER_DRAW_CALL) {
+      if (verticesInPath + poly.length > MAX_VERTICES_PER_DRAW_CALL) {
         drawPath();
-        vertices_in_path = 0;
+        verticesInPath = 0;
         ctx.beginPath();
       }
       for (let p = 0; p < poly.length; p++) {
@@ -158,9 +156,9 @@ export class PolygonSymbolizer implements PaintSymbolizer {
         if (p === 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       }
-      vertices_in_path += poly.length;
+      verticesInPath += poly.length;
     }
-    if (vertices_in_path > 0) drawPath();
+    if (verticesInPath > 0) drawPath();
   }
 }
 
@@ -256,7 +254,7 @@ export class LineSymbolizer implements PaintSymbolizer {
   dashColor: StringAttr;
   dashWidth: NumberAttr;
   skip: boolean;
-  per_feature: boolean;
+  perFeature: boolean;
   lineCap: StringAttr<CanvasLineCap>;
   lineJoin: StringAttr<CanvasLineJoin>;
 
@@ -268,7 +266,7 @@ export class LineSymbolizer implements PaintSymbolizer {
     dashColor?: AttrOption<string>;
     dashWidth?: AttrOption<number>;
     skip?: boolean;
-    per_feature?: boolean;
+    perFeature?: boolean;
     lineCap?: AttrOption<CanvasLineCap>;
     lineJoin?: AttrOption<CanvasLineJoin>;
   }) {
@@ -281,19 +279,19 @@ export class LineSymbolizer implements PaintSymbolizer {
     this.lineCap = new StringAttr(options.lineCap, "butt");
     this.lineJoin = new StringAttr(options.lineJoin, "miter");
     this.skip = false;
-    this.per_feature = !!(
-      this.dash?.per_feature ||
-      this.color.per_feature ||
-      this.opacity.per_feature ||
-      this.width.per_feature ||
-      this.lineCap.per_feature ||
-      this.lineJoin.per_feature ||
-      options.per_feature
+    this.perFeature = !!(
+      this.dash?.perFeature ||
+      this.color.perFeature ||
+      this.opacity.perFeature ||
+      this.width.perFeature ||
+      this.lineCap.perFeature ||
+      this.lineJoin.perFeature ||
+      options.perFeature
     );
   }
 
   public before(ctx: CanvasRenderingContext2D, z: number) {
-    if (!this.per_feature) {
+    if (!this.perFeature) {
       ctx.strokeStyle = this.color.get(z);
       ctx.lineWidth = this.width.get(z);
       ctx.globalAlpha = this.opacity.get(z);
@@ -311,14 +309,14 @@ export class LineSymbolizer implements PaintSymbolizer {
     if (this.skip) return;
 
     const strokePath = () => {
-      if (this.per_feature) {
+      if (this.perFeature) {
         ctx.globalAlpha = this.opacity.get(z, f);
         ctx.lineCap = this.lineCap.get(z, f);
         ctx.lineJoin = this.lineJoin.get(z, f);
       }
       if (this.dash) {
         ctx.save();
-        if (this.per_feature) {
+        if (this.perFeature) {
           ctx.lineWidth = this.dashWidth.get(z, f);
           ctx.strokeStyle = this.dashColor.get(z, f);
           ctx.setLineDash(this.dash.get(z, f));
@@ -329,7 +327,7 @@ export class LineSymbolizer implements PaintSymbolizer {
         ctx.restore();
       } else {
         ctx.save();
-        if (this.per_feature) {
+        if (this.perFeature) {
           ctx.lineWidth = this.width.get(z, f);
           ctx.strokeStyle = this.color.get(z, f);
         }
@@ -338,12 +336,12 @@ export class LineSymbolizer implements PaintSymbolizer {
       }
     };
 
-    let vertices_in_path = 0;
+    let verticesInPath = 0;
     ctx.beginPath();
     for (const ls of geom) {
-      if (vertices_in_path + ls.length > MAX_VERTICES_PER_DRAW_CALL) {
+      if (verticesInPath + ls.length > MAX_VERTICES_PER_DRAW_CALL) {
         strokePath();
-        vertices_in_path = 0;
+        verticesInPath = 0;
         ctx.beginPath();
       }
       for (let p = 0; p < ls.length; p++) {
@@ -351,9 +349,9 @@ export class LineSymbolizer implements PaintSymbolizer {
         if (p === 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       }
-      vertices_in_path += ls.length;
+      verticesInPath += ls.length;
     }
-    if (vertices_in_path > 0) strokePath();
+    if (verticesInPath > 0) strokePath();
   }
 }
 
@@ -621,8 +619,8 @@ export class CenteredSymbolizer implements LabelSymbolizer {
     const a = geom[0][0];
     const placed = this.symbolizer.place(layout, [[new Point(0, 0)]], feature);
     if (!placed || placed.length === 0) return undefined;
-    const first_label = placed[0];
-    const bbox = first_label.bboxes[0];
+    const firstLabel = placed[0];
+    const bbox = firstLabel.bboxes[0];
     const width = bbox.maxX - bbox.minX;
     const height = bbox.maxY - bbox.minY;
     const centered = {
@@ -634,7 +632,7 @@ export class CenteredSymbolizer implements LabelSymbolizer {
 
     const draw = (ctx: CanvasRenderingContext2D) => {
       ctx.translate(-width / 2, height / 2 - bbox.maxY);
-      first_label.draw(ctx, { justify: Justify.Center });
+      firstLabel.draw(ctx, { justify: Justify.Center });
     };
 
     return [{ anchor: a, bboxes: [centered], draw: draw }];
@@ -837,10 +835,10 @@ export class OffsetSymbolizer implements LabelSymbolizer {
     this.offsetY = new NumberAttr(options.offsetY, 0);
     this.justify = options.justify ?? undefined;
     this.placements = options.placements ?? [
-      TextPlacements.NE,
-      TextPlacements.SW,
-      TextPlacements.NW,
-      TextPlacements.SE,
+      TextPlacements.Ne,
+      TextPlacements.Sw,
+      TextPlacements.Nw,
+      TextPlacements.Se,
       TextPlacements.N,
       TextPlacements.E,
       TextPlacements.S,
@@ -858,12 +856,12 @@ export class OffsetSymbolizer implements LabelSymbolizer {
     const anchor = geom[0][0];
     const placed = this.symbolizer.place(layout, [[new Point(0, 0)]], feature);
     if (!placed || placed.length === 0) return undefined;
-    const first_label = placed[0];
-    const fb = first_label.bboxes[0];
+    const firstLabel = placed[0];
+    const fb = firstLabel.bboxes[0];
 
     // Overwrite options values via the data driven function if exists
-    let offsetXValue = this.offsetX;
-    let offsetYValue = this.offsetY;
+    let offsetXvalue = this.offsetX;
+    let offsetYvalue = this.offsetY;
     let justifyValue = this.justify;
     let placements = this.placements;
     const {
@@ -872,13 +870,13 @@ export class OffsetSymbolizer implements LabelSymbolizer {
       justify: ddJustify,
       placements: ddPlacements,
     } = this.ddValues(layout.zoom, feature) || {};
-    if (ddOffsetX) offsetXValue = new NumberAttr(ddOffsetX, 0);
-    if (ddOffsetY) offsetYValue = new NumberAttr(ddOffsetY, 0);
+    if (ddOffsetX) offsetXvalue = new NumberAttr(ddOffsetX, 0);
+    if (ddOffsetY) offsetYvalue = new NumberAttr(ddOffsetY, 0);
     if (ddJustify) justifyValue = ddJustify;
     if (ddPlacements) placements = ddPlacements;
 
-    const offsetX = offsetXValue.get(layout.zoom, feature);
-    const offsetY = offsetYValue.get(layout.zoom, feature);
+    const offsetX = offsetXvalue.get(layout.zoom, feature);
+    const offsetY = offsetYvalue.get(layout.zoom, feature);
 
     const getBbox = (a: Point, o: Point) => {
       return {
@@ -893,7 +891,7 @@ export class OffsetSymbolizer implements LabelSymbolizer {
     let justify: Justify;
     const draw = (ctx: CanvasRenderingContext2D) => {
       ctx.translate(origin.x, origin.y);
-      first_label.draw(ctx, { justify: justify });
+      firstLabel.draw(ctx, { justify: justify });
     };
 
     const placeLabelInPoint = (a: Point, o: Point) => {
@@ -903,8 +901,8 @@ export class OffsetSymbolizer implements LabelSymbolizer {
     };
 
     for (const placement of placements) {
-      const xAxisOffset = this.computeXAxisOffset(offsetX, fb, placement);
-      const yAxisOffset = this.computeYAxisOffset(offsetY, fb, placement);
+      const xAxisOffset = this.computeXaxisOffset(offsetX, fb, placement);
+      const yAxisOffset = this.computeYaxisOffset(offsetY, fb, placement);
       justify = this.computeJustify(justifyValue, placement);
       origin = new Point(xAxisOffset, yAxisOffset);
       return placeLabelInPoint(anchor, origin);
@@ -913,13 +911,13 @@ export class OffsetSymbolizer implements LabelSymbolizer {
     return undefined;
   }
 
-  computeXAxisOffset(offsetX: number, fb: Bbox, placement: TextPlacements) {
+  computeXaxisOffset(offsetX: number, fb: Bbox, placement: TextPlacements) {
     const labelWidth = fb.maxX;
     const labelHalfWidth = labelWidth / 2;
     if ([TextPlacements.N, TextPlacements.S].includes(placement))
       return offsetX - labelHalfWidth;
     if (
-      [TextPlacements.NW, TextPlacements.W, TextPlacements.SW].includes(
+      [TextPlacements.Nw, TextPlacements.W, TextPlacements.Sw].includes(
         placement,
       )
     )
@@ -927,20 +925,20 @@ export class OffsetSymbolizer implements LabelSymbolizer {
     return offsetX;
   }
 
-  computeYAxisOffset(offsetY: number, fb: Bbox, placement: TextPlacements) {
+  computeYaxisOffset(offsetY: number, fb: Bbox, placement: TextPlacements) {
     const labelHalfHeight = Math.abs(fb.minY);
     const labelBottom = fb.maxY;
     const labelCenterHeight = (fb.minY + fb.maxY) / 2;
     if ([TextPlacements.E, TextPlacements.W].includes(placement))
       return offsetY - labelCenterHeight;
     if (
-      [TextPlacements.NW, TextPlacements.NE, TextPlacements.N].includes(
+      [TextPlacements.Nw, TextPlacements.Ne, TextPlacements.N].includes(
         placement,
       )
     )
       return offsetY - labelBottom;
     if (
-      [TextPlacements.SW, TextPlacements.SE, TextPlacements.S].includes(
+      [TextPlacements.Sw, TextPlacements.Se, TextPlacements.S].includes(
         placement,
       )
     )
@@ -953,7 +951,7 @@ export class OffsetSymbolizer implements LabelSymbolizer {
     if ([TextPlacements.N, TextPlacements.S].includes(placement))
       return Justify.Center;
     if (
-      [TextPlacements.NE, TextPlacements.E, TextPlacements.SE].includes(
+      [TextPlacements.Ne, TextPlacements.E, TextPlacements.Se].includes(
         placement,
       )
     )
@@ -1026,11 +1024,11 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     if (name.length > this.maxLabelCodeUnits.get(layout.zoom, feature))
       return undefined;
 
-    const MIN_LABELABLE_DIM = 20;
+    const minLabelableDim = 20;
     const fbbox = feature.bbox;
     if (
-      fbbox.maxY - fbbox.minY < MIN_LABELABLE_DIM &&
-      fbbox.maxX - fbbox.minX < MIN_LABELABLE_DIM
+      fbbox.maxY - fbbox.minY < minLabelableDim &&
+      fbbox.maxX - fbbox.minX < minLabelableDim
     )
       return undefined;
 
@@ -1044,18 +1042,13 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     let repeatDistance = this.repeatDistance.get(layout.zoom, feature);
     if (layout.overzoom > 4) repeatDistance *= 1 << (layout.overzoom - 4);
 
-    const cell_size = height * 2;
+    const cellSize = height * 2;
 
-    const label_candidates = simpleLabel(
-      geom,
-      width,
-      repeatDistance,
-      cell_size,
-    );
-    if (label_candidates.length === 0) return undefined;
+    const labelCandidates = simpleLabel(geom, width, repeatDistance, cellSize);
+    if (labelCandidates.length === 0) return undefined;
 
     const labels = [];
-    for (const candidate of label_candidates) {
+    for (const candidate of labelCandidates) {
       const dx = candidate.end.x - candidate.start.x;
       const dy = candidate.end.y - candidate.start.y;
 
@@ -1063,14 +1056,14 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
         candidate.start,
         candidate.end,
         width,
-        cell_size / 2,
+        cellSize / 2,
       );
       const bboxes = cells.map((c) => {
         return {
-          minX: c.x - cell_size / 2,
-          minY: c.y - cell_size / 2,
-          maxX: c.x + cell_size / 2,
-          maxY: c.y + cell_size / 2,
+          minX: c.x - cellSize / 2,
+          minY: c.y - cellSize / 2,
+          maxX: c.x + cellSize / 2,
+          maxY: c.y + cellSize / 2,
         };
       });
 
@@ -1115,44 +1108,5 @@ export class LineLabelSymbolizer implements LabelSymbolizer {
     }
 
     return labels;
-  }
-}
-
-export class PolygonLabelSymbolizer implements LabelSymbolizer {
-  symbolizer: LabelSymbolizer;
-
-  constructor(options: TextSymbolizerOptions) {
-    this.symbolizer = new TextSymbolizer(options);
-  }
-
-  public place(layout: Layout, geom: Point[][], feature: Feature) {
-    const fbbox = feature.bbox;
-    const area = (fbbox.maxY - fbbox.minY) * (fbbox.maxX - fbbox.minX); // TODO needs to be based on zoom level/overzooming
-    if (area < 20000) return undefined;
-
-    const placed = this.symbolizer.place(layout, [[new Point(0, 0)]], feature);
-    if (!placed || placed.length === 0) return undefined;
-    const first_label = placed[0];
-    const fb = first_label.bboxes[0];
-
-    const first_poly = geom[0];
-    const found = polylabel([first_poly.map((c) => [c.x, c.y])]);
-    const a = new Point(found[0], found[1]);
-
-    const bbox = {
-      minX: a.x - (fb.maxX - fb.minX) / 2,
-      minY: a.y - (fb.maxY - fb.minY) / 2,
-      maxX: a.x + (fb.maxX - fb.minX) / 2,
-      maxY: a.y + (fb.maxY - fb.minY) / 2,
-    };
-
-    const draw = (ctx: CanvasRenderingContext2D) => {
-      ctx.translate(
-        first_label.anchor.x - (fb.maxX - fb.minX) / 2,
-        first_label.anchor.y,
-      );
-      first_label.draw(ctx);
-    };
-    return [{ anchor: a, bboxes: [bbox], draw: draw }];
   }
 }

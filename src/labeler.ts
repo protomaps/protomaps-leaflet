@@ -1,5 +1,5 @@
 import Point from "@mapbox/point-geometry";
-import RBush from "rbush";
+import rBush from "rbush";
 import { Filter } from "./painter";
 import { DrawExtra, LabelSymbolizer } from "./symbolizer";
 import { Bbox, toIndex } from "./tilecache";
@@ -51,12 +51,12 @@ export interface LabelRule {
 }
 
 export const covering = (
-  display_zoom: number,
-  tile_width: number,
+  displayZoom: number,
+  tileWidth: number,
   bbox: Bbox,
 ) => {
   const res = 256;
-  const f = tile_width / res;
+  const f = tileWidth / res;
 
   const minx = Math.floor(bbox.minX / res);
   const miny = Math.floor(bbox.minY / res);
@@ -66,13 +66,13 @@ export const covering = (
 
   const retval = [];
   for (let x = minx; x <= maxx; x++) {
-    const wrapped_x = x % (1 << display_zoom);
+    const wrappedX = x % (1 << displayZoom);
     for (let y = miny; y <= maxy; y++) {
       retval.push({
-        display: toIndex({ z: display_zoom, x: wrapped_x, y: y }),
+        display: toIndex({ z: displayZoom, x: wrappedX, y: y }),
         key: toIndex({
-          z: display_zoom - leveldiff,
-          x: Math.floor(wrapped_x / f),
+          z: displayZoom - leveldiff,
+          x: Math.floor(wrappedX / f),
           y: Math.floor(y / f),
         }),
       });
@@ -82,13 +82,13 @@ export const covering = (
 };
 
 export class Index {
-  tree: RBush<TreeItem>;
+  tree: rBush<TreeItem>;
   current: Map<string, Set<IndexedLabel>>;
   dim: number;
   maxLabeledTiles: number;
 
   constructor(dim: number, maxLabeledTiles: number) {
-    this.tree = new RBush();
+    this.tree = new rBush();
     this.current = new Map();
     this.dim = dim;
     this.maxLabeledTiles = maxLabeledTiles;
@@ -156,13 +156,13 @@ export class Index {
     // this is depending on precondition: (anchor is contained within, or on boundary of, a label bbox)
     if (!label.deduplicationKey || !label.deduplicationDistance) return false;
     const dist = label.deduplicationDistance;
-    const test_bbox = {
+    const testBbox = {
       minX: label.anchor.x - dist,
       minY: label.anchor.y - dist,
       maxX: label.anchor.x + dist,
       maxY: label.anchor.y + dist,
     };
-    for (const collision of this.tree.search(test_bbox)) {
+    for (const collision of this.tree.search(testBbox)) {
       if (collision.indexedLabel.deduplicationKey === label.deduplicationKey) {
         if (collision.indexedLabel.anchor.dist(label.anchor) < dist) {
           return true;
@@ -216,71 +216,71 @@ export class Index {
     if (wrapsLeft || wrapsRight) {
       const shift = wrapsLeft ? this.dim : -this.dim;
 
-      const new_bboxes = [];
+      const newBboxes = [];
       for (const bbox of label.bboxes) {
-        new_bboxes.push({
+        newBboxes.push({
           minX: bbox.minX + shift,
           minY: bbox.minY,
           maxX: bbox.maxX + shift,
           maxY: bbox.maxY,
         });
       }
-      const duplicate_label = {
+      const duplicateLabel = {
         anchor: new Point(label.anchor.x + shift, label.anchor.y),
-        bboxes: new_bboxes,
+        bboxes: newBboxes,
         draw: label.draw,
         order: order,
         tileKey: tileKey,
       };
       const entry = this.current.get(tileKey);
-      if (entry) entry.add(duplicate_label);
-      for (const bbox of new_bboxes) {
+      if (entry) entry.add(duplicateLabel);
+      for (const bbox of newBboxes) {
         this.tree.insert({
           minX: bbox.minX,
           minY: bbox.minY,
           maxX: bbox.maxX,
           maxY: bbox.maxY,
-          indexedLabel: duplicate_label,
+          indexedLabel: duplicateLabel,
         });
       }
     }
   }
 
-  public pruneOrNoop(key_added: string) {
-    const added = key_added.split(":");
-    let max_key = undefined;
-    let max_dist = 0;
-    let keys_for_ds = 0;
+  public pruneOrNoop(keyAdded: string) {
+    const added = keyAdded.split(":");
+    let maxKey = undefined;
+    let maxDist = 0;
+    let keysForDs = 0;
 
-    for (const existing_key of this.current.keys()) {
-      const existing = existing_key.split(":");
+    for (const existingKey of this.current.keys()) {
+      const existing = existingKey.split(":");
       if (existing[3] === added[3]) {
-        keys_for_ds++;
+        keysForDs++;
         const dist = Math.sqrt(
           (+existing[0] - +added[0]) ** 2 + (+existing[1] - +added[1]) ** 2,
         );
-        if (dist > max_dist) {
-          max_dist = dist;
-          max_key = existing_key;
+        if (dist > maxDist) {
+          maxDist = dist;
+          maxKey = existingKey;
         }
       }
 
-      if (max_key && keys_for_ds > this.maxLabeledTiles) {
-        this.pruneKey(max_key);
+      if (maxKey && keysForDs > this.maxLabeledTiles) {
+        this.pruneKey(maxKey);
       }
     }
   }
 
   public pruneKey(keyToRemove: string): void {
-    const indexed_labels = this.current.get(keyToRemove);
-    if (!indexed_labels) return; // TODO: not that clean...
-    const entries_to_delete = [];
+    const indexedLabels = this.current.get(keyToRemove);
+    if (!indexedLabels) return; // TODO: not that clean...
+    const entriesToDelete = [];
     for (const entry of this.tree.all()) {
-      if (indexed_labels.has(entry.indexedLabel)) {
-        entries_to_delete.push(entry);
+      if (indexedLabels.has(entry.indexedLabel)) {
+        entriesToDelete.push(entry);
       }
     }
-    for (const entry of entries_to_delete) {
+    for (const entry of entriesToDelete) {
       this.tree.remove(entry);
     }
     this.current.delete(keyToRemove);
@@ -291,13 +291,13 @@ export class Index {
   // the duplicate label; but i am having a hard time
   // imagining where this will happen in practical usage
   public removeLabel(labelToRemove: IndexedLabel): void {
-    const entries_to_delete = [];
+    const entriesToDelete = [];
     for (const entry of this.tree.all()) {
       if (labelToRemove === entry.indexedLabel) {
-        entries_to_delete.push(entry);
+        entriesToDelete.push(entry);
       }
     }
-    for (const entry of entries_to_delete) {
+    for (const entry of entriesToDelete) {
       this.tree.remove(entry);
     }
     const c = this.current.get(labelToRemove.tileKey);
@@ -326,43 +326,42 @@ export class Labeler {
     this.callback = callback;
   }
 
-  private layout(prepared_tilemap: Map<string, PreparedTile[]>): number {
+  private layout(preparedTilemap: Map<string, PreparedTile[]>): number {
     const start = performance.now();
 
-    const keys_adding = new Set<string>();
+    const keysAdding = new Set<string>();
     // if it already exists... short circuit
-    for (const [k, prepared_tiles] of prepared_tilemap) {
-      for (const prepared_tile of prepared_tiles) {
-        const key = `${toIndex(prepared_tile.data_tile)}:${k}`;
+    for (const [k, preparedTiles] of preparedTilemap) {
+      for (const preparedTile of preparedTiles) {
+        const key = `${toIndex(preparedTile.dataTile)}:${k}`;
         if (!this.index.has(key)) {
           this.index.makeEntry(key);
-          keys_adding.add(key);
+          keysAdding.add(key);
         }
       }
     }
 
-    const tiles_invalidated = new Set<string>();
+    const tilesInvalidated = new Set<string>();
     for (const [order, rule] of this.labelRules.entries()) {
       if (rule.visible === false) continue;
       if (rule.minzoom && this.z < rule.minzoom) continue;
       if (rule.maxzoom && this.z > rule.maxzoom) continue;
 
       const dsName = rule.dataSource || "";
-      const prepared_tiles = prepared_tilemap.get(dsName);
-      if (!prepared_tiles) continue;
+      const preparedTiles = preparedTilemap.get(dsName);
+      if (!preparedTiles) continue;
 
-      for (const prepared_tile of prepared_tiles) {
-        const key = `${toIndex(prepared_tile.data_tile)}:${dsName}`;
-        if (!keys_adding.has(key)) continue;
+      for (const preparedTile of preparedTiles) {
+        const key = `${toIndex(preparedTile.dataTile)}:${dsName}`;
+        if (!keysAdding.has(key)) continue;
 
-        const layer = prepared_tile.data.get(rule.dataLayer);
+        const layer = preparedTile.data.get(rule.dataLayer);
         if (layer === undefined) continue;
 
         const feats = layer;
         if (rule.sort)
           feats.sort((a, b) => {
             if (rule.sort) {
-              // TODO ugly hack for type checking
               return rule.sort(a.props, b.props);
             }
             return 0;
@@ -373,20 +372,20 @@ export class Labeler {
           zoom: this.z,
           scratch: this.scratch,
           order: order,
-          overzoom: this.z - prepared_tile.data_tile.z,
+          overzoom: this.z - preparedTile.dataTile.z,
         };
         for (const feature of feats) {
           if (rule.filter && !rule.filter(this.z, feature)) continue;
           const transformed = transformGeom(
             feature.geom,
-            prepared_tile.scale,
-            prepared_tile.origin,
+            preparedTile.scale,
+            preparedTile.origin,
           );
           const labels = rule.symbolizer.place(layout, transformed, feature);
           if (!labels) continue;
 
           for (const label of labels) {
-            let label_added = false;
+            let labelAdded = false;
             if (
               label.deduplicationKey &&
               this.index.deduplicationCollides(label)
@@ -402,33 +401,33 @@ export class Labeler {
                   this.index.removeLabel(conflict);
                   for (const bbox of conflict.bboxes) {
                     this.findInvalidatedTiles(
-                      tiles_invalidated,
-                      prepared_tile.dim,
+                      tilesInvalidated,
+                      preparedTile.dim,
                       bbox,
                       key,
                     );
                   }
                 }
                 this.index.insert(label, order, key);
-                label_added = true;
+                labelAdded = true;
               }
               // label not added.
             } else {
               this.index.insert(label, order, key);
-              label_added = true;
+              labelAdded = true;
             }
 
-            if (label_added) {
+            if (labelAdded) {
               for (const bbox of label.bboxes) {
                 if (
-                  bbox.maxX > prepared_tile.origin.x + prepared_tile.dim ||
-                  bbox.minX < prepared_tile.origin.x ||
-                  bbox.minY < prepared_tile.origin.y ||
-                  bbox.maxY > prepared_tile.origin.y + prepared_tile.dim
+                  bbox.maxX > preparedTile.origin.x + preparedTile.dim ||
+                  bbox.minX < preparedTile.origin.x ||
+                  bbox.minY < preparedTile.origin.y ||
+                  bbox.maxY > preparedTile.origin.y + preparedTile.dim
                 ) {
                   this.findInvalidatedTiles(
-                    tiles_invalidated,
-                    prepared_tile.dim,
+                    tilesInvalidated,
+                    preparedTile.dim,
                     bbox,
                     key,
                   );
@@ -440,18 +439,18 @@ export class Labeler {
       }
     }
 
-    for (const key of keys_adding) {
+    for (const key of keysAdding) {
       this.index.pruneOrNoop(key);
     }
 
-    if (tiles_invalidated.size > 0 && this.callback) {
-      this.callback(tiles_invalidated);
+    if (tilesInvalidated.size > 0 && this.callback) {
+      this.callback(tilesInvalidated);
     }
     return performance.now() - start;
   }
 
   private findInvalidatedTiles(
-    tiles_invalidated: Set<string>,
+    tilesInvalidated: Set<string>,
     dim: number,
     bbox: Bbox,
     key: string,
@@ -459,24 +458,24 @@ export class Labeler {
     const touched = covering(this.z, dim, bbox);
     for (const s of touched) {
       if (s.key !== key && this.index.hasPrefix(s.key)) {
-        tiles_invalidated.add(s.display);
+        tilesInvalidated.add(s.display);
       }
     }
   }
 
-  public add(prepared_tilemap: Map<string, PreparedTile[]>): number {
-    let all_added = true;
-    for (const [k, prepared_tiles] of prepared_tilemap) {
-      for (const prepared_tile of prepared_tiles) {
-        if (!this.index.has(`${toIndex(prepared_tile.data_tile)}:${k}`))
-          all_added = false;
+  public add(preparedTilemap: Map<string, PreparedTile[]>): number {
+    let allAdded = true;
+    for (const [k, preparedTiles] of preparedTilemap) {
+      for (const preparedTile of preparedTiles) {
+        if (!this.index.has(`${toIndex(preparedTile.dataTile)}:${k}`))
+          allAdded = false;
       }
     }
 
-    if (all_added) {
+    if (allAdded) {
       return 0;
     }
-    const timing = this.layout(prepared_tilemap);
+    const timing = this.layout(preparedTilemap);
     return timing;
   }
 }
@@ -501,10 +500,10 @@ export class Labelers {
     this.callback = callback;
   }
 
-  public add(z: number, prepared_tilemap: Map<string, PreparedTile[]>): number {
+  public add(z: number, preparedTilemap: Map<string, PreparedTile[]>): number {
     let labeler = this.labelers.get(z);
     if (labeler) {
-      return labeler.add(prepared_tilemap);
+      return labeler.add(preparedTilemap);
     }
     labeler = new Labeler(
       z,
@@ -514,7 +513,7 @@ export class Labelers {
       this.callback,
     );
     this.labelers.set(z, labeler);
-    return labeler.add(prepared_tilemap);
+    return labeler.add(preparedTilemap);
   }
 
   public getIndex(z: number) {

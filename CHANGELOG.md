@@ -1,3 +1,15 @@
+# 2.0.0
+
+Major version 2.0 aggressively reduces the scope of this rendering library.
+
+This library re-focuses on being a Leaflet plugin for vector tile basemaps, i.e. "Mapnik in the browser"
+
+* **All user interaction features are removed.** Every mapping application with clickable features should use MapLibre GL JS.
+
+* **MapLibre JSON style compatibility is removed.** The surface area of the JSON style is too large to maintain for real-world use cases, and styles written for MapLibre perform poorly with this library.
+
+* **Programmatic shading and extra basemap styles are removed.** This library's default style aligns with the 5 MapLibre styles developed in protomaps/basemaps.
+
 # 1.24.2
 * Continue internal refactors in preparation of 2.0.0 major revision.
 
