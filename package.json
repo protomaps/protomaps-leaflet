@@ -19,7 +19,6 @@
     "@types/rbush": "^3.0.0",
     "esbuild": "^0.15.11",
     "esbuild-runner": "^2.2.0",
-    "prettier": "2.4.1",
     "tslib": "^2.3.0",
     "typescript": "^4.3.5"
   },
@@ -42,7 +41,7 @@
     "tsc": "tsc --noEmit --watch",
     "test": "node --test --test-reporter spec -r esbuild-runner/register test/*.test.ts",
     "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc",
-    "prettier": "npx prettier --write ."
+    "check": "biome check src test"
   },
   "repository": {
     "type": "git",
