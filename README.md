@@ -16,7 +16,7 @@ This project is a complete web map renderer - including quality label layout, pa
 
 * Render interactive slippy maps with [Leaflet](https://leafletjs.com) integration
 * Supports variable web fonts with multiple weights and italics in a single font file
-* Can read normal Z/X/Y tile URLs or offline, static-hosted tile archives in [PMTiles format](github.com/protomaps/PMTiles)
+* Can read normal Z/X/Y tile URLs or offline, static-hosted tile archives in [PMTiles format](https://github.com/protomaps/PMTiles)
 * Full out-of-the-box support for right-to-left and Indic/Brahmic writing systems
 * Configurable via plain JavaScript
 * Extensible API for defining your own symbolizers
