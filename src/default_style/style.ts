@@ -300,8 +300,84 @@ export const paintRules = (t: Theme): PaintRule[] => {
       dataLayer: "roads",
       symbolizer: new LineSymbolizer({
         color: t.major,
-        width: 0.5,
+        width: (z, f) => {
+          return exp(1.6, [
+            [14, 0],
+            [20, 7],
+          ])(z);
+        },
       }),
+      filter: (z, f) => {
+        const kind = getString(f.props, "pmap:kind");
+        return ["other", "path"].includes(kind);
+      },
+    },
+    {
+      dataLayer: "roads",
+      symbolizer: new LineSymbolizer({
+        color: t.major,
+        width: (z, f) => {
+          return exp(1.6, [
+            [13, 0],
+            [18, 8],
+          ])(z);
+        },
+      }),
+      filter: (z, f) => {
+        return f.props["pmap:kind"] === "minor_road";
+      },
+    },
+    {
+      dataLayer: "roads",
+      symbolizer: new LineSymbolizer({
+        color: t.major,
+        width: (z, f) => {
+          return exp(1.6, [
+            [7, 0],
+            [12, 1.2],
+            [15, 3],
+            [18, 13],
+          ])(z);
+        },
+      }),
+      filter: (z, f) => {
+        return f.props["pmap:kind"] === "medium_road";
+      },
+    },
+    {
+      dataLayer: "roads",
+      symbolizer: new LineSymbolizer({
+        color: t.major,
+        width: (z, f) => {
+          return exp(1.6, [
+            [6, 0],
+            [12, 1.6],
+            [15, 3],
+            [18, 13],
+          ])(z);
+        },
+      }),
+      filter: (z, f) => {
+        return f.props["pmap:kind"] === "major_road";
+      },
+    },
+    {
+      dataLayer: "roads",
+      symbolizer: new LineSymbolizer({
+        color: t.major,
+        width: (z, f) => {
+          return exp(1.6, [
+            [3, 0],
+            [6, 1.1],
+            [12, 1.6],
+            [15, 5],
+            [18, 15],
+          ])(z);
+        },
+      }),
+      filter: (z, f) => {
+        return f.props["pmap:kind"] === "highway";
+      },
     },
     {
       dataLayer: "boundaries",
