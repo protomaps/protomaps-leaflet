@@ -10,6 +10,25 @@ This library re-focuses on being a Leaflet plugin for vector tile basemaps, i.e.
 
 * **Programmatic shading and extra basemap styles are removed.** This library's default style aligns with the 5 MapLibre styles developed in protomaps/basemaps.
 
+* `levelDiff` is no longer configurable and defaults to 1 to match MapLibre GL.
+
+* consistent camelCase naming e.g. `paint_rules` -> `paintRules`
+
+* You must pass one of the default basemap themes `light, dark, white, black, grayscale`. remove `dark` and `shade` options.
+
+* Remove WebKit vertex count workaround.
+
+* remove `PolygonLabelSymbolizer` as it is not accurate for tiled rendering.
+
+* `maxDataZoom` defaults to 15.
+
+* Use Protomaps basemap tileset v3 instead of v2. 
+
+* remove `setDefaultStyle` method.
+
+* remove multi-language `language1`, `language2`: frontends take a single `language` parameter.
+
+
 # 1.24.2
 * Continue internal refactors in preparation of 2.0.0 major revision.
 
