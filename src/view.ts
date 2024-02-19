@@ -225,8 +225,8 @@ export interface SourceOptions {
 
 export const sourcesToViews = (options: SourceOptions) => {
   const sourceToViews = (o: SourceOptions): View => {
-    const levelDiff = o.levelDiff === undefined ? 2 : o.levelDiff;
-    const maxDataZoom = o.maxDataZoom || 14;
+    const levelDiff = o.levelDiff === undefined ? 1 : o.levelDiff;
+    const maxDataZoom = o.maxDataZoom || 15;
     let source: TileSource;
     if (typeof o.url === "string") {
       if (o.url.endsWith(".pmtiles")) {

@@ -3,6 +3,7 @@
     "indentStyle": "space"
   },
   "linter": {
+    "ignore": ["src/default_style/themes.ts"],
     "rules": {
       "style": {
         "useNamingConvention": {}

@@ -5,9 +5,8 @@ import Point from "@mapbox/point-geometry";
 
 import type { Coords } from "leaflet";
 import { PMTiles } from "pmtiles";
-import { dark } from "../default_style/dark";
-import { light } from "../default_style/light";
 import { labelRules, paintRules } from "../default_style/style";
+import themes from "../default_style/themes";
 import { LabelRule, Labelers } from "../labeler";
 import { PaintRule, paint } from "../painter";
 import { PreparedTile, SourceOptions, sourcesToViews } from "../view";
@@ -49,19 +48,16 @@ interface LeafletLayerOptions {
   debug?: string;
   lang?: string;
   tileDelay?: number;
-  backgroundColor?: string;
-  language1?: string[];
-  language2?: string[];
-  dark?: boolean;
+  language?: string[];
   noWrap?: boolean;
   paintRules?: PaintRule[];
   labelRules?: LabelRule[];
   tasks?: Promise<Status>[];
-
-  levelDiff?: number;
   maxDataZoom?: number;
   url?: PMTiles | string;
   sources?: Record<string, SourceOptions>;
+  theme?: string;
+  backgroundColor?: string;
 }
 
 const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
@@ -77,12 +73,17 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
           '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>';
       super(options);
 
-      const theme = options.dark ? dark : light;
-      this.paintRules = options.paintRules || paintRules(theme);
-      this.labelRules =
-        options.labelRules ||
-        labelRules(theme, options.language1, options.language2);
-      this.backgroundColor = options.backgroundColor;
+      if (options.theme) {
+        const theme = themes[options.theme];
+        this.paintRules = paintRules(theme);
+        this.labelRules = labelRules(theme);
+        this.backgroundColor = theme.background;
+      } else {
+        this.paintRules = options.paintRules || [];
+        this.labelRules = options.labelRules || [];
+        this.backgroundColor = options.backgroundColor;
+      }
+
       this.lastRequestedZ = undefined;
       this.tasks = options.tasks || [];
 
@@ -105,16 +106,6 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
       this.tileSize = 256 * window.devicePixelRatio;
       this.tileDelay = options.tileDelay || 3;
       this.lang = options.lang;
-    }
-
-    public setDefaultStyle(
-      darkOption: boolean,
-      language1: string[],
-      language2: string[],
-    ) {
-      const theme = darkOption ? dark : light;
-      this.paintRules = paintRules(theme);
-      this.labelRules = labelRules(theme, language1, language2);
     }
 
     public async renderTile(

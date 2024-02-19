@@ -2,7 +2,7 @@ import Point from "@mapbox/point-geometry";
 import rBush from "rbush";
 import { Filter } from "./painter";
 import { DrawExtra, LabelSymbolizer } from "./symbolizer";
-import { Bbox, toIndex } from "./tilecache";
+import { Bbox, JsonObject, toIndex } from "./tilecache";
 import { PreparedTile, transformGeom } from "./view";
 
 type TileInvalidationCallback = (tiles: Set<string>) => void;
@@ -47,7 +47,7 @@ export interface LabelRule {
   symbolizer: LabelSymbolizer;
   filter?: Filter;
   visible?: boolean;
-  sort?: (a: unknown, b: unknown) => number;
+  sort?: (a: JsonObject, b: JsonObject) => number;
 }
 
 export const covering = (

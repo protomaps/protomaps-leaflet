@@ -16,9 +16,6 @@ import { Sheet } from "./task";
 import { linebreak } from "./text";
 import { Bbox, Feature, GeomType } from "./tilecache";
 
-// https://bugs.webkit.org/show_bug.cgi?id=230751
-const MAX_VERTICES_PER_DRAW_CALL = 5400;
-
 export interface PaintSymbolizer {
   before?(ctx: CanvasRenderingContext2D, z: number): void;
   draw(
@@ -143,22 +140,15 @@ export class PolygonSymbolizer implements PaintSymbolizer {
       }
     };
 
-    let verticesInPath = 0;
     ctx.beginPath();
     for (const poly of geom) {
-      if (verticesInPath + poly.length > MAX_VERTICES_PER_DRAW_CALL) {
-        drawPath();
-        verticesInPath = 0;
-        ctx.beginPath();
-      }
       for (let p = 0; p < poly.length; p++) {
         const pt = poly[p];
         if (p === 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       }
-      verticesInPath += poly.length;
     }
-    if (verticesInPath > 0) drawPath();
+    drawPath();
   }
 }
 
@@ -336,22 +326,15 @@ export class LineSymbolizer implements PaintSymbolizer {
       }
     };
 
-    let verticesInPath = 0;
     ctx.beginPath();
     for (const ls of geom) {
-      if (verticesInPath + ls.length > MAX_VERTICES_PER_DRAW_CALL) {
-        strokePath();
-        verticesInPath = 0;
-        ctx.beginPath();
-      }
       for (let p = 0; p < ls.length; p++) {
         const pt = ls[p];
         if (p === 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       }
-      verticesInPath += ls.length;
     }
-    if (verticesInPath > 0) strokePath();
+    strokePath();
   }
 }
 

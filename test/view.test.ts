@@ -92,7 +92,7 @@ test("wrap", async () => {
 
 test("sources to views", async () => {
   let v = sourcesToViews({ url: "http://example.com/{z}/{x}/{y}.mvt" });
-  assert.equal(v.get("").levelDiff, 2);
+  assert.equal(v.get("").levelDiff, 1);
   v = sourcesToViews({
     sources: {
       source1: {
@@ -100,5 +100,5 @@ test("sources to views", async () => {
       },
     },
   });
-  assert.equal(v.get("source1").levelDiff, 2);
+  assert.equal(v.get("source1").levelDiff, 1);
 });

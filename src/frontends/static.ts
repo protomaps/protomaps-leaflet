@@ -1,9 +1,8 @@
 import Point from "@mapbox/point-geometry";
 
 import { PMTiles } from "pmtiles";
-import { dark } from "../default_style/dark";
-import { light } from "../default_style/light";
 import { labelRules, paintRules } from "../default_style/style";
+import themes from "../default_style/themes";
 import { LabelRule, Labeler } from "../labeler";
 import { PaintRule, paint } from "../painter";
 import { PreparedTile, SourceOptions, View, sourcesToViews } from "../view";
@@ -62,16 +61,14 @@ export const getZoom = (degreesLng: number, cssPixels: number): number => {
 interface StaticOptions {
   debug?: string;
   lang?: string;
-  levelDiff?: number;
   maxDataZoom?: number;
   url?: PMTiles | string;
   sources?: Record<string, SourceOptions>;
   paintRules?: PaintRule[];
-  dark?: boolean;
   labelRules?: LabelRule[];
-  language1?: string[];
-  language2?: string[];
+  language?: string[];
   backgroundColor?: string;
+  theme?: string;
 }
 
 export class Static {
@@ -82,12 +79,16 @@ export class Static {
   backgroundColor?: string;
 
   constructor(options: StaticOptions) {
-    const theme = options.dark ? dark : light;
-    this.paintRules = options.paintRules || paintRules(theme);
-    this.labelRules =
-      options.labelRules ||
-      labelRules(theme, options.language1, options.language2);
-    this.backgroundColor = options.backgroundColor;
+    if (options.theme) {
+      const theme = themes[options.theme];
+      this.paintRules = paintRules(theme);
+      this.labelRules = labelRules(theme);
+      this.backgroundColor = theme.background;
+    } else {
+      this.paintRules = options.paintRules || [];
+      this.labelRules = options.labelRules || [];
+      this.backgroundColor = options.backgroundColor;
+    }
 
     this.views = sourcesToViews(options);
     this.debug = options.debug || "";
