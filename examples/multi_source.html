@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps-leaflet@1.24.2/dist/protomaps-leaflet.min.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@2.0.1/dist/protomaps-leaflet.min.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
@@ -19,11 +19,11 @@
         <canvas id="map"></canvas>
         <script>
             let sources = {
-                '':{url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'},
-                'source2':{url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',maxDataZoom:10}
+                '':{url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f'},
+                'source2':{url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',maxDataZoom:10}
             }
 
-            let paint_rules = [
+            let paintRules = [
                 {
                     dataSource:"source2",
                     dataLayer:"landuse",
@@ -49,7 +49,7 @@
 
             let canvas = document.getElementById("map")
             var zoom = 13
-            let map = new protomapsL.Static({sources:sources,paint_rules:paint_rules})
+            let map = new protomapsL.Static({sources:sources,paintRules:paintRules})
             let center = {y:37.7658,x:-122.4221}
             map.drawCanvas(canvas,center,zoom)
         </script>
