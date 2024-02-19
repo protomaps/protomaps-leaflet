@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps-leaflet@1.24.2/dist/protomaps-leaflet.min.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@2.0.0/dist/protomaps-leaflet.min.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
@@ -39,7 +39,7 @@
             }
             L.geoJson(example_geojson).addTo(map)
 
-            let paint_rules = [
+            let paintRules = [
                 {
                     dataLayer: "buildings",
                     symbolizer: new protomapsL.PolygonSymbolizer({
@@ -54,10 +54,10 @@
                 }
 
             ]
-            let paint = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',paint_rules:paint_rules,label_rules:[]})
+            let paint = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',paintRules:paintRules,labelRules:[]})
             paint.addTo(map)
 
-            let label_rules = [
+            let labelRules = [
                 {
                     dataLayer: "places",
                     symbolizer: new protomapsL.CenteredTextSymbolizer({
@@ -71,7 +71,7 @@
 
             // https://leafletjs.com/examples/map-panes/
             map.createPane('labels');
-            let labels = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',paint_rules:[],label_rules:label_rules,pane:'labels'})
+            let labels = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',paintRules:[],labelRules:labelRules,pane:'labels'})
             labels.addTo(map)
         </script>
     </body>

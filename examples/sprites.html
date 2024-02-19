@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps-leaflet@1.24.2/dist/protomaps-leaflet.min.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@2.0.0/dist/protomaps-leaflet.min.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
@@ -20,7 +20,7 @@
             const map = L.map('map')
             let hash = new L.Hash(map)
             if (!window.location.hash) map.setView(new L.LatLng(25.0412,121.5177),16)
-            let url = 'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f'
+            let url = 'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f'
 
             const ICONS = `
             <html>
@@ -41,7 +41,7 @@
 
             let sheet = new protomapsL.Sheet(ICONS)
 
-            var layer = protomapsL.leafletLayer({url:url,tasks:[sheet.load()],label_rules:[
+            var layer = protomapsL.leafletLayer({url:url,tasks:[sheet.load()],labelRules:[
                     {
                         dataLayer:"pois",
                         symbolizer:new protomapsL.IconSymbolizer({

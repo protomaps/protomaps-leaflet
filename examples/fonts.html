@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps-leaflet@1.24.2/dist/protomaps-leaflet.min.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@2.0.0/dist/protomaps-leaflet.min.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
 
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Work+Sans:wght@100..900&family=Petrona:wght@100..900&family=Raleway:wght@100..900" rel="stylesheet">
@@ -61,7 +61,7 @@
             const map = L.map('map')
             hash = new L.Hash(map)
             if (!window.location.hash) map.setView(new L.LatLng(0,0),2)
-            let paint_rules = [
+            let paintRules = [
               {
                 dataLayer:"water",
                 symbolizer:new protomapsL.PolygonSymbolizer({fill:"#CDECFF"})
@@ -79,36 +79,28 @@
                     symbolizer:new protomapsL.CenteredTextSymbolizer({
                         label_props:["name:en"],
                         font: (z,f) => {
-                            if (f.props.place === 'city') return "100 24px " + font
-                            else if (f.props.place === 'state') return "400 28px " + font
+                            if (f.props.place === 'locality') return "100 24px " + font
+                            else if (f.props.place === 'region') return "400 28px " + font
                             else if (f.props.place === 'country') return "900 32px " + font
                             return "400 12px " + font
                         },
                         fill:"#19A974"
-                    })
-                  },
-                  {
-                    dataLayer:"water",
-                    symbolizer:new protomapsL.PolygonLabelSymbolizer({
-                        label_props:["name:en"],
-                        font:"900 20px " + font,
-                        fill:"#00449E"
                     })
                   }
                 ]
             }
 
             let layer = protomapsL.leafletLayer({
-                url:'https://api.protomaps.com/tiles/v2/{z}/{x}/{y}.pbf?key=1003762824b9687f',
-                paint_rules:paint_rules,
-                label_rules:labelRulesWithFont("sans-serif"),
+                url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',
+                paintRules:paintRules,
+                labelRules:labelRulesWithFont("sans-serif"),
                 tasks:[document.fonts.load("12px Work Sans"),document.fonts.load("12px Manrope"),document.fonts.load("12px Inter"),document.fonts.load("12px Petrona"),document.fonts.load("12px Raleway")]
             })
             layer.addTo(map) 
 
             document.getElementById("font").addEventListener('change', e => {
                 let font = e.target.value
-                layer.label_rules = labelRulesWithFont(font)
+                layer.labelRules = labelRulesWithFont(font)
                 layer.clearLayout()
                 layer.rerenderTiles()
             })

@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+        <script src="https://unpkg.com/leaflet.sync@0.2.4/L.Map.Sync.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" crossorigin="anonymous">
+        <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.20/leaflet-maplibre-gl.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@2.0.0/dist/protomaps-leaflet.min.js"></script>
+        <style>
+            #parent {
+                display:flex;
+            }
+            #leaflet, #map2 {
+                height:97vh;
+                width: 50%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="parent">
+            <div id="leaflet"></div> 
+            <div id="map2"></div> 
+        </div>
+        <script>
+            const theme = "light";
+            const map = L.map('leaflet');
+            let hash = new L.Hash(map)
+            if (!window.location.hash) map.setView(new L.LatLng(0,0),0)
+            var layer = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',theme:theme})
+            layer.addTo(map)
+
+            const map2 = L.map('map2')
+            fetch(`http://unpkg.com/protomaps-themes-base@2.0.0-alpha.4/dist/layers/${theme}.json`).then(r => r.json()).then(j => {
+                const style = {
+                    version:8,
+                    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+                    sources:{
+                        protomaps:{
+                            type:"vector",
+                            tiles:['https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f'],
+                            maxzoom: 15
+                        }
+                    },
+                    layers:j
+                };
+                var gl = L.maplibreGL({
+                    style: style 
+                }).addTo(map2);
+                map.sync(map2);
+            });
+        </script>
+    </body>
+</html>
