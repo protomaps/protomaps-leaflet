@@ -1,5 +1,4 @@
 import Point from "@mapbox/point-geometry";
-import UnitBezier from "@mapbox/unitbezier";
 import {
   ArrayAttr,
   AttrOption,
@@ -218,22 +217,6 @@ export function step(
 
 export function linear(stops: number[][]): (z: number) => number {
   return exp(1, stops);
-}
-
-export function cubicBezier(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  stops: number[][],
-): (z: number) => number {
-  return (z) => {
-    if (stops.length < 1) return 0;
-    const bezier = new UnitBezier(x1, y1, x2, y2);
-    const idx = getStopIndex(z, stops);
-    const factor = bezier.solve(computeInterpolationFactor(z, idx, 1, stops));
-    return interpolate(factor, stops[idx][1], stops[idx + 1][1]);
-  };
 }
 
 export class LineSymbolizer implements PaintSymbolizer {

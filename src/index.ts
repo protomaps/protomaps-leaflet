@@ -7,5 +7,3 @@ export * from "./painter";
 export * from "./tilecache";
 export * from "./view";
 export * from "./labeler";
-
-export { PMTiles } from "pmtiles";
