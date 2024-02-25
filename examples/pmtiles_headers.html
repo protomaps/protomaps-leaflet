@@ -4,7 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-        <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+        <script src="https://unpkg.com/pmtiles@3.0.3/dist/pmtiles.js"></script>
         <script src="https://unpkg.com/protomaps-leaflet@2.0.2/dist/protomaps-leaflet.min.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
@@ -18,9 +18,12 @@
         <div id="map"></div> 
         <script>
             const map = L.map('map')
-            let hash = new L.Hash(map)
-            if (!window.location.hash) map.setView(new L.LatLng(0,0),0)
-            var layer = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',theme:'light'})
+
+            const source = new pmtiles.FetchSource("https://data.source.coop/protomaps/openstreetmap/tiles/v3.pmtiles", {"x-custom-header":"value"});
+
+            const p = new pmtiles.PMTiles(source)
+            var layer = protomapsL.leafletLayer({url:p,theme:'black'})
+            map.setView(new L.LatLng(0,0),0)
             layer.addTo(map)
         </script>
     </body>

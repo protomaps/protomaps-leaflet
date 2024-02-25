@@ -1,6 +1,6 @@
 {
   "name": "protomaps-leaflet",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "files": [
     "dist",
     "src"
@@ -29,7 +29,7 @@
     "@types/css-font-loading-module": "^0.0.7",
     "color2k": "^2.0.3",
     "pbf": "^3.2.1",
-    "pmtiles": "2.7.0",
+    "pmtiles": "^3.0.3",
     "potpack": "^1.0.2",
     "rbush": "^3.0.1"
   },
