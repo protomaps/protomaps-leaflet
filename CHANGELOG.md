@@ -1,7 +1,9 @@
-# 2.0.2
+# 3.0.0
 
 * Unexport `PMTiles` because you shouldn't be depending on the one bundled in this library.
 * Bump `pmtiles` dependency to v3.x
+* package.json defaults to ES6.
+* remove CubicBezier function as no longer used.
 
 # 2.0.0
 
