@@ -6,8 +6,8 @@
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             #map {
-                width: 1024px;
-                height: 512px;
+                width: 600px;
+                height: 400px;
                 background-color:#eee;
                 display: block;
             }
@@ -21,8 +21,8 @@
        <button id="zoomout">-0.5</button>
        <script>
         let canvas = document.getElementById("map")
-        var zoom = 12
-        let map = new protomapsL.Static({url:"https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f",theme:"light"})
+        var zoom = 11
+        let map = new protomapsL.Static({url:"https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f",theme:"dark"})
         let center = {y:37.7658,x:-122.4221}
         map.drawCanvas(canvas,center,zoom)
         document.getElementById("zoom").innerHTML = zoom
