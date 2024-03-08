@@ -10,6 +10,7 @@ import themes from "../default_style/themes";
 import { LabelRule, Labelers } from "../labeler";
 import { PaintRule, paint } from "../painter";
 import { PreparedTile, SourceOptions, sourcesToViews } from "../view";
+import { PickedFeature } from "../tilecache";
 
 const timer = (duration: number) => {
   return new Promise<void>((resolve) => {
@@ -268,6 +269,22 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
           this.renderTile(wrappedCoord, this._tiles[unwrappedK].el, key);
         }
       }
+    }
+
+    // a primitive way to check the features at a certain point
+    public queryTileFeaturesDebug(
+      lng: number,
+      lat: number,
+      brushSize: number = 16
+    ): Map<string, PickedFeature[]> {
+      const featuresBySourceName = new Map<string, PickedFeature[]>();
+      for (const [sourceName, view] of this.views) {
+        featuresBySourceName.set(
+          sourceName,
+          view.queryFeatures(lng, lat, this._map.getZoom(), brushSize),
+        );
+      }
+      return featuresBySourceName;
     }
 
     public clearLayout() {

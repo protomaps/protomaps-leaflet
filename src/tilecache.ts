@@ -222,6 +222,104 @@ interface PromiseOptions {
   reject: (e: Error) => void;
 }
 
+export interface PickedFeature {
+  feature: Feature;
+  layerName: string;
+}
+
+const R = 6378137;
+const MAX_LATITUDE = 85.0511287798;
+const MAXCOORD = R * Math.PI;
+
+const project = (latlng: number[]) => {
+  const d = Math.PI / 180;
+  const constrainedLat = Math.max(
+    Math.min(MAX_LATITUDE, latlng[0]),
+    -MAX_LATITUDE,
+  );
+  const sin = Math.sin(constrainedLat * d);
+  return new Point(
+    R * latlng[1] * d,
+    (R * Math.log((1 + sin) / (1 - sin))) / 2,
+  );
+};
+
+function sqr(x: number) {
+  return x * x;
+}
+
+function dist2(v: Point, w: Point) {
+  return sqr(v.x - w.x) + sqr(v.y - w.y);
+}
+
+function distToSegmentSquared(p: Point, v: Point, w: Point) {
+  const l2 = dist2(v, w);
+  if (l2 === 0) return dist2(p, v);
+  let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+  t = Math.max(0, Math.min(1, t));
+  return dist2(p, new Point(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y)));
+}
+
+export function isInRing(point: Point, ring: Point[]): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i].x;
+    const yi = ring[i].y;
+    const xj = ring[j].x;
+    const yj = ring[j].y;
+    const intersect =
+      yi > point.y !== yj > point.y &&
+      point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+export function isCcw(ring: Point[]): boolean {
+  let area = 0;
+  for (let i = 0; i < ring.length; i++) {
+    const j = (i + 1) % ring.length;
+    area += ring[i].x * ring[j].y;
+    area -= ring[j].x * ring[i].y;
+  }
+  return area < 0;
+}
+
+export function pointInPolygon(point: Point, geom: Point[][]): boolean {
+  let isInCurrentExterior = false;
+  for (const ring of geom) {
+    if (isCcw(ring)) {
+      // it is an interior ring
+      if (isInRing(point, ring)) isInCurrentExterior = false;
+    } else {
+      // it is an exterior ring
+      if (isInCurrentExterior) return true;
+      if (isInRing(point, ring)) isInCurrentExterior = true;
+    }
+  }
+  return isInCurrentExterior;
+}
+
+export function pointMinDistToPoints(point: Point, geom: Point[][]): number {
+  let min = Infinity;
+  for (const l of geom) {
+    const dist = Math.sqrt(dist2(point, l[0]));
+    if (dist < min) min = dist;
+  }
+  return min;
+}
+
+export function pointMinDistToLines(point: Point, geom: Point[][]): number {
+  let min = Infinity;
+  for (const l of geom) {
+    for (let i = 0; i < l.length - 1; i++) {
+      const dist = Math.sqrt(distToSegmentSquared(point, l[i], l[i + 1]));
+      if (dist < min) min = dist;
+    }
+  }
+  return min;
+}
+
 export class TileCache {
   source: TileSource;
   cache: Map<string, CacheEntry>;
@@ -287,5 +385,50 @@ export class TileCache {
         }
       }
     });
+  }
+
+  public queryFeatures(
+    lng: number,
+    lat: number,
+    zoom: number,
+    brushSize: number,
+  ): PickedFeature[] {
+    const projected = project([lat, lng]);
+    const normalized = new Point(
+      (projected.x + MAXCOORD) / (MAXCOORD * 2),
+      1 - (projected.y + MAXCOORD) / (MAXCOORD * 2),
+    );
+    if (normalized.x > 1)
+      normalized.x = normalized.x - Math.floor(normalized.x);
+    const onZoom = normalized.mult(1 << zoom);
+    const tileX = Math.floor(onZoom.x);
+    const tileY = Math.floor(onZoom.y);
+    const idx = toIndex({ z: zoom, x: tileX, y: tileY });
+    const retval: PickedFeature[] = [];
+    const entry = this.cache.get(idx);
+    if (entry) {
+      const center = new Point(
+        (onZoom.x - tileX) * this.tileSize,
+        (onZoom.y - tileY) * this.tileSize,
+      );
+      for (const [layerName, layerArr] of entry.data.entries()) {
+        for (const feature of layerArr) {
+          if (feature.geomType === GeomType.Point) {
+            if (pointMinDistToPoints(center, feature.geom) < brushSize) {
+              retval.push({ feature, layerName: layerName });
+            }
+          } else if (feature.geomType === GeomType.Line) {
+            if (pointMinDistToLines(center, feature.geom) < brushSize) {
+              retval.push({ feature, layerName: layerName });
+            }
+          } else {
+            if (pointInPolygon(center, feature.geom)) {
+              retval.push({ feature, layerName: layerName });
+            }
+          }
+        }
+      }
+    }
+    return retval;
   }
 }

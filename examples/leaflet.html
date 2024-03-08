@@ -22,6 +22,11 @@
             if (!window.location.hash) map.setView(new L.LatLng(0,0),0)
             var layer = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',theme:'light'})
             layer.addTo(map)
+
+            map.on("click", (ev) => {
+                const wrapped = map.wrapLatLng(ev.latlng);
+                console.log(layer.queryTileFeaturesDebug(wrapped.lng, wrapped.lat));
+            })
         </script>
     </body>
 </html>
