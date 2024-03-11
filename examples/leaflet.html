@@ -25,6 +25,8 @@
 
             map.on("click", (ev) => {
                 const wrapped = map.wrapLatLng(ev.latlng);
+                // note: this method supports only basic use,
+                // see comments in source code
                 console.log(layer.queryTileFeaturesDebug(wrapped.lng, wrapped.lat));
             })
         </script>

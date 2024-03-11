@@ -271,7 +271,11 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
       }
     }
 
-    // a primitive way to check the features at a certain point
+    // a primitive way to check the features at a certain point.
+    // it does not support hover states, cursor changes, or changing the style of the selected feature,
+    // so is only appropriate for debuggging or very basic use cases.
+    // those features are outside of the scope of this library:
+    // for fully pickable, interactive features, use MapLibre GL JS instead.
     public queryTileFeaturesDebug(
       lng: number,
       lat: number,
