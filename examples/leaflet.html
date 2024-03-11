@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps-leaflet@3.0.1/dist/protomaps-leaflet.min.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@3.1.0/dist/protomaps-leaflet.min.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
@@ -22,6 +22,13 @@
             if (!window.location.hash) map.setView(new L.LatLng(0,0),0)
             var layer = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',theme:'light'})
             layer.addTo(map)
+
+            map.on("click", (ev) => {
+                const wrapped = map.wrapLatLng(ev.latlng);
+                // note: this method supports only basic use,
+                // see comments in source code
+                console.log(layer.queryTileFeaturesDebug(wrapped.lng, wrapped.lat));
+            })
         </script>
     </body>
 </html>
