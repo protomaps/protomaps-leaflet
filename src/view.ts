@@ -215,7 +215,12 @@ export class View {
     };
   }
 
-  public queryFeatures(lng: number, lat: number, displayZoom: number, brushSize: number) {
+  public queryFeatures(
+    lng: number,
+    lat: number,
+    displayZoom: number,
+    brushSize: number,
+  ) {
     const roundedZoom = Math.round(displayZoom);
     const dataZoom = Math.min(roundedZoom - this.levelDiff, this.maxDataLevel);
     const brushSizeAtZoom = brushSize / (1 << (roundedZoom - dataZoom));

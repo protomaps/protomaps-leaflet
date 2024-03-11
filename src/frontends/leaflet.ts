@@ -275,7 +275,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
     public queryTileFeaturesDebug(
       lng: number,
       lat: number,
-      brushSize: number = 16
+      brushSize = 16,
     ): Map<string, PickedFeature[]> {
       const featuresBySourceName = new Map<string, PickedFeature[]>();
       for (const [sourceName, view] of this.views) {
