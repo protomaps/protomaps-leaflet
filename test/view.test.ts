@@ -1,7 +1,7 @@
 import assert from "assert";
 import { test } from "node:test";
 import Point from "@mapbox/point-geometry";
-import { TileCache, PmtilesSource } from "../src/tilecache";
+import { PmtilesSource, TileCache } from "../src/tilecache";
 import { View, sourcesToViews, wrap } from "../src/view";
 import { StubSource } from "./test_helpers";
 
@@ -103,7 +103,7 @@ test("sources to views", async () => {
   assert.equal(v.get("source1").levelDiff, 1);
 });
 
-test ("sources to views with pmtiles parameters", async () => {
-  let v = sourcesToViews({ url: "http://example.com/foo.pmtiles?k=v" });
-  assert.ok(v.get("").tileCache.source instanceof PmtilesSource)
+test("sources to views with pmtiles parameters", async () => {
+  const v = sourcesToViews({ url: "http://example.com/foo.pmtiles?k=v" });
+  assert.ok(v.get("").tileCache.source instanceof PmtilesSource);
 });
