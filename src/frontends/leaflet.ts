@@ -74,16 +74,13 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
           '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>';
       super(options);
 
-      if (options.theme) {
-        const theme = themes[options.theme];
-        this.paintRules = paintRules(theme);
-        this.labelRules = labelRules(theme);
-        this.backgroundColor = theme.background;
-      } else {
-        this.paintRules = options.paintRules || [];
-        this.labelRules = options.labelRules || [];
-        this.backgroundColor = options.backgroundColor;
-      }
+      const theme = options.theme
+        ? themes[options.theme]
+        : themes.light;
+
+      this.paintRules = options.paintRules || paintRules(theme);
+      this.labelRules = options.labelRules || labelRules(theme);
+      this.backgroundColor = options.backgroundColor || theme.background;
 
       this.lastRequestedZ = undefined;
       this.tasks = options.tasks || [];
