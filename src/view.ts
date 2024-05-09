@@ -242,8 +242,7 @@ export const sourcesToViews = (options: SourceOptions) => {
     let source: TileSource;
     if (typeof o.url === "string") {
       if (
-        o.url.startsWith("http") &&
-        new URL(o.url).pathname.endsWith(".pmtiles")
+        new URL(o.url, "http://example.com").pathname.endsWith(".pmtiles")
       ) {
         source = new PmtilesSource(o.url, true);
       } else {
