@@ -241,10 +241,7 @@ export const sourcesToViews = (options: SourceOptions) => {
     const maxDataZoom = o.maxDataZoom || 15;
     let source: TileSource;
     if (typeof o.url === "string") {
-      if (
-        o.url.startsWith("http") &&
-        new URL(o.url).pathname.endsWith(".pmtiles")
-      ) {
+      if (new URL(o.url, "http://example.com").pathname.endsWith(".pmtiles")) {
         source = new PmtilesSource(o.url, true);
       } else {
         source = new ZxySource(o.url, true);

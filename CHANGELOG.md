@@ -1,3 +1,12 @@
+# 3.1.2
+* Fix pmtiles URL detection on relative paths [#152]
+
+# 3.1.1
+* Detect pmtiles URLs by using URL parsing, which handles query parameters [#147]
+
+# 3.1.0
+* add `queryTileFeaturesDebug` back in for basic interactions (You should use MapLibre if you want interactivity)
+
 # 3.0.0
 
 * Unexport `PMTiles` because you shouldn't be depending on the one bundled in this library.

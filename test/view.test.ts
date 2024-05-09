@@ -107,3 +107,8 @@ test("sources to views with pmtiles parameters", async () => {
   const v = sourcesToViews({ url: "http://example.com/foo.pmtiles?k=v" });
   assert.ok(v.get("").tileCache.source instanceof PmtilesSource);
 });
+
+test("sources to views local param", async () => {
+  const v = sourcesToViews({ url: "foo.pmtiles" });
+  assert.ok(v.get("").tileCache.source instanceof PmtilesSource);
+});
