@@ -2,8 +2,6 @@ import { defineConfig, type Options } from "tsup";
 
 const baseOptions: Options = {
   clean: true,
-  dts: true,
-  entry: ["src/index.ts"],
   minify: true,
   skipNodeModulesBundle: true,
   sourcemap: true,
@@ -17,18 +15,28 @@ const baseOptions: Options = {
 export default [
   defineConfig({
     ...baseOptions,
+    entry: ["src/index.ts"],
     outDir: "dist/cjs",
     format: "cjs",
+    dts: true
   }),
   defineConfig({
     ...baseOptions,
+    entry: ["src/index.ts"],
     outDir: "dist/esm",
     format: "esm",
+    dts: true
   }),
   defineConfig({
     ...baseOptions,
     outdir: "dist",
     format: "iife",
-    globalName: "protomapsL"
+    globalName: "protomapsL",
+    entry: {
+      'protomaps-leaflet': 'src/index.ts'
+    },
+    outExtension: () => {
+      return {js:".js"}
+    }
   })
 ];
