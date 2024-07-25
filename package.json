@@ -1,14 +1,27 @@
 {
   "name": "protomaps-leaflet",
-  "version": "3.1.2",
+  "version": "4.0.0-alpha.0",
   "files": [
     "dist",
     "src"
   ],
   "type": "module",
-  "exports": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "source": "./src/index.ts",
+  "main": "dist/cjs/index.cjs",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      }
+    }
+  },
   "devDependencies": {
     "@biomejs/biome": "^1.5.3",
     "@types/leaflet": "^1.9.8",
@@ -19,6 +32,7 @@
     "@types/rbush": "^3.0.0",
     "esbuild": "^0.15.11",
     "tslib": "^2.3.0",
+    "tsup": "^8.2.3",
     "tsx": "^4.7.1",
     "typescript": "^4.3.5"
   },
@@ -28,19 +42,14 @@
     "@types/css-font-loading-module": "^0.0.7",
     "color2k": "^2.0.3",
     "pbf": "^3.2.1",
-    "pmtiles": "^3.0.3",
+    "pmtiles": "^3.0.7",
     "potpack": "^1.0.2",
     "rbush": "^3.0.1"
   },
   "scripts": {
-    "dev": "esbuild src/index.ts --bundle --target=es6 --servedir=. --outfile=dist/protomaps-leaflet.js --global-name=protomapsL",
-    "build": "esbuild src/index.ts --bundle --target=es6 --outfile=dist/protomaps-leaflet.js --global-name=protomapsL",
-    "build-min": "esbuild src/index.ts --bundle --target=es6 --minify --outfile=dist/protomaps-leaflet.min.js --global-name=protomapsL",
-    "build-module": "esbuild src/index.ts --bundle --target=es6 --outfile=dist/index.js --format=esm",
-    "build-tsc": "tsc --declaration --outdir dist",
+    "build": "tsup",
     "tsc": "tsc --noEmit --watch",
     "test": "tsx --test --test-reporter spec test/*.test.ts",
-    "dist": "npm run build && npm run build-min && npm run build-module && npm run build-tsc",
     "check": "biome check src test"
   },
   "repository": {

@@ -1,3 +1,7 @@
+# 4.0.0
+* switch to tsup for generating esm/cjs/iife modules [#158, #161, #162]. This changes the script-includes from protomaps-leaflet.js to index.global.js.
+* remove use of default exports: theme.ts exports `theme`
+
 # 3.1.2
 * Fix pmtiles URL detection on relative paths [#152]
 
