@@ -6,7 +6,7 @@ import Point from "@mapbox/point-geometry";
 import type { Coords } from "leaflet";
 import { PMTiles } from "pmtiles";
 import { labelRules, paintRules } from "../default_style/style";
-import themes from "../default_style/themes";
+import { themes } from "../default_style/themes";
 import { LabelRule, Labelers } from "../labeler";
 import { PaintRule, paint } from "../painter";
 import { PreparedTile, SourceOptions, sourcesToViews } from "../view";

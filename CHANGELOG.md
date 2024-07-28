@@ -1,3 +1,10 @@
+# 4.0.0
+* switch to tsup for generating ESM, CJS and IIFE modules [#158, #161, #162].
+* should fix import issues related to typescript.
+* generate ESM and CJS builds unbundled. iife is still unbundled.
+* remove use of default exports: theme.ts exports `theme`
+* bump internal dependencies.
+
 # 3.1.2
 * Fix pmtiles URL detection on relative paths [#152]
 

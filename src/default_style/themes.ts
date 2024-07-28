@@ -538,12 +538,10 @@ export const BLACK: Theme = {
   country_label: "#707070",
 };
 
-const themes: Record<string, Theme> = {
+export const themes: Record<string, Theme> = {
   light: LIGHT,
   dark: DARK,
   white: WHITE,
   grayscale: GRAYSCALE,
   black: BLACK,
 };
-
-export default themes;

@@ -17,6 +17,6 @@ jobs:
         node-version: 18.x
     - run: python .github/check_examples.py
     - run: npm ci
-    - run: npm run build-tsc
+    - run: npm run build
     - run: npm test
     - run: npm run check

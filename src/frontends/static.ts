@@ -2,7 +2,7 @@ import Point from "@mapbox/point-geometry";
 
 import { PMTiles } from "pmtiles";
 import { labelRules, paintRules } from "../default_style/style";
-import themes from "../default_style/themes";
+import { themes } from "../default_style/themes";
 import { LabelRule, Labeler } from "../labeler";
 import { PaintRule, paint } from "../painter";
 import { PreparedTile, SourceOptions, View, sourcesToViews } from "../view";
