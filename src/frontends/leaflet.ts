@@ -112,7 +112,7 @@ export class LeafletLayer extends L.GridLayer {
     coords: Coords,
     element: KeyedHtmlCanvasElement,
     key: string,
-    done = () => {},
+    done = () => { },
   ) {
     this.lastRequestedZ = coords.z;
 
