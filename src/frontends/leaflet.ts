@@ -112,7 +112,7 @@ export class LeafletLayer extends L.GridLayer {
     coords: Coords,
     element: KeyedHtmlCanvasElement,
     key: string,
-    done = () => { },
+    done = () => {},
   ) {
     this.lastRequestedZ = coords.z;
 
@@ -261,9 +261,7 @@ export class LeafletLayer extends L.GridLayer {
 
   public rerenderTile(key: string) {
     for (const unwrappedK in this._tiles) {
-      const wrappedCoord = this._wrapCoords(
-        this._keyToTileCoords(unwrappedK),
-      );
+      const wrappedCoord = this._wrapCoords(this._keyToTileCoords(unwrappedK));
       if (key === this._tileCoordsToKey(wrappedCoord)) {
         this.renderTile(wrappedCoord, this._tiles[unwrappedK].el, key);
       }
@@ -301,9 +299,7 @@ export class LeafletLayer extends L.GridLayer {
 
   public rerenderTiles() {
     for (const unwrappedK in this._tiles) {
-      const wrappedCoord = this._wrapCoords(
-        this._keyToTileCoords(unwrappedK),
-      );
+      const wrappedCoord = this._wrapCoords(this._keyToTileCoords(unwrappedK));
       const key = this._tileCoordsToKey(wrappedCoord);
       this.renderTile(wrappedCoord, this._tiles[unwrappedK].el, key);
     }
