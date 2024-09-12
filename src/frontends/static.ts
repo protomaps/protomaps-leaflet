@@ -36,7 +36,7 @@ const instancedProject = (origin: Point, displayZoom: number) => {
       (projected.x + MAXCOORD) / (MAXCOORD * 2),
       1 - (projected.y + MAXCOORD) / (MAXCOORD * 2),
     );
-    return normalized.mult((1 << displayZoom) * 256).sub(origin);
+    return normalized.mult(2 ** displayZoom * 256).sub(origin);
   };
 };
 
@@ -44,7 +44,7 @@ const instancedUnproject = (origin: Point, displayZoom: number) => {
   return (point: Point) => {
     const normalized = new Point(point.x, point.y)
       .add(origin)
-      .div((1 << displayZoom) * 256);
+      .div(2 ** displayZoom * 256);
     const projected = new Point(
       normalized.x * (MAXCOORD * 2) - MAXCOORD,
       (1 - normalized.y) * (MAXCOORD * 2) - MAXCOORD,
