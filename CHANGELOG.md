@@ -1,3 +1,6 @@
+# 4.0.1
+* Fix left-shift numerical problem in static frontend projection via @saranrapjs [#171]
+
 # 4.0.0
 * switch to tsup for generating ESM, CJS and IIFE modules [#158, #161, #162].
 * should fix import issues related to typescript.

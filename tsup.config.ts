@@ -18,14 +18,14 @@ export default [
     entry: ["src/index.ts"],
     outDir: "dist/cjs",
     format: "cjs",
-    dts: true
+    dts: true,
   }),
   defineConfig({
     ...baseOptions,
     entry: ["src/index.ts"],
     outDir: "dist/esm",
     format: "esm",
-    dts: true
+    dts: true,
   }),
   defineConfig({
     ...baseOptions,
@@ -33,10 +33,10 @@ export default [
     format: "iife",
     globalName: "protomapsL",
     entry: {
-      'protomaps-leaflet': 'src/index.ts'
+      "protomaps-leaflet": "src/index.ts",
     },
     outExtension: () => {
-      return {js:".js"}
-    }
-  })
+      return { js: ".js" };
+    },
+  }),
 ];
