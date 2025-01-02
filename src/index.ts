@@ -3,7 +3,6 @@ export * from "./frontends/leaflet";
 export * from "./symbolizer";
 export * from "./task";
 export * from "./default_style/style";
-export * from "./default_style/themes";
 export * from "./painter";
 export * from "./tilecache";
 export * from "./view";
