@@ -1,3 +1,6 @@
+# 4.1.0
+* clarify types of `LeafletLayerOptions` and `leafletLayer` via @jwasilgeo [#179]
+
 # 4.0.1
 * Fix left-shift numerical problem in static frontend projection via @saranrapjs [#171]
 
