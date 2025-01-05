@@ -43,8 +43,8 @@ const reflect = (promise: Promise<Status>) => {
 type DoneCallback = (error?: Error, tile?: HTMLElement) => void;
 type KeyedHtmlCanvasElement = HTMLCanvasElement & { key: string };
 
-interface LeafletLayerOptions {
-  bounds?: number[][];
+export interface LeafletLayerOptions extends L.GridLayerOptions {
+  bounds?: L.LatLngBoundsExpression;
   attribution?: string;
   debug?: string;
   lang?: string;
@@ -61,8 +61,12 @@ interface LeafletLayerOptions {
   backgroundColor?: string;
 }
 
-const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
+const leafletLayer = (options: LeafletLayerOptions = {}) => {
   class LeafletLayer extends L.GridLayer {
+    public paintRules: PaintRule[];
+    public labelRules: LabelRule[];
+    public backgroundColor?: string;
+
     constructor(options: LeafletLayerOptions = {}) {
       if (options.noWrap && !options.bounds)
         options.bounds = [
@@ -273,7 +277,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}): unknown => {
 
     // a primitive way to check the features at a certain point.
     // it does not support hover states, cursor changes, or changing the style of the selected feature,
-    // so is only appropriate for debuggging or very basic use cases.
+    // so is only appropriate for debugging or very basic use cases.
     // those features are outside of the scope of this library:
     // for fully pickable, interactive features, use MapLibre GL JS instead.
     public queryTileFeaturesDebug(
