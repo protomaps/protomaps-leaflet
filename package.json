@@ -27,7 +27,7 @@
     "@types/leaflet": "^1.9.8",
     "@types/node": "^16.18.74",
     "@types/rbush": "^3.0.0",
-    "esbuild": "^0.15.11",
+    "esbuild": "^0.25.0",
     "tslib": "^2.3.0",
     "tsup": "^8.2.3",
     "tsx": "^4.7.1",
