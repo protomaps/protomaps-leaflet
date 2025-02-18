@@ -36,6 +36,7 @@
   "dependencies": {
     "@mapbox/point-geometry": "^1.1.0",
     "@mapbox/vector-tile": "^2.0.2",
+    "@protomaps/basemaps": "^5.0.0",
     "@types/css-font-loading-module": "^0.0.7",
     "color2k": "^2.0.3",
     "pbf": "^4.0.1",
