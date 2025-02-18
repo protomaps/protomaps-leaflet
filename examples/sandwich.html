@@ -54,7 +54,7 @@
                 }
 
             ]
-            let paint = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',paintRules:paintRules,labelRules:[]})
+            let paint = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f',paintRules:paintRules,labelRules:[]})
             paint.addTo(map)
 
             let labelRules = [
@@ -71,7 +71,7 @@
 
             // https://leafletjs.com/examples/map-panes/
             map.createPane('labels');
-            let labels = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',paintRules:[],labelRules:labelRules,pane:'labels'})
+            let labels = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f',paintRules:[],labelRules:labelRules,pane:'labels'})
             labels.addTo(map)
         </script>
     </body>

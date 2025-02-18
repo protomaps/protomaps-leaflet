@@ -31,7 +31,7 @@
             const map = L.map('leaflet');
             let hash = new L.Hash(map)
             if (!window.location.hash) map.setView(new L.LatLng(0,0),0)
-            var layer = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',theme:theme})
+            var layer = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f',theme:theme})
             layer.addTo(map)
 
             const map2 = L.map('map2')
@@ -42,7 +42,7 @@
                     sources:{
                         protomaps:{
                             type:"vector",
-                            tiles:['https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f'],
+                            tiles:['https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f'],
                             maxzoom: 15
                         }
                     },

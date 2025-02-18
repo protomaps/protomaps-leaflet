@@ -4,13 +4,13 @@ declare const L: any;
 import Point from "@mapbox/point-geometry";
 
 import type { Coords } from "leaflet";
+import { namedFlavor } from "@protomaps/basemaps";
 import { PMTiles } from "pmtiles";
 import { labelRules, paintRules } from "../default_style/style";
-import { themes } from "../default_style/themes";
 import { LabelRule, Labelers } from "../labeler";
 import { PaintRule, paint } from "../painter";
-import { PreparedTile, SourceOptions, sourcesToViews } from "../view";
 import { PickedFeature } from "../tilecache";
+import { PreparedTile, SourceOptions, sourcesToViews } from "../view";
 
 const timer = (duration: number) => {
   return new Promise<void>((resolve) => {
@@ -49,7 +49,6 @@ export interface LeafletLayerOptions extends L.GridLayerOptions {
   debug?: string;
   lang?: string;
   tileDelay?: number;
-  language?: string[];
   noWrap?: boolean;
   paintRules?: PaintRule[];
   labelRules?: LabelRule[];
@@ -57,7 +56,7 @@ export interface LeafletLayerOptions extends L.GridLayerOptions {
   maxDataZoom?: number;
   url?: PMTiles | string;
   sources?: Record<string, SourceOptions>;
-  theme?: string;
+  flavor?: string;
   backgroundColor?: string;
 }
 
@@ -78,11 +77,11 @@ const leafletLayer = (options: LeafletLayerOptions = {}) => {
           '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>';
       super(options);
 
-      if (options.theme) {
-        const theme = themes[options.theme];
-        this.paintRules = paintRules(theme);
-        this.labelRules = labelRules(theme);
-        this.backgroundColor = theme.background;
+      if (options.flavor) {
+        const flavor = namedFlavor(options.flavor);
+        this.paintRules = paintRules(flavor);
+        this.labelRules = labelRules(flavor, options.lang || "en");
+        this.backgroundColor = flavor.background;
       } else {
         this.paintRules = options.paintRules || [];
         this.labelRules = options.labelRules || [];

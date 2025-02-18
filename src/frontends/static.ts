@@ -1,8 +1,8 @@
 import Point from "@mapbox/point-geometry";
 
+import { namedFlavor } from "@protomaps/basemaps";
 import { PMTiles } from "pmtiles";
 import { labelRules, paintRules } from "../default_style/style";
-import { themes } from "../default_style/themes";
 import { LabelRule, Labeler } from "../labeler";
 import { PaintRule, paint } from "../painter";
 import { PreparedTile, SourceOptions, View, sourcesToViews } from "../view";
@@ -66,9 +66,8 @@ interface StaticOptions {
   sources?: Record<string, SourceOptions>;
   paintRules?: PaintRule[];
   labelRules?: LabelRule[];
-  language?: string[];
   backgroundColor?: string;
-  theme?: string;
+  flavor?: string;
 }
 
 export class Static {
@@ -79,11 +78,11 @@ export class Static {
   backgroundColor?: string;
 
   constructor(options: StaticOptions) {
-    if (options.theme) {
-      const theme = themes[options.theme];
-      this.paintRules = paintRules(theme);
-      this.labelRules = labelRules(theme);
-      this.backgroundColor = theme.background;
+    if (options.flavor) {
+      const flavor = namedFlavor(options.flavor);
+      this.paintRules = paintRules(flavor);
+      this.labelRules = labelRules(flavor, options.lang || "en");
+      this.backgroundColor = flavor.background;
     } else {
       this.paintRules = options.paintRules || [];
       this.labelRules = options.labelRules || [];
