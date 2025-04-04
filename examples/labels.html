@@ -33,8 +33,8 @@
                         width:2,
                         stroke:"black",
                         font:(z,f) => {
-                            if (f.props["pmap:kind"] === "country") return "600 16px sans-serif"
-                            else if (f.props["pmap:kind"] === "locality") return "400 14px sans-serif"
+                            if (f.props["kind"] === "country") return "600 16px sans-serif"
+                            else if (f.props["kind"] === "locality") return "400 14px sans-serif"
                             return "800 18px sans-serif"
                         }
                     })
