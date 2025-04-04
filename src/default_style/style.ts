@@ -562,7 +562,7 @@ export const labelRules = (t: Flavor, lang: string): LabelRule[] => {
       symbolizer: new CenteredTextSymbolizer({
         labelProps: (z, f) => {
           if (z < 6) {
-            return [`ref:${lang}`,"ref"];
+            return [`ref:${lang}`, "ref"];
           }
           return nametags;
         },
