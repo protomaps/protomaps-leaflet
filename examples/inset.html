@@ -23,7 +23,7 @@
             canvas.height = 600 * dpr
             let ctx = canvas.getContext('2d')
             ctx.scale(dpr,dpr)
-            let map = new protomapsL.Static({url:"https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f", theme: "light"})
+            let map = new protomapsL.Static({url:"https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f", flavor: "light"})
             let {project} = await map.drawContext(ctx,800,600,{y:22.1777,x:114.1635},10)
             let highlight = project({y:22.2777,x:114.1635})
             ctx.globalAlpha = 0.2

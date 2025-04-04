@@ -39,7 +39,7 @@ See the docs on [what protomaps-leaflet is, what protomaps-leaflet is not](https
 <script src="https://unpkg.com/protomaps-leaflet@4.0.1/dist/protomaps-leaflet.js"></script>
 <script>
     const map = L.map('map')
-    var layer = protomapsL.leafletLayer({url:'FILE.pmtiles OR ENDPOINT/{z}/{x}/{y}.mvt',theme:"light"})
+    var layer = protomapsL.leafletLayer({url:'FILE.pmtiles OR ENDPOINT/{z}/{x}/{y}.mvt',flavor:"light",lang:"en"})
     layer.addTo(map)
 </script>
 ```

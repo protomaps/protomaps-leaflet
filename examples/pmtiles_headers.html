@@ -22,7 +22,7 @@
             const source = new pmtiles.FetchSource("https://data.source.coop/protomaps/openstreetmap/v4.pmtiles", {"x-custom-header":"value"});
 
             const p = new pmtiles.PMTiles(source)
-            var layer = protomapsL.leafletLayer({url:p,theme:'black'})
+            var layer = protomapsL.leafletLayer({url:p,flavor:'black'})
             map.setView(new L.LatLng(0,0),0)
             layer.addTo(map)
         </script>
