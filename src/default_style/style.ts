@@ -1,3 +1,4 @@
+import { type Flavor } from "@protomaps/basemaps";
 import { mix } from "color2k";
 import { LabelRule } from "../labeler";
 import { PaintRule } from "../painter";
@@ -12,8 +13,7 @@ import {
   exp,
   linear,
 } from "../symbolizer";
-import { Feature, JsonObject } from "../tilecache";
-import { Theme } from "./themes";
+import { Feature, GeomType, JsonObject } from "../tilecache";
 
 const getString = (props: JsonObject, key: string): string => {
   const val = props[key];
@@ -27,7 +27,7 @@ const getNumber = (props: JsonObject, key: string): number => {
   return 0;
 };
 
-export const paintRules = (t: Theme): PaintRule[] => {
+export const paintRules = (t: Flavor): PaintRule[] => {
   return [
     {
       dataLayer: "earth",
@@ -35,6 +35,31 @@ export const paintRules = (t: Theme): PaintRule[] => {
         fill: t.earth,
       }),
     },
+    ...(t.landcover
+      ? [
+          {
+            dataLayer: "landcover",
+            symbolizer: new PolygonSymbolizer({
+              fill: (z, f) => {
+                const landcover = t.landcover;
+                if (!landcover || !f) return "";
+                const kind = getString(f.props, "kind");
+                if (kind === "grassland") return landcover.grassland;
+                if (kind === "barren") return landcover.barren;
+                if (kind === "urban_area") return landcover.urban_area;
+                if (kind === "farmland") return landcover.farmland;
+                if (kind === "glacier") return landcover.glacier;
+                if (kind === "scrub") return landcover.scrub;
+                return landcover.forest;
+              },
+              opacity: (z, f) => {
+                if (z === 8) return 0.5;
+                return 1;
+              },
+            }),
+          },
+        ]
+      : []),
     {
       dataLayer: "landuse",
       symbolizer: new PolygonSymbolizer({
@@ -43,19 +68,22 @@ export const paintRules = (t: Theme): PaintRule[] => {
         },
       }),
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
+        const kind = getString(f.props, "kind");
         return ["allotments", "village_green", "playground"].includes(kind);
       },
     },
     {
-      // landuse_urban_green
       dataLayer: "landuse",
       symbolizer: new PolygonSymbolizer({
         fill: t.park_b,
-        opacity: 0.7,
+        opacity: (z, f) => {
+          if (z < 8) return 0;
+          if (z === 8) return 0.5;
+          return 1;
+        },
       }),
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
+        const kind = getString(f.props, "kind");
         return [
           "national_park",
           "park",
@@ -73,7 +101,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         fill: t.hospital,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "hospital";
+        return f.props.kind === "hospital";
       },
     },
     {
@@ -82,7 +110,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         fill: t.industrial,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "industrial";
+        return f.props.kind === "industrial";
       },
     },
     {
@@ -91,7 +119,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         fill: t.school,
       }),
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
+        const kind = getString(f.props, "kind");
         return ["school", "university", "college"].includes(kind);
       },
     },
@@ -101,7 +129,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         fill: t.beach,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "beach";
+        return f.props.kind === "beach";
       },
     },
     {
@@ -110,7 +138,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         fill: t.zoo,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "zoo";
+        return f.props.kind === "zoo";
       },
     },
     {
@@ -119,60 +147,70 @@ export const paintRules = (t: Theme): PaintRule[] => {
         fill: t.zoo,
       }),
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
+        const kind = getString(f.props, "kind");
         return ["military", "naval_base", "airfield"].includes(kind);
       },
     },
     {
-      dataLayer: "natural",
+      dataLayer: "landuse",
       symbolizer: new PolygonSymbolizer({
         fill: (z, f) => {
           return mix(t.wood_a, t.wood_b, Math.min(Math.max(z / 12.0, 12), 0));
         },
+        opacity: (z, f) => {
+          if (z < 8) return 0;
+          if (z === 8) return 0.5;
+          return 1;
+        },
       }),
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
+        const kind = getString(f.props, "kind");
         return ["wood", "nature_reserve", "forest"].includes(kind);
       },
     },
     {
-      dataLayer: "natural",
+      dataLayer: "landuse",
       symbolizer: new PolygonSymbolizer({
         fill: (z, f) => {
           return mix(t.scrub_a, t.scrub_b, Math.min(Math.max(z / 12.0, 12), 0));
         },
       }),
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
+        const kind = getString(f.props, "kind");
         return ["scrub", "grassland", "grass"].includes(kind);
       },
     },
     {
-      dataLayer: "natural",
+      dataLayer: "landuse",
       symbolizer: new PolygonSymbolizer({
         fill: t.scrub_b,
       }),
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
+        const kind = getString(f.props, "kind");
         return ["scrub", "grassland", "grass"].includes(kind);
       },
     },
     {
-      dataLayer: "natural",
+      dataLayer: "landuse",
       symbolizer: new PolygonSymbolizer({
         fill: t.glacier,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "glacier";
+        return f.props.kind === "glacier";
       },
     },
     {
-      dataLayer: "natural",
+      dataLayer: "landuse",
       symbolizer: new PolygonSymbolizer({
         fill: t.sand,
+        opacity: (z, f) => {
+          if (z < 8) return 0;
+          if (z === 8) return 0.5;
+          return 1;
+        },
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "sand";
+        return f.props.kind === "sand";
       },
     },
     {
@@ -181,7 +219,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         fill: t.aerodrome,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "aerodrome";
+        return f.props.kind === "aerodrome";
       },
     },
     {
@@ -189,10 +227,12 @@ export const paintRules = (t: Theme): PaintRule[] => {
       symbolizer: new PolygonSymbolizer({
         fill: t.water,
       }),
+      filter: (z, f) => {
+        return f.geomType === GeomType.Polygon;
+      },
     },
     {
-      // transit_runway
-      dataLayer: "transit",
+      dataLayer: "roads",
       symbolizer: new LineSymbolizer({
         color: t.runway,
         width: (z, f) => {
@@ -204,12 +244,11 @@ export const paintRules = (t: Theme): PaintRule[] => {
         },
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind_detail"] === "runway";
+        return f.props.kind_detail === "runway";
       },
     },
     {
-      // transit_taxiway
-      dataLayer: "transit",
+      dataLayer: "roads",
       symbolizer: new LineSymbolizer({
         color: t.runway,
         width: (z, f) => {
@@ -221,12 +260,11 @@ export const paintRules = (t: Theme): PaintRule[] => {
         },
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind_detail"] === "taxiway";
+        return f.props.kind_detail === "taxiway";
       },
     },
     {
-      // transit_pier
-      dataLayer: "transit",
+      dataLayer: "roads",
       symbolizer: new LineSymbolizer({
         color: t.pier,
         width: (z, f) => {
@@ -238,12 +276,11 @@ export const paintRules = (t: Theme): PaintRule[] => {
         },
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "pier";
+        return f.props.kind === "path" && f.props.kind_detail === "pier";
       },
     },
     {
-      // physical_line_river
-      dataLayer: "physical_line",
+      dataLayer: "water",
       minzoom: 14,
       symbolizer: new LineSymbolizer({
         color: t.water,
@@ -256,19 +293,18 @@ export const paintRules = (t: Theme): PaintRule[] => {
         },
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "river";
+        return f.geomType === GeomType.Line && f.props.kind === "river";
       },
     },
     {
-      // physical_line_river
-      dataLayer: "physical_line",
+      dataLayer: "water",
       minzoom: 14,
       symbolizer: new LineSymbolizer({
         color: t.water,
         width: 0.5,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "stream";
+        return f.geomType === GeomType.Line && f.props.kind === "stream";
       },
     },
     {
@@ -277,7 +313,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         fill: t.pedestrian,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "pedestrian";
+        return f.props.kind === "pedestrian";
       },
     },
     {
@@ -286,7 +322,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         fill: t.pier,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "pier";
+        return f.props.kind === "pier";
       },
     },
     {
@@ -308,7 +344,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         },
       }),
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
+        const kind = getString(f.props, "kind");
         return ["other", "path"].includes(kind);
       },
     },
@@ -324,24 +360,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         },
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "minor_road";
-      },
-    },
-    {
-      dataLayer: "roads",
-      symbolizer: new LineSymbolizer({
-        color: t.major,
-        width: (z, f) => {
-          return exp(1.6, [
-            [7, 0],
-            [12, 1.2],
-            [15, 3],
-            [18, 13],
-          ])(z);
-        },
-      }),
-      filter: (z, f) => {
-        return f.props["pmap:kind"] === "medium_road";
+        return f.props.kind === "minor_road";
       },
     },
     {
@@ -358,7 +377,7 @@ export const paintRules = (t: Theme): PaintRule[] => {
         },
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "major_road";
+        return f.props.kind === "major_road";
       },
     },
     {
@@ -376,23 +395,22 @@ export const paintRules = (t: Theme): PaintRule[] => {
         },
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "highway";
+        return f.props.kind === "highway";
       },
     },
     {
       dataLayer: "boundaries",
       symbolizer: new LineSymbolizer({
-        dash: [3, 2],
         color: t.boundaries,
         width: 1,
       }),
       filter: (z, f) => {
-        const minAdminLevel = f.props["pmap:min_admin_level"];
+        const minAdminLevel = f.props.kind_detail;
         return typeof minAdminLevel === "number" && minAdminLevel <= 2;
       },
     },
     {
-      dataLayer: "transit",
+      dataLayer: "roads",
       symbolizer: new LineSymbolizer({
         dash: [0.3, 0.75],
         color: t.railway,
@@ -406,26 +424,25 @@ export const paintRules = (t: Theme): PaintRule[] => {
         opacity: 0.5,
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "rail";
+        return f.props.kind === "rail";
       },
     },
     {
       dataLayer: "boundaries",
       symbolizer: new LineSymbolizer({
-        dash: [3, 2],
         color: t.boundaries,
         width: 0.5,
       }),
       filter: (z, f) => {
-        const minAdminLevel = f.props["pmap:min_admin_level"];
+        const minAdminLevel = f.props.kind_detail;
         return typeof minAdminLevel === "number" && minAdminLevel > 2;
       },
     },
   ];
 };
 
-export const labelRules = (t: Theme): LabelRule[] => {
-  const nametags = ["name"];
+export const labelRules = (t: Flavor, lang: string): LabelRule[] => {
+  const nametags = [`name:${lang}`, "name"];
 
   return [
     // {
@@ -441,7 +458,7 @@ export const labelRules = (t: Theme): LabelRule[] => {
     //     params.neighbourhoodLabel,
     //   ),
     //   filter: (z, f) => {
-    //     return f.props["pmap:kind"] === "neighbourhood";
+    //     return f.props["kind"] === "neighbourhood";
     //   },
     // },
     {
@@ -456,7 +473,7 @@ export const labelRules = (t: Theme): LabelRule[] => {
       // TODO: sort by minzoom
       minzoom: 16,
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
+        const kind = getString(f.props, "kind");
         return ["minor_road", "other", "path"].includes(kind);
       },
     },
@@ -472,8 +489,8 @@ export const labelRules = (t: Theme): LabelRule[] => {
       // TODO: sort by minzoom
       minzoom: 12,
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
-        return ["highway", "major_road", "medium_road"].includes(kind);
+        const kind = getString(f.props, "kind");
+        return ["highway", "major_road"].includes(kind);
       },
     },
     {
@@ -488,12 +505,12 @@ export const labelRules = (t: Theme): LabelRule[] => {
       // TODO: sort by minzoom
       minzoom: 12,
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
-        return ["highway", "major_road", "medium_road"].includes(kind);
+        const kind = getString(f.props, "kind");
+        return ["highway", "major_road"].includes(kind);
       },
     },
     {
-      dataLayer: "physical_point",
+      dataLayer: "water",
       symbolizer: new CenteredTextSymbolizer({
         labelProps: nametags,
         fill: t.ocean_label,
@@ -509,12 +526,15 @@ export const labelRules = (t: Theme): LabelRule[] => {
         textTransform: "uppercase",
       }),
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
-        return ["ocean", "bay", "strait", "fjord"].includes(kind);
+        const kind = getString(f.props, "kind");
+        return (
+          f.geomType === GeomType.Point &&
+          ["ocean", "bay", "strait", "fjord"].includes(kind)
+        );
       },
     },
     {
-      dataLayer: "physical_point",
+      dataLayer: "water",
       symbolizer: new CenteredTextSymbolizer({
         labelProps: nametags,
         fill: t.ocean_label,
@@ -522,7 +542,7 @@ export const labelRules = (t: Theme): LabelRule[] => {
         letterSpacing: 1,
         font: (z, f) => {
           const size = linear([
-            [3, 0],
+            [3, 10],
             [6, 12],
             [10, 12],
           ])(z);
@@ -530,8 +550,11 @@ export const labelRules = (t: Theme): LabelRule[] => {
         },
       }),
       filter: (z, f) => {
-        const kind = getString(f.props, "pmap:kind");
-        return ["sea", "lake", "water"].includes(kind);
+        const kind = getString(f.props, "kind");
+        return (
+          f.geomType === GeomType.Point &&
+          ["sea", "lake", "water"].includes(kind)
+        );
       },
     },
     {
@@ -539,7 +562,7 @@ export const labelRules = (t: Theme): LabelRule[] => {
       symbolizer: new CenteredTextSymbolizer({
         labelProps: (z, f) => {
           if (z < 6) {
-            return ["name:short"];
+            return [`ref:${lang}`, "ref"];
           }
           return nametags;
         },
@@ -548,13 +571,12 @@ export const labelRules = (t: Theme): LabelRule[] => {
         width: 1,
         lineHeight: 1.5,
         font: (z: number, f?: Feature) => {
-          if (z < 6) return "400 16px sans-serif";
           return "400 12px sans-serif";
         },
         textTransform: "uppercase",
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "region";
+        return f.props.kind === "region";
       },
     },
     {
@@ -570,7 +592,7 @@ export const labelRules = (t: Theme): LabelRule[] => {
         textTransform: "uppercase",
       }),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "country";
+        return f.props.kind === "country";
       },
     },
     {
@@ -583,13 +605,13 @@ export const labelRules = (t: Theme): LabelRule[] => {
         lineHeight: 1.5,
         font: (z: number, f?: Feature) => {
           if (!f) return "400 12px sans-serif";
-          const minZoom = f.props["pmap:min_zoom"];
+          const minZoom = f.props.min_zoom;
           let weight = 400;
           if (minZoom && minZoom <= 5) {
             weight = 600;
           }
           let size = 12;
-          const popRank = f.props["pmap:population_rank"];
+          const popRank = f.props.population_rank;
           if (popRank && popRank > 9) {
             size = 16;
           }
@@ -597,12 +619,12 @@ export const labelRules = (t: Theme): LabelRule[] => {
         },
       }),
       sort: (a, b) => {
-        const aRank = getNumber(a, "pmap:population_rank");
-        const bRank = getNumber(b, "pmap:population_rank");
+        const aRank = getNumber(a, "min_zoom");
+        const bRank = getNumber(b, "min_zoom");
         return aRank - bRank;
       },
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "locality";
+        return f.props.kind === "locality";
       },
     },
     {
@@ -611,8 +633,8 @@ export const labelRules = (t: Theme): LabelRule[] => {
       symbolizer: new GroupSymbolizer([
         new CircleSymbolizer({
           radius: 2,
-          fill: t.city_circle,
-          stroke: t.city_circle_stroke,
+          fill: t.city_label,
+          stroke: t.city_label_halo,
           width: 1.5,
         }),
         new OffsetTextSymbolizer({
@@ -628,7 +650,7 @@ export const labelRules = (t: Theme): LabelRule[] => {
         }),
       ]),
       filter: (z, f) => {
-        return f.props["pmap:kind"] === "locality";
+        return f.props.kind === "locality";
       },
     },
   ];

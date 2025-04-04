@@ -2,7 +2,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="https://unpkg.com/protomaps-leaflet@4.1.1/dist/protomaps-leaflet.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@5.0.0/dist/protomaps-leaflet.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             #map {
@@ -22,7 +22,7 @@
        <script>
         let canvas = document.getElementById("map")
         var zoom = 11
-        let map = new protomapsL.Static({url:"https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f",theme:"dark"})
+        let map = new protomapsL.Static({url:"https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f",theme:"dark"})
         let center = {y:37.7658,x:-122.4221}
         map.drawCanvas(canvas,center,zoom)
         document.getElementById("zoom").innerHTML = zoom

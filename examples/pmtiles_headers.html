@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/pmtiles@3.0.3/dist/pmtiles.js"></script>
-        <script src="https://unpkg.com/protomaps-leaflet@4.1.1/dist/protomaps-leaflet.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@5.0.0/dist/protomaps-leaflet.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
@@ -19,7 +19,7 @@
         <script>
             const map = L.map('map')
 
-            const source = new pmtiles.FetchSource("https://data.source.coop/protomaps/openstreetmap/tiles/v3.pmtiles", {"x-custom-header":"value"});
+            const source = new pmtiles.FetchSource("https://data.source.coop/protomaps/openstreetmap/v4.pmtiles", {"x-custom-header":"value"});
 
             const p = new pmtiles.PMTiles(source)
             var layer = protomapsL.leafletLayer({url:p,theme:'black'})

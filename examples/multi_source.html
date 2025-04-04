@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
-        <script src="https://unpkg.com/protomaps-leaflet@4.1.1/dist/protomaps-leaflet.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@5.0.0/dist/protomaps-leaflet.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
@@ -19,8 +19,8 @@
         <canvas id="map"></canvas>
         <script>
             let sources = {
-                '':{url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f'},
-                'source2':{url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',maxDataZoom:10}
+                '':{url:'https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f'},
+                'source2':{url:'https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f',maxDataZoom:10}
             }
 
             let paintRules = [

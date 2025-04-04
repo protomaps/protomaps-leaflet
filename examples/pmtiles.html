@@ -4,7 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-        <script src="https://unpkg.com/protomaps-leaflet@4.1.1/dist/protomaps-leaflet.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@5.0.0/dist/protomaps-leaflet.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             body, #map {
@@ -17,7 +17,7 @@
         <div id="map"></div> 
         <script>
             const map = L.map('map')
-            var layer = protomapsL.leafletLayer({url:'https://data.source.coop/protomaps/openstreetmap/tiles/v3.pmtiles',theme:'black'})
+            var layer = protomapsL.leafletLayer({url:'https://data.source.coop/protomaps/openstreetmap/v4.pmtiles',theme:'black'})
             map.setView(new L.LatLng(0,0),0)
             layer.addTo(map)
         </script>

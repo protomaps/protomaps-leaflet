@@ -1,3 +1,13 @@
+# 5.0.0
+
+This is a breaking major version change.
+
+* Now only works with the protomaps basemap tileset v4.0 and above. [#177]
+* visualize the `landcover` layer in the light and dark flavors.
+* replace `theme` option with `flavor` in frontends.
+* Add a `lang` option to frontends to change the label language. [#157]
+* depend on the `@protomaps/basemaps` package for flavor definitions.
+
 # 4.1.0
 * clarify types of `LeafletLayerOptions` and `leafletLayer` via @jwasilgeo [#179]
 

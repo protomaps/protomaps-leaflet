@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" crossorigin="anonymous">
         <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.20/leaflet-maplibre-gl.js"></script>
-        <script src="https://unpkg.com/protomaps-leaflet@4.1.1/dist/protomaps-leaflet.js"></script>
+        <script src="https://unpkg.com/protomaps-leaflet@5.0.0/dist/protomaps-leaflet.js"></script>
         <!-- <script src="../dist/protomaps-leaflet.js"></script> -->
         <style>
             #parent {
@@ -31,7 +31,7 @@
             const map = L.map('leaflet');
             let hash = new L.Hash(map)
             if (!window.location.hash) map.setView(new L.LatLng(0,0),0)
-            var layer = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f',theme:theme})
+            var layer = protomapsL.leafletLayer({url:'https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f',theme:theme})
             layer.addTo(map)
 
             const map2 = L.map('map2')
@@ -42,7 +42,7 @@
                     sources:{
                         protomaps:{
                             type:"vector",
-                            tiles:['https://api.protomaps.com/tiles/v3/{z}/{x}/{y}.mvt?key=1003762824b9687f'],
+                            tiles:['https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=1003762824b9687f'],
                             maxzoom: 15
                         }
                     },
