@@ -1,5 +1,7 @@
-# 5.0.0
+# 5.0.1
+* Update pmtiles dependency by @ycouble [#194]
 
+# 5.0.0
 This is a breaking major version change.
 
 * Now only works with the protomaps basemap tileset v4.0 and above. [#177]
@@ -32,7 +34,6 @@ This is a breaking major version change.
 * add `queryTileFeaturesDebug` back in for basic interactions (You should use MapLibre if you want interactivity)
 
 # 3.0.0
-
 * Unexport `PMTiles` because you shouldn't be depending on the one bundled in this library.
 * Bump `pmtiles` dependency to v3.x
 * package.json defaults to ES6.
