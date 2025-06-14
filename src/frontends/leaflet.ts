@@ -58,6 +58,7 @@ export interface LeafletLayerOptions extends L.GridLayerOptions {
   sources?: Record<string, SourceOptions>;
   flavor?: string;
   backgroundColor?: string;
+  devicePixelRatio?: number;
 }
 
 const leafletLayer = (options: LeafletLayerOptions = {}) => {
@@ -65,6 +66,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}) => {
     public paintRules: PaintRule[];
     public labelRules: LabelRule[];
     public backgroundColor?: string;
+    public devicePixelRatio: number;
 
     constructor(options: LeafletLayerOptions = {}) {
       if (options.noWrap && !options.bounds)
@@ -88,6 +90,9 @@ const leafletLayer = (options: LeafletLayerOptions = {}) => {
         this.backgroundColor = options.backgroundColor;
       }
 
+      this.devicePixelRatio = options.devicePixelRatio ??
+        window.devicePixelRatio;
+
       this.lastRequestedZ = undefined;
       this.tasks = options.tasks || [];
 
@@ -107,7 +112,7 @@ const leafletLayer = (options: LeafletLayerOptions = {}) => {
         16,
         this.onTilesInvalidated,
       );
-      this.tileSize = 256 * window.devicePixelRatio;
+      this.tileSize = 256 * this.devicePixelRatio;
       this.tileDelay = options.tileDelay || 3;
       this.lang = options.lang;
     }
