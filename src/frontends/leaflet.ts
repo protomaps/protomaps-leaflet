@@ -90,8 +90,8 @@ const leafletLayer = (options: LeafletLayerOptions = {}) => {
         this.backgroundColor = options.backgroundColor;
       }
 
-      this.devicePixelRatio = options.devicePixelRatio ??
-        window.devicePixelRatio;
+      this.devicePixelRatio =
+        options.devicePixelRatio ?? window.devicePixelRatio;
 
       this.lastRequestedZ = undefined;
       this.tasks = options.tasks || [];
