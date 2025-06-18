@@ -1,6 +1,6 @@
 {
   "name": "protomaps-leaflet",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "files": [
     "dist",
     "src"

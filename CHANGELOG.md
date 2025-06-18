@@ -1,3 +1,6 @@
+# 5.1.0
+* add devicePixelRatio option to leaflet frontend by @chriscdn [#200]
+
 # 5.0.1
 * Update pmtiles dependency by @ycouble [#194]
 
