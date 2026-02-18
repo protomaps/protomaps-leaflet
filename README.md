@@ -1,5 +1,8 @@
 # protomaps-leaflet
 
+> ⚠️ **Maintenance Mode**
+> This library is now in maintenance mode. New features will not be added, and its use is recommended only for legacy Leaflet-based systems. For all other use cases, you should use [MapLibre GL JS](https://docs.protomaps.com/pmtiles/maplibre).
+
 Vector tile rendering and labeling for [Leaflet](https://github.com/Leaflet/Leaflet).
 
 [![npm](https://img.shields.io/npm/v/protomaps-leaflet)](https://www.npmjs.com/package/protomaps-leaflet)
