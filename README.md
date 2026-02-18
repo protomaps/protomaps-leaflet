@@ -47,6 +47,8 @@ See the docs on [what protomaps-leaflet is, what protomaps-leaflet is not](https
 </script>
 ```
 
+See [GUIDE.md](GUIDE.md) for how to visualize custom vector data.
+
 ## See Also
 * [Tangram](https://github.com/tangrams/tangram)
 * [KothicJS](https://github.com/kothic/kothic-js)
